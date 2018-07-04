@@ -1,9 +1,11 @@
 package org.apereo.cas.services;
 
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apereo.cas.couchdb.services.RegisteredServiceDocument;
 import org.apereo.cas.couchdb.services.RegisteredServiceRepository;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.ektorp.UpdateConflictException;
 
 import java.util.List;
@@ -16,11 +18,11 @@ import java.util.stream.Collectors;
  * @since 5.3.0
  */
 @Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class CouchDbServiceRegistry extends AbstractServiceRegistry {
 
-    private RegisteredServiceRepository dbClient;
-    private int conflictRetries;
+    private final RegisteredServiceRepository dbClient;
+    private final int conflictRetries;
 
     @Override
     public RegisteredService save(final RegisteredService registeredService) {
@@ -36,11 +38,11 @@ public class CouchDbServiceRegistry extends AbstractServiceRegistry {
     public boolean delete(final RegisteredService service) {
         LOGGER.debug("Deleting service [{}]", service.getName());
         UpdateConflictException exception = null;
-        boolean success = false;
-        for (int retries = 0; retries < conflictRetries; retries++) {
+        var success = false;
+        for (var retries = 0; retries < conflictRetries; retries++) {
             try {
                 exception = null;
-                final RegisteredServiceDocument serviceDocument = dbClient.get(service.getId());
+                final var serviceDocument = dbClient.get(service.getId());
                 dbClient.remove(serviceDocument);
                 success = true;
             } catch (final UpdateConflictException e) {
@@ -74,7 +76,7 @@ public class CouchDbServiceRegistry extends AbstractServiceRegistry {
 
     @Override
     public RegisteredService findServiceByExactServiceId(final String id) {
-        final RegisteredServiceDocument doc = dbClient.findByServiceId(id);
+        val doc = dbClient.findByServiceId(id);
         if (doc == null) {
             return null;
         }
@@ -82,8 +84,8 @@ public class CouchDbServiceRegistry extends AbstractServiceRegistry {
     }
 
     @Override
-    public RegisteredService findServiceByExactServiceName(final String name){
-        final RegisteredServiceDocument doc = dbClient.findByServiceName(name);
+    public RegisteredService findServiceByExactServiceName(final String name) {
+        val doc = dbClient.findByServiceName(name);
         if (doc == null) {
             return null;
         }

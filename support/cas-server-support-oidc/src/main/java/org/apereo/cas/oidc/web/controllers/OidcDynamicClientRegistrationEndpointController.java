@@ -85,7 +85,7 @@ public class OidcDynamicClientRegistrationEndpointController extends BaseOAuth20
                                                                                 final HttpServletRequest request,
                                                                                 final HttpServletResponse response) {
         try {
-            final OidcClientRegistrationRequest registrationRequest = this.clientRegistrationRequestSerializer.from(jsonInput);
+            final var registrationRequest = this.clientRegistrationRequestSerializer.from(jsonInput);
             LOGGER.debug("Received client registration request [{}]", registrationRequest);
 
             if (registrationRequest.getScopes().isEmpty()) {
@@ -95,7 +95,7 @@ public class OidcDynamicClientRegistrationEndpointController extends BaseOAuth20
                 throw new Exception("Registration request scopes do not contain " + OidcConstants.StandardScopes.OPENID.getScope());
             }
 
-            final OidcRegisteredService registeredService = new OidcRegisteredService();
+            final var registeredService = new OidcRegisteredService();
             registeredService.setName(registrationRequest.getClientName());
             
             registeredService.setSectorIdentifierUri(registrationRequest.getSectorIdentifierUri());
@@ -108,7 +108,7 @@ public class OidcDynamicClientRegistrationEndpointController extends BaseOAuth20
                 registeredService.setJwks(registrationRequest.getJwksUri());
                 registeredService.setSignIdToken(true);
             }
-            final String uri = registrationRequest.getRedirectUris().stream().findFirst().get();
+            final var uri = registrationRequest.getRedirectUris().stream().findFirst().get();
             registeredService.setServiceId(uri);
 
             registeredService.setClientId(clientIdGenerator.getNewString());
@@ -118,7 +118,7 @@ public class OidcDynamicClientRegistrationEndpointController extends BaseOAuth20
             final Set<String> supportedScopes = new HashSet<>(casProperties.getAuthn().getOidc().getScopes());
             supportedScopes.retainAll(registrationRequest.getScopes());
 
-            final OidcClientRegistrationResponse clientResponse = getClientRegistrationResponse(registrationRequest, registeredService);
+            final var clientResponse = getClientRegistrationResponse(registrationRequest, registeredService);
             registeredService.setScopes(supportedScopes);
             final Set<String> processedScopes = new LinkedHashSet<>(supportedScopes);
             registeredService.setScopes(processedScopes);
@@ -152,7 +152,7 @@ public class OidcDynamicClientRegistrationEndpointController extends BaseOAuth20
      */
     protected OidcClientRegistrationResponse getClientRegistrationResponse(final OidcClientRegistrationRequest registrationRequest,
                                                                            final OidcRegisteredService registeredService) {
-        final OidcClientRegistrationResponse clientResponse = new OidcClientRegistrationResponse();
+        final var clientResponse = new OidcClientRegistrationResponse();
         clientResponse.setApplicationType("web");
         clientResponse.setClientId(registeredService.getClientId());
         clientResponse.setClientSecret(registeredService.getClientSecret());

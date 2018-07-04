@@ -11,7 +11,6 @@ import org.apereo.cas.util.CollectionUtils;
 import org.apereo.cas.web.support.WebUtils;
 import org.springframework.webflow.execution.RequestContext;
 
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -39,7 +38,7 @@ public abstract class AbstractPrincipalAttributeAcceptableUsagePolicyRepository 
     @Override
     public Pair<Boolean, Principal> verify(final RequestContext requestContext, final Credential credential) {
         @NonNull
-        final Principal principal = WebUtils.getPrincipalFromRequestContext(requestContext, this.ticketRegistrySupport);
+        final var principal = WebUtils.getPrincipalFromRequestContext(requestContext, this.ticketRegistrySupport);
 
         if (isUsagePolicyAcceptedBy(principal)) {
             LOGGER.debug("Usage policy has been accepted by [{}]", principal.getId());
@@ -58,7 +57,7 @@ public abstract class AbstractPrincipalAttributeAcceptableUsagePolicyRepository 
      * @return true if accepted, false otherwise.
      */
     protected boolean isUsagePolicyAcceptedBy(final Principal principal) {
-        final Map<String, Object> attributes = principal.getAttributes();
+        final var attributes = principal.getAttributes();
         LOGGER.debug("Principal attributes found for [{}] are [{}]", principal.getId(), attributes);
 
         if (attributes != null && attributes.containsKey(this.aupAttributeName)) {

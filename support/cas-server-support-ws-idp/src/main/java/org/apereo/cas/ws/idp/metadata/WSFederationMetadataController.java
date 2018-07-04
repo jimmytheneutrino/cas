@@ -8,11 +8,9 @@ import org.apereo.cas.ws.idp.WSFederationConstants;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.w3c.dom.Document;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.PrintWriter;
 
 /**
  * This is {@link WSFederationMetadataController}.
@@ -39,10 +37,10 @@ public class WSFederationMetadataController {
     public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         try {
             response.setContentType(MediaType.TEXT_HTML_VALUE);
-            final PrintWriter out = response.getWriter();
-            final WSFederationMetadataWriter mw = new WSFederationMetadataWriter();
+            final var out = response.getWriter();
+            final var mw = new WSFederationMetadataWriter();
 
-            final Document metadata = mw.produceMetadataDocument(casProperties);
+            final var metadata = mw.produceMetadataDocument(casProperties);
             out.write(DOM2Writer.nodeToString(metadata));
         } catch (final Exception ex) {
             LOGGER.error("Failed to get metadata document", ex);

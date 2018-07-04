@@ -5,8 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apereo.cas.services.replication.NoOpRegisteredServiceReplicationStrategy;
 import org.apereo.cas.services.resource.DefaultRegisteredServiceResourceNamingStrategy;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.BeforeClass;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.ClassPathResource;
 
@@ -44,16 +44,16 @@ public class OidcRegisteredServiceTests {
 
     @Test
     public void checkSaveMethod() {
-        final OidcRegisteredService r = new OidcRegisteredService();
+        final var r = new OidcRegisteredService();
         r.setName("checkSaveMethod");
         r.setServiceId("testId");
-        r.setJwks("file:/etc/cas/thekeystorehere.jwks");
+        r.setJwks("file:/tmp/thekeystorehere.jwks");
         r.setSignIdToken(true);
         r.setBypassApprovalPrompt(true);
-        final RegisteredService r2 = this.dao.save(r);
+        final var r2 = this.dao.save(r);
         assertTrue(r2 instanceof OidcRegisteredService);
         this.dao.load();
-        final RegisteredService r3 = this.dao.findServiceById(r2.getId());
+        final var r3 = this.dao.findServiceById(r2.getId());
         assertTrue(r3 instanceof OidcRegisteredService);
         assertEquals(r, r2);
         assertEquals(r2, r3);
@@ -61,10 +61,10 @@ public class OidcRegisteredServiceTests {
 
     @Test
     public void verifySerializeAOidcRegisteredServiceToJson() throws IOException {
-        final OidcRegisteredService serviceWritten = new OidcRegisteredService();
+        final var serviceWritten = new OidcRegisteredService();
         serviceWritten.setName("verifySerializeAOidcRegisteredServiceToJson");
         serviceWritten.setServiceId("testId");
-        serviceWritten.setJwks("file:/etc/cas/thekeystorehere.jwks");
+        serviceWritten.setJwks("file:/tmp/thekeystorehere.jwks");
         serviceWritten.setSignIdToken(true);
         serviceWritten.setBypassApprovalPrompt(true);
         serviceWritten.setUsernameAttributeProvider(new PairwiseOidcRegisteredServiceUsernameAttributeProvider());

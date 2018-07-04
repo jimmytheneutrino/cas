@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apereo.cas.authentication.MessageDescriptor;
 import org.apereo.cas.authentication.support.password.PasswordPolicyConfiguration;
-import org.ldaptive.LdapAttribute;
 import org.ldaptive.auth.AccountState;
 import org.ldaptive.auth.AuthenticationResponse;
 import java.util.List;
@@ -39,8 +38,8 @@ public class OptionalWarningLdapAccountStateHandler extends DefaultLdapAccountSt
             LOGGER.debug("No warning attribute value to match is defined");
             return;
         }
-        final LdapAttribute attribute = response.getLdapEntry().getAttribute(this.warnAttributeName);
-        boolean matches = false;
+        final var attribute = response.getLdapEntry().getAttribute(this.warnAttributeName);
+        var matches = false;
         if (attribute != null) {
             LOGGER.debug("Found warning attribute [{}] with value [{}]", attribute.getName(), attribute.getStringValue());
             matches = this.warningAttributeValue.equals(attribute.getStringValue());

@@ -27,7 +27,7 @@ public class LdapEmbeddedConsentRepositoryTests extends BaseLdapConsentRepositor
     public LDAPConnection getConnection() {
         return LdapIntegrationTestsOperations.getLdapDirectory(LDAP_PORT).getConnection();
     }
-    
+
     @BeforeClass
     public static void bootstrap() throws Exception {
         LdapIntegrationTestsOperations.initDirectoryServer(LDAP_PORT);

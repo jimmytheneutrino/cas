@@ -8,8 +8,6 @@ import org.apereo.cas.authentication.RememberMeCredential;
 import org.apereo.cas.ticket.ExpirationPolicy;
 import org.apereo.cas.ticket.TicketState;
 
-import java.util.Map;
-
 /**
  * Delegates to different expiration policies depending on whether remember me
  * is true or not.
@@ -17,7 +15,7 @@ import java.util.Map;
  * @author Scott Battaglia
  * @since 3.2.1
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 @Slf4j
 public class RememberMeDelegatingExpirationPolicy extends BaseDelegatingExpirationPolicy {
 
@@ -50,8 +48,8 @@ public class RememberMeDelegatingExpirationPolicy extends BaseDelegatingExpirati
 
     @Override
     protected String getExpirationPolicyNameFor(final TicketState ticketState) {
-        final Map<String, Object> attrs = ticketState.getAuthentication().getAttributes();
-        final Boolean b = (Boolean) attrs.get(RememberMeCredential.AUTHENTICATION_ATTRIBUTE_REMEMBER_ME);
+        final var attrs = ticketState.getAuthentication().getAttributes();
+        final var b = (Boolean) attrs.get(RememberMeCredential.AUTHENTICATION_ATTRIBUTE_REMEMBER_ME);
 
         if (b == null || b.equals(Boolean.FALSE)) {
             LOGGER.debug("Ticket is not associated with a remember-me authentication.");

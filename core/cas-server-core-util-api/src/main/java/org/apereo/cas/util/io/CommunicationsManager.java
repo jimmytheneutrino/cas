@@ -8,7 +8,6 @@ import org.apereo.cas.util.CollectionUtils;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 
-import javax.mail.internet.MimeMessage;
 import java.util.Optional;
 
 /**
@@ -49,9 +48,9 @@ public class CommunicationsManager {
                          final String subject,
                          final String cc, final String bcc) {
         if (StringUtils.isNotBlank(attribute) && principal.getAttributes().containsKey(attribute) && isMailSenderDefined()) {
-            final Optional<Object> attributeValue = getFirstAttributeByName(principal, attribute);
-            if (attributeValue.isPresent()) {
-                return email(text, from, subject, attributeValue.get().toString(), cc, bcc);
+            final var to = getFirstAttributeByName(principal, attribute);
+            if (to.isPresent()) {
+                return email(text, from, subject, to.get().toString(), cc, bcc);
             }
         }
         return false;
@@ -92,8 +91,8 @@ public class CommunicationsManager {
                 return false;
             }
 
-            final MimeMessage message = this.mailSender.createMimeMessage();
-            final MimeMessageHelper helper = new MimeMessageHelper(message);
+            final var message = this.mailSender.createMimeMessage();
+            final var helper = new MimeMessageHelper(message);
             helper.setTo(to);
             helper.setText(text);
             helper.setSubject(subject);
@@ -128,9 +127,9 @@ public class CommunicationsManager {
                        final String attribute,
                        final String text, final String from) {
         if (StringUtils.isNotBlank(attribute) && principal.getAttributes().containsKey(attribute) && isSmsSenderDefined()) {
-            final Optional<Object> attributeValue = getFirstAttributeByName(principal, attribute);
-            if (attributeValue.isPresent()) {
-                return sms(from, attributeValue.get().toString(), text);
+            final var to = getFirstAttributeByName(principal, attribute);
+            if (to.isPresent()) {
+                return sms(from, to.get().toString(), text);
             }
         }
         return false;
@@ -153,7 +152,7 @@ public class CommunicationsManager {
     }
 
     private Optional<Object> getFirstAttributeByName(final Principal principal, final String attribute) {
-        final Object value = principal.getAttributes().get(attribute);
+        final var value = principal.getAttributes().get(attribute);
         return CollectionUtils.firstElement(value);
     }
 

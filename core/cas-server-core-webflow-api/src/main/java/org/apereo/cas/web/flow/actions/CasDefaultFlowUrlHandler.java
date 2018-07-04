@@ -47,11 +47,11 @@ public class CasDefaultFlowUrlHandler extends DefaultFlowUrlHandler {
 
     @Override
     public String createFlowExecutionUrl(final String flowId, final String flowExecutionKey, final HttpServletRequest request) {
-        final String encoding = getEncodingScheme(request);
+        final var encoding = getEncodingScheme(request);
 
 
-        final String executionKey = encodeSingleParameter(this.flowExecutionKeyParameter, flowExecutionKey, encoding);
-        final String flowUrl = request.getParameterMap().entrySet().stream()
+        final var executionKey = encodeSingleParameter(this.flowExecutionKeyParameter, flowExecutionKey, encoding);
+        final var flowUrl = request.getParameterMap().entrySet().stream()
             .flatMap(entry -> encodeMultiParameter(entry.getKey(), entry.getValue(), encoding))
             .collect(Collectors.joining(DELIMITER, request.getRequestURI() + '?', DELIMITER + executionKey));
         return flowUrl;

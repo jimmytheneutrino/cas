@@ -33,9 +33,9 @@ public class CloudDirectoryAuthenticationHandlerTests {
 
     @Test
     public void verifyAction() throws Exception {
-        final CloudDirectoryRepository repository = mock(CloudDirectoryRepository.class);
+        final var repository = mock(CloudDirectoryRepository.class);
         when(repository.getUser(anyString())).thenReturn(CollectionUtils.wrap("username", "casuser", "password", "Mellon"));
-        final CloudDirectoryAuthenticationHandler h = new CloudDirectoryAuthenticationHandler("", mock(ServicesManager.class),
+        final var h = new CloudDirectoryAuthenticationHandler("", mock(ServicesManager.class),
             PrincipalFactoryUtils.newPrincipalFactory(), repository, casProperties.getAuthn().getCloudDirectory());
         assertNotNull(h.authenticate(CoreAuthenticationTestUtils.getCredentialsWithDifferentUsernameAndPassword("casuser", "Mellon")));
     }

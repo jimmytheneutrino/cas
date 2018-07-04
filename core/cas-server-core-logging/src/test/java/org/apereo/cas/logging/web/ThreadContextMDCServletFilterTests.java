@@ -37,7 +37,7 @@ public class ThreadContextMDCServletFilterTests {
 
     @Test
     public void verifyFilter() {
-        final MockHttpServletRequest request = new MockHttpServletRequest();
+        final var request = new MockHttpServletRequest();
         request.setRequestURI("/cas/login");
         request.setRemoteAddr("1.2.3.4");
         request.setRemoteUser("casuser");
@@ -53,8 +53,8 @@ public class ThreadContextMDCServletFilterTests {
         request.setAttribute("a1", "v1");
         request.addHeader("h1", "v1");
 
-        final MockHttpServletResponse response = new MockHttpServletResponse();
-        final MockFilterChain filterChain = new MockFilterChain();
+        final var response = new MockHttpServletResponse();
+        final var filterChain = new MockFilterChain();
 
         try {
             filter.doFilter(request, response, filterChain);

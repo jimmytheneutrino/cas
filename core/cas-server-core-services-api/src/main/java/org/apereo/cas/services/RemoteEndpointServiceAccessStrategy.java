@@ -6,13 +6,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.HttpResponse;
 import org.apereo.cas.util.CollectionUtils;
 import org.apereo.cas.util.HttpUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.Map;
-import java.util.Set;
 
 /**
  * This is {@link RemoteEndpointServiceAccessStrategy} that reaches out
@@ -41,8 +39,8 @@ public class RemoteEndpointServiceAccessStrategy extends DefaultRegisteredServic
     public boolean doPrincipalAttributesAllowServiceAccess(final String principal, final Map<String, Object> principalAttributes) {
         try {
             if (super.doPrincipalAttributesAllowServiceAccess(principal, principalAttributes)) {
-                final HttpResponse response = HttpUtils.executeGet(this.endpointUrl, CollectionUtils.wrap("username", principal));
-                final Set<String> currentCodes = StringUtils.commaDelimitedListToSet(this.acceptableResponseCodes);
+                final var response = HttpUtils.executeGet(this.endpointUrl, CollectionUtils.wrap("username", principal));
+                final var currentCodes = StringUtils.commaDelimitedListToSet(this.acceptableResponseCodes);
                 return response != null && currentCodes.contains(String.valueOf(response.getStatusLine().getStatusCode()));
             }
         } catch (final Exception e) {

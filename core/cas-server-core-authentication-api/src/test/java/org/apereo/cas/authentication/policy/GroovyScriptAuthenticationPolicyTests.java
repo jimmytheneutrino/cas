@@ -35,38 +35,38 @@ public class GroovyScriptAuthenticationPolicyTests {
 
     @Test
     public void verifyActionInlinedScriptPasses() throws Exception {
-        final String script = "groovy {"
+        final var script = "groovy {"
             + " logger.info(principal.id)\n"
             + " return Optional.empty()\n"
-            + "}";
-        final GroovyScriptAuthenticationPolicy p = new GroovyScriptAuthenticationPolicy(resourceLoader, script);
+            + '}';
+        final var p = new GroovyScriptAuthenticationPolicy(resourceLoader, script);
         assertTrue(p.isSatisfiedBy(CoreAuthenticationTestUtils.getAuthentication()));
     }
 
     @Test
     public void verifyActionInlinedScriptFails() throws Exception {
-        final String script = "groovy {"
+        final var script = "groovy {"
             + " import org.apereo.cas.authentication.*\n"
             + " logger.info(principal.id)\n"
             + " return Optional.of(new AuthenticationException())\n"
-            + "}";
-        final GroovyScriptAuthenticationPolicy p = new GroovyScriptAuthenticationPolicy(resourceLoader, script);
+            + '}';
+        final var p = new GroovyScriptAuthenticationPolicy(resourceLoader, script);
         thrown.expect(GeneralSecurityException.class);
         p.isSatisfiedBy(CoreAuthenticationTestUtils.getAuthentication());
     }
 
     @Test
     public void verifyActionExternalScript() throws Exception {
-        final String script = "import org.apereo.cas.authentication.*\n"
+        final var script = "import org.apereo.cas.authentication.*\n"
             + "def run(Object[] args) {"
             + " def principal = args[0]\n"
             + " def logger = args[1]\n"
             + " return Optional.of(new AuthenticationException())\n"
-            + "}";
+            + '}';
 
-        final File scriptFile = new File(FileUtils.getTempDirectoryPath(), "script.groovy");
+        final var scriptFile = new File(FileUtils.getTempDirectoryPath(), "script.groovy");
         FileUtils.write(scriptFile, script, StandardCharsets.UTF_8);
-        final GroovyScriptAuthenticationPolicy p = new GroovyScriptAuthenticationPolicy(resourceLoader, "file:" + scriptFile.getCanonicalPath());
+        final var p = new GroovyScriptAuthenticationPolicy(resourceLoader, "file:" + scriptFile.getCanonicalPath());
         thrown.expect(GeneralSecurityException.class);
         p.isSatisfiedBy(CoreAuthenticationTestUtils.getAuthentication());
     }

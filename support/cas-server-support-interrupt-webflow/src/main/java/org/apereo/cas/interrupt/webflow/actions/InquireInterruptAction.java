@@ -2,12 +2,9 @@ package org.apereo.cas.interrupt.webflow.actions;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apereo.cas.authentication.Authentication;
 import org.apereo.cas.authentication.principal.Service;
 import org.apereo.cas.interrupt.InterruptInquirer;
-import org.apereo.cas.interrupt.InterruptResponse;
 import org.apereo.cas.interrupt.webflow.InterruptUtils;
-import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.web.support.WebUtils;
 import org.springframework.webflow.action.AbstractAction;
 import org.springframework.webflow.execution.Event;
@@ -26,11 +23,12 @@ public class InquireInterruptAction extends AbstractAction {
 
     @Override
     protected Event doExecute(final RequestContext requestContext) {
-        final Authentication authentication = WebUtils.getAuthentication(requestContext);
+        final var authentication = WebUtils.getAuthentication(requestContext);
         final Service service = WebUtils.getService(requestContext);
-        final RegisteredService registeredService = WebUtils.getRegisteredService(requestContext);
+        final var registeredService = WebUtils.getRegisteredService(requestContext);
+        final var credential = WebUtils.getCredential(requestContext);
 
-        final InterruptResponse response = this.interruptInquirer.inquire(authentication, registeredService, service);
+        final var response = this.interruptInquirer.inquire(authentication, registeredService, service, credential);
         if (response == null || !response.isInterrupt()) {
             return no();
         }

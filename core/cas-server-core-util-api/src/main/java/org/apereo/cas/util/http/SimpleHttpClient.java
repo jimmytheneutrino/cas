@@ -7,7 +7,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.protocol.HttpClientContext;
@@ -15,7 +14,6 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.FutureRequestExecutionService;
-import org.apache.http.impl.client.HttpRequestFutureTask;
 import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.DisposableBean;
 
@@ -65,15 +63,15 @@ public class SimpleHttpClient implements HttpClient, Serializable, DisposableBea
     @Override
     public boolean sendMessageToEndPoint(final HttpMessage message) {
         try {
-            final HttpPost request = new HttpPost(message.getUrl().toURI());
+            final var request = new HttpPost(message.getUrl().toURI());
             request.addHeader("Content-Type", message.getContentType());
 
-            final StringEntity entity = new StringEntity(message.getMessage(), ContentType.create(message.getContentType()));
+            final var entity = new StringEntity(message.getMessage(), ContentType.create(message.getContentType()));
             request.setEntity(entity);
 
             final ResponseHandler<Boolean> handler = response -> response.getStatusLine().getStatusCode() == HttpStatus.SC_OK;
             LOGGER.debug("Created HTTP post message payload [{}]", request);
-            final HttpRequestFutureTask<Boolean> task = this.requestExecutorService.execute(request, HttpClientContext.create(), handler);
+            final var task = this.requestExecutorService.execute(request, HttpClientContext.create(), handler);
             if (message.isAsynchronous()) {
                 return true;
             }
@@ -91,14 +89,14 @@ public class SimpleHttpClient implements HttpClient, Serializable, DisposableBea
     public HttpMessage sendMessageToEndPoint(final URL url) {
         HttpEntity entity = null;
 
-        try (CloseableHttpResponse response = this.wrappedHttpClient.execute(new HttpGet(url.toURI()))) {
-            final int responseCode = response.getStatusLine().getStatusCode();
+        try (var response = this.wrappedHttpClient.execute(new HttpGet(url.toURI()))) {
+            final var responseCode = response.getStatusLine().getStatusCode();
 
             for (final int acceptableCode : this.acceptableCodes) {
                 if (responseCode == acceptableCode) {
                     LOGGER.debug("Response code received from server matched [{}].", responseCode);
                     entity = response.getEntity();
-                    final HttpMessage msg = new HttpMessage(url, IOUtils.toString(entity.getContent(), StandardCharsets.UTF_8));
+                    final var msg = new HttpMessage(url, IOUtils.toString(entity.getContent(), StandardCharsets.UTF_8));
                     msg.setContentType(entity.getContentType().getValue());
                     msg.setResponseCode(responseCode);
                     return msg;
@@ -106,7 +104,7 @@ public class SimpleHttpClient implements HttpClient, Serializable, DisposableBea
             }
             LOGGER.warn("Response code [{}] from [{}] did not match any of the acceptable response codes.", responseCode, url);
             if (responseCode == HttpStatus.SC_INTERNAL_SERVER_ERROR) {
-                final String value = response.getStatusLine().getReasonPhrase();
+                final var value = response.getStatusLine().getReasonPhrase();
                 LOGGER.error("There was an error contacting the endpoint: [{}]; The error:\n[{}]", url.toExternalForm(), value);
             }
         } catch (final Exception e) {
@@ -120,7 +118,7 @@ public class SimpleHttpClient implements HttpClient, Serializable, DisposableBea
     @Override
     public boolean isValidEndPoint(final String url) {
         try {
-            final URL u = new URL(url);
+            final var u = new URL(url);
             return isValidEndPoint(u);
         } catch (final MalformedURLException e) {
             LOGGER.error("Unable to build URL", e);
@@ -132,10 +130,10 @@ public class SimpleHttpClient implements HttpClient, Serializable, DisposableBea
     public boolean isValidEndPoint(final URL url) {
         HttpEntity entity = null;
 
-        try (CloseableHttpResponse response = this.wrappedHttpClient.execute(new HttpGet(url.toURI()))) {
-            final int responseCode = response.getStatusLine().getStatusCode();
+        try (var response = this.wrappedHttpClient.execute(new HttpGet(url.toURI()))) {
+            final var responseCode = response.getStatusLine().getStatusCode();
 
-            final int idx = Collections.binarySearch(this.acceptableCodes, responseCode);
+            final var idx = Collections.binarySearch(this.acceptableCodes, responseCode);
             if (idx >= 0) {
                 LOGGER.debug("Response code from server matched [{}].", responseCode);
                 return true;
@@ -144,7 +142,7 @@ public class SimpleHttpClient implements HttpClient, Serializable, DisposableBea
             LOGGER.debug("Response code did not match any of the acceptable response codes. Code returned was [{}]", responseCode);
 
             if (responseCode == HttpStatus.SC_INTERNAL_SERVER_ERROR) {
-                final String value = response.getStatusLine().getReasonPhrase();
+                final var value = response.getStatusLine().getReasonPhrase();
                 LOGGER.error("There was an error contacting the endpoint: [{}]; The error was:\n[{}]", url.toExternalForm(), value);
             }
 

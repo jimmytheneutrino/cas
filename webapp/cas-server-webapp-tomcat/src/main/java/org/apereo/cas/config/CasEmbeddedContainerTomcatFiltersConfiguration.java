@@ -5,7 +5,6 @@ import org.apache.catalina.filters.CsrfPreventionFilter;
 import org.apache.catalina.filters.RemoteAddrFilter;
 import org.apereo.cas.CasEmbeddedContainerUtils;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.core.web.tomcat.CasEmbeddedApacheTomcatRemoteAddressProperties;
 import org.apereo.cas.util.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
@@ -36,7 +35,7 @@ public class CasEmbeddedContainerTomcatFiltersConfiguration {
     @RefreshScope
     @Bean
     public FilterRegistrationBean tomcatCsrfPreventionFilter() {
-        final FilterRegistrationBean bean = new FilterRegistrationBean();
+        final var bean = new FilterRegistrationBean();
         bean.setFilter(new CsrfPreventionFilter());
         bean.setUrlPatterns(CollectionUtils.wrap("/*"));
         bean.setName("tomcatCsrfPreventionFilter");
@@ -47,9 +46,9 @@ public class CasEmbeddedContainerTomcatFiltersConfiguration {
     @RefreshScope
     @Bean
     public FilterRegistrationBean tomcatRemoteAddressFilter() {
-        final FilterRegistrationBean bean = new FilterRegistrationBean();
-        final CasEmbeddedApacheTomcatRemoteAddressProperties addr = casProperties.getServer().getRemoteAddr();
-        final RemoteAddrFilter filter = new RemoteAddrFilter();
+        final var bean = new FilterRegistrationBean();
+        final var addr = casProperties.getServer().getTomcat().getRemoteAddr();
+        final var filter = new RemoteAddrFilter();
         filter.setAllow(addr.getAllowedClientIpAddressRegex());
         filter.setDeny(addr.getDeniedClientIpAddressRegex());
         filter.setDenyStatus(HttpStatus.UNAUTHORIZED.value());

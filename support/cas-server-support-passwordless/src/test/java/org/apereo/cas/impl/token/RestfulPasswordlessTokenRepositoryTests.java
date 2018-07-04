@@ -39,7 +39,6 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Optional;
 
 import static org.junit.Assert.*;
 
@@ -89,12 +88,12 @@ public class RestfulPasswordlessTokenRepositoryTests {
 
     @Test
     public void verifyFindToken() {
-        final String token = passwordlessTokenRepository.createToken("casuser");
-        final String data = passwordlessCipherExecutor.encode(token).toString();
-        try (MockWebServer webServer = new MockWebServer(9293,
+        final var token = passwordlessTokenRepository.createToken("casuser");
+        final var data = passwordlessCipherExecutor.encode(token).toString();
+        try (var webServer = new MockWebServer(9293,
             new ByteArrayResource(data.getBytes(StandardCharsets.UTF_8), "REST Output"), MediaType.APPLICATION_JSON_VALUE)) {
             webServer.start();
-            final Optional<String> foundToken = passwordlessTokenRepository.findToken("casuser");
+            final var foundToken = passwordlessTokenRepository.findToken("casuser");
             assertNotNull(foundToken);
             assertTrue(foundToken.isPresent());
         } catch (final Exception e) {
@@ -104,8 +103,8 @@ public class RestfulPasswordlessTokenRepositoryTests {
 
     @Test
     public void verifySaveToken() {
-        final String data = "THE_TOKEN";
-        try (MockWebServer webServer = new MockWebServer(9293,
+        final var data = "THE_TOKEN";
+        try (var webServer = new MockWebServer(9293,
             new ByteArrayResource(data.getBytes(StandardCharsets.UTF_8), "REST Output"), MediaType.APPLICATION_JSON_VALUE)) {
             webServer.start();
             passwordlessTokenRepository.saveToken("casuser", data);
@@ -116,7 +115,7 @@ public class RestfulPasswordlessTokenRepositoryTests {
 
     @Test
     public void verifyDeleteToken() {
-        try (MockWebServer webServer = new MockWebServer(9293,
+        try (var webServer = new MockWebServer(9293,
             new ByteArrayResource(StringUtils.EMPTY.getBytes(StandardCharsets.UTF_8), "REST Output"), MediaType.APPLICATION_JSON_VALUE)) {
             webServer.start();
             passwordlessTokenRepository.deleteToken("casuser", "123456");

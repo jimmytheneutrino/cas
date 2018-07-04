@@ -2,7 +2,6 @@ package org.apereo.cas.util.spring;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -37,8 +36,8 @@ public class ApplicationContextProvider implements ApplicationContextAware, Reso
      */
     public static <T> T registerBeanIntoApplicationContext(final ConfigurableApplicationContext applicationContext,
                                                            final Class<T> beanClazz, final String beanId) {
-        final ConfigurableListableBeanFactory beanFactory = applicationContext.getBeanFactory();
-        final T provider = beanFactory.createBean(beanClazz);
+        final var beanFactory = applicationContext.getBeanFactory();
+        final var provider = beanFactory.createBean(beanClazz);
         beanFactory.initializeBean(provider, beanId);
         beanFactory.autowireBean(provider);
         beanFactory.registerSingleton(beanId, provider);

@@ -13,8 +13,8 @@ import org.jose4j.jwk.HttpsJwks;
 import org.jose4j.jwk.JsonWebKey;
 import org.jose4j.jwk.JsonWebKeySet;
 import org.jose4j.jwk.RsaJsonWebKey;
+import org.springframework.beans.factory.DisposableBean;
 
-import javax.annotation.PreDestroy;
 import java.io.File;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
@@ -30,7 +30,7 @@ import java.util.function.Predicate;
  */
 @Slf4j
 @Setter
-public class JsonWebKeySetStringCipherExecutor extends BaseStringCipherExecutor implements AutoCloseable {
+public class JsonWebKeySetStringCipherExecutor extends BaseStringCipherExecutor implements AutoCloseable, DisposableBean {
     private final FileWatcherService keystorePatchWatcherService;
     private final Optional<String> keyIdToUse;
     private final Optional<HttpsJwks> httpsJkws;
@@ -53,10 +53,10 @@ public class JsonWebKeySetStringCipherExecutor extends BaseStringCipherExecutor 
     public JsonWebKeySetStringCipherExecutor(final File jwksKeystore, final Optional<String> keyId,
                                              final String httpsJwksEndpointUrl) {
 
-        final String json = FileUtils.readFileToString(jwksKeystore, StandardCharsets.UTF_8);
+        final var json = FileUtils.readFileToString(jwksKeystore, StandardCharsets.UTF_8);
         keystorePatchWatcherService = new FileWatcherService(jwksKeystore, file -> {
             try {
-                final String reloadedJson = FileUtils.readFileToString(jwksKeystore, StandardCharsets.UTF_8);
+                final var reloadedJson = FileUtils.readFileToString(jwksKeystore, StandardCharsets.UTF_8);
                 this.webKeySet = new JsonWebKeySet(reloadedJson);
             } catch (final Exception e) {
                 LOGGER.error(e.getMessage(), e);
@@ -75,12 +75,16 @@ public class JsonWebKeySetStringCipherExecutor extends BaseStringCipherExecutor 
     /**
      * Close.
      */
-    @PreDestroy
     @Override
     public void close() {
         if (this.keystorePatchWatcherService != null) {
             this.keystorePatchWatcherService.close();
         }
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        close();
     }
 
     @Override
@@ -98,11 +102,11 @@ public class JsonWebKeySetStringCipherExecutor extends BaseStringCipherExecutor 
     }
 
     private void configureSigningParametersForDecoding() {
-        final Optional<RsaJsonWebKey> result = findRsaJsonWebKeyByProvidedKeyId(webKeySet.getJsonWebKeys());
+        final var result = findRsaJsonWebKeyByProvidedKeyId(webKeySet.getJsonWebKeys());
         if (!result.isPresent()) {
             throw new IllegalArgumentException("Could not locate RSA JSON web key from keystore");
         }
-        final RsaJsonWebKey key = result.get();
+        final var key = result.get();
         if (key.getPublicKey() == null) {
             throw new IllegalArgumentException("Public key located from keystore for key id " + key.getKeyId() + " is undefined");
         }
@@ -114,13 +118,13 @@ public class JsonWebKeySetStringCipherExecutor extends BaseStringCipherExecutor 
             LOGGER.debug("No JWKS endpoint is defined. Configuration of encryption parameters and keys are skipped");
         } else {
             try {
-                final List<JsonWebKey> keys = this.httpsJkws.get().getJsonWebKeys();
-                final Optional<RsaJsonWebKey> encKeyResult = findRsaJsonWebKey(keys, Predicates.alwaysTrue());
+                final var keys = this.httpsJkws.get().getJsonWebKeys();
+                final var encKeyResult = findRsaJsonWebKey(keys, Predicates.alwaysTrue());
 
                 if (!encKeyResult.isPresent()) {
                     throw new IllegalArgumentException("Could not locate RSA JSON web key from endpoint");
                 }
-                final RsaJsonWebKey encKey = encKeyResult.get();
+                final var encKey = encKeyResult.get();
                 if (encKey.getPrivateKey() == null) {
                     throw new IllegalArgumentException("Private key located from endpoint for key id " + encKey.getKeyId() + " is undefined");
                 }
@@ -138,13 +142,13 @@ public class JsonWebKeySetStringCipherExecutor extends BaseStringCipherExecutor 
             LOGGER.debug("No JWKS endpoint is defined. Configuration of encryption parameters and keys are skipped");
         } else {
             try {
-                final List<JsonWebKey> keys = this.httpsJkws.get().getJsonWebKeys();
-                final Optional<RsaJsonWebKey> encKeyResult = findRsaJsonWebKey(keys, Predicates.alwaysTrue());
+                final var keys = this.httpsJkws.get().getJsonWebKeys();
+                final var encKeyResult = findRsaJsonWebKey(keys, Predicates.alwaysTrue());
 
                 if (!encKeyResult.isPresent()) {
                     throw new IllegalArgumentException("Could not locate RSA JSON web key from endpoint");
                 }
-                final RsaJsonWebKey encKey = encKeyResult.get();
+                final var encKey = encKeyResult.get();
                 if (encKey.getPublicKey() == null) {
                     throw new IllegalArgumentException("Public key located from endpoint for key id " + encKey.getKeyId() + " is undefined");
                 }
@@ -158,11 +162,11 @@ public class JsonWebKeySetStringCipherExecutor extends BaseStringCipherExecutor 
     }
 
     private void configureSigningParametersForEncoding() {
-        final Optional<RsaJsonWebKey> result = findRsaJsonWebKeyByProvidedKeyId(webKeySet.getJsonWebKeys());
+        final var result = findRsaJsonWebKeyByProvidedKeyId(webKeySet.getJsonWebKeys());
         if (!result.isPresent()) {
             throw new IllegalArgumentException("Could not locate RSA JSON web key from keystore");
         }
-        final RsaJsonWebKey key = result.get();
+        final var key = result.get();
         if (key.getPrivateKey() == null) {
             throw new IllegalArgumentException("Private key located from keystore for key id " + key.getKeyId() + " is undefined");
         }

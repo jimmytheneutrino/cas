@@ -7,8 +7,8 @@ import org.apereo.cas.ticket.TicketGrantingTicket;
 import org.apereo.cas.util.CollectionUtils;
 import org.apereo.cas.util.DefaultUniqueTicketIdGenerator;
 import org.apereo.cas.util.http.SimpleHttpClientFactoryBean;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -34,8 +34,8 @@ public class Cas20ProxyHandlerTests {
     }
 
     @Before
-    public void setUp() {
-        final SimpleHttpClientFactoryBean factory = new SimpleHttpClientFactoryBean();
+    public void initialize() {
+        final var factory = new SimpleHttpClientFactoryBean();
         factory.setConnectionTimeout(10000);
         factory.setReadTimeout(10000);
         this.handler = new Cas20ProxyHandler(factory.getObject(), new DefaultUniqueTicketIdGenerator());
@@ -56,7 +56,7 @@ public class Cas20ProxyHandlerTests {
 
     @Test
     public void verifyNonValidProxyTicket() throws Exception {
-        final SimpleHttpClientFactoryBean clientFactory = new SimpleHttpClientFactoryBean();
+        final var clientFactory = new SimpleHttpClientFactoryBean();
         clientFactory.setAcceptableCodes(CollectionUtils.wrapList(900));
 
         this.handler = new Cas20ProxyHandler(clientFactory.getObject(), new DefaultUniqueTicketIdGenerator());

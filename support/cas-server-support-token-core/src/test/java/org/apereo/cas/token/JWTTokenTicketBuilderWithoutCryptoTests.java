@@ -1,6 +1,5 @@
 package org.apereo.cas.token;
 
-import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
 import org.apereo.cas.authentication.CoreAuthenticationTestUtils;
 import org.junit.Test;
@@ -22,9 +21,9 @@ public class JWTTokenTicketBuilderWithoutCryptoTests extends BaseJWTTokenTicketB
 
     @Test
     public void verifyJwtForServiceTicketEncoding() throws Exception {
-        final String jwt = tokenTicketBuilder.build("ST-123456", CoreAuthenticationTestUtils.getService());
+        final var jwt = tokenTicketBuilder.build("ST-123456", CoreAuthenticationTestUtils.getService());
         assertNotNull(jwt);
-        final JWTClaimsSet claims = JWTParser.parse(jwt).getJWTClaimsSet();
+        final var claims = JWTParser.parse(jwt).getJWTClaimsSet();
         assertEquals("casuser", claims.getSubject());
     }
 }

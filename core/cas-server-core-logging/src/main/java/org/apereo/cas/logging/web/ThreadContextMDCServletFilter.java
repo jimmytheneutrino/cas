@@ -1,9 +1,8 @@
 package org.apereo.cas.logging.web;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apereo.cas.authentication.principal.Principal;
 import org.apereo.cas.ticket.registry.TicketRegistrySupport;
 import org.apereo.cas.web.support.CookieRetrievingCookieGenerator;
 import org.slf4j.MDC;
@@ -18,9 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Map;
 import java.util.TimeZone;
-import java.util.Enumeration;
 
 /**
  * This is {@link ThreadContextMDCServletFilter}.
@@ -29,7 +26,7 @@ import java.util.Enumeration;
  * @since 5.0.0
  */
 @Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ThreadContextMDCServletFilter implements Filter {
 
     private final TicketRegistrySupport ticketRegistrySupport;
@@ -48,7 +45,7 @@ public class ThreadContextMDCServletFilter implements Filter {
     public void doFilter(final ServletRequest servletRequest, final ServletResponse servletResponse,
                          final FilterChain filterChain) throws IOException, ServletException {
         try {
-            final HttpServletRequest request = (HttpServletRequest) servletRequest;
+            final var request = (HttpServletRequest) servletRequest;
 
             addContextAttribute("remoteAddress", request.getRemoteAddr());
             addContextAttribute("remoteUser", request.getRemoteUser());
@@ -69,21 +66,24 @@ public class ThreadContextMDCServletFilter implements Filter {
             addContextAttribute("scheme", request.getScheme());
             addContextAttribute("timezone", TimeZone.getDefault().getDisplayName());
 
-            final Map<String, String[]> params = request.getParameterMap();
-            params.keySet().forEach(k -> {
-                final String[] values = params.get(k);
-                addContextAttribute(k, Arrays.toString(values));
-            });
-            
+            final var params = request.getParameterMap();
+            params.keySet()
+                .stream()
+                .filter(k -> !k.equalsIgnoreCase("password"))
+                .forEach(k -> {
+                    final var values = params.get(k);
+                    addContextAttribute(k, Arrays.toString(values));
+                });
+
             Collections.list(request.getAttributeNames()).forEach(a -> addContextAttribute(a, request.getAttribute(a)));
-            final Enumeration<String> requestHeaderNames = request.getHeaderNames();
+            final var requestHeaderNames = request.getHeaderNames();
             if (requestHeaderNames != null) {
                 Collections.list(requestHeaderNames).forEach(h -> addContextAttribute(h, request.getHeader(h)));
             }
 
-            final String cookieValue = this.ticketGrantingTicketCookieGenerator.retrieveCookieValue(request);
+            final var cookieValue = this.ticketGrantingTicketCookieGenerator.retrieveCookieValue(request);
             if (StringUtils.isNotBlank(cookieValue)) {
-                final Principal p = this.ticketRegistrySupport.getAuthenticatedPrincipalFrom(cookieValue);
+                final var p = this.ticketRegistrySupport.getAuthenticatedPrincipalFrom(cookieValue);
                 if (p != null) {
                     addContextAttribute("principal", p.getId());
                 }
@@ -95,7 +95,7 @@ public class ThreadContextMDCServletFilter implements Filter {
     }
 
     private static void addContextAttribute(final String attributeName, final Object value) {
-        final String result = value != null ? value.toString() : null;
+        final var result = value != null ? value.toString() : null;
         if (StringUtils.isNotBlank(result)) {
             MDC.put(attributeName, result);
         }

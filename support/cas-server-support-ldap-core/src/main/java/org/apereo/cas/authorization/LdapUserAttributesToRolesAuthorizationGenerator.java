@@ -2,7 +2,6 @@ package org.apereo.cas.authorization;
 
 import lombok.extern.slf4j.Slf4j;
 import org.ldaptive.ConnectionFactory;
-import org.ldaptive.LdapAttribute;
 import org.ldaptive.LdapEntry;
 import org.ldaptive.SearchExecutor;
 import org.pac4j.core.authorization.generator.AuthorizationGenerator;
@@ -51,7 +50,7 @@ public class LdapUserAttributesToRolesAuthorizationGenerator extends BaseUseAttr
     @Override
     protected CommonProfile generateAuthorizationForLdapEntry(final CommonProfile profile, final LdapEntry userEntry) {
         if (!userEntry.getAttributes().isEmpty()) {
-            final LdapAttribute attribute = userEntry.getAttribute(this.roleAttribute);
+            final var attribute = userEntry.getAttribute(this.roleAttribute);
             if (attribute != null) {
                 addProfileRoles(userEntry, profile, attribute, this.rolePrefix);
             } else {

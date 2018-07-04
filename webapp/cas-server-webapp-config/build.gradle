@@ -1,6 +1,6 @@
 description = "Apereo CAS Web Application Configuration"
 dependencies {
-    implementation libraries.groovy
+
     implementation libraries.pac4j
     implementation libraries.metrics
     implementation libraries.cassecurityfilter
@@ -13,6 +13,7 @@ dependencies {
     implementation project(":core:cas-server-core-util-api")
     implementation project(":core:cas-server-core-authentication-api")
     implementation project(":support:cas-server-support-actions")
+    implementation project(":support:cas-server-support-ldap-core")
     implementation project(":support:cas-server-support-pac4j-core")
 
     testImplementation libraries.thymeleaf
@@ -45,4 +46,8 @@ dependencies {
     testImplementation project(path: ":core:cas-server-core-util-api", configuration: "tests")
 
     compileOnly libraries.bouncycastle
+
+    implementation libraries.springsecurity
+    implementation libraries.springsecurityweb
+    implementation libraries.springsecurityconfig
 }

@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apereo.cas.CentralAuthenticationService;
 import org.apereo.cas.authentication.AuthenticationServiceSelectionPlan;
 import org.apereo.cas.authentication.AuthenticationSystemSupport;
-import org.apereo.cas.authentication.principal.Service;
 import org.apereo.cas.services.MultifactorAuthenticationProvider;
 import org.apereo.cas.services.MultifactorAuthenticationProviderResolver;
 import org.apereo.cas.services.MultifactorAuthenticationProviderSelector;
@@ -50,14 +49,14 @@ public abstract class BaseMultifactorAuthenticationProviderEventResolver extends
     @Override
     public Optional<MultifactorAuthenticationProvider> resolveProvider(final Map<String, MultifactorAuthenticationProvider> providers,
                                                                        final Collection<String> requestMfaMethod) {
-        final Optional<MultifactorAuthenticationProvider> providerFound = providers.values()
+        final var providerFound = providers.values()
                 .stream()           
                 .filter(p -> requestMfaMethod.stream().filter(Objects::nonNull).anyMatch(p::matches))
                 .findFirst();
         if (providerFound.isPresent()) {
-            final MultifactorAuthenticationProvider provider = providerFound.get();
+            final var provider = providerFound.get();
             if (provider instanceof VariegatedMultifactorAuthenticationProvider) {
-                final VariegatedMultifactorAuthenticationProvider multi = VariegatedMultifactorAuthenticationProvider.class.cast(provider);
+                final var multi = VariegatedMultifactorAuthenticationProvider.class.cast(provider);
                 return multi.getProviders()
                         .stream()
                         .filter(p -> requestMfaMethod.stream().anyMatch(p::matches))
@@ -102,9 +101,9 @@ public abstract class BaseMultifactorAuthenticationProviderEventResolver extends
      * @return the registered service
      */
     protected RegisteredService resolveRegisteredServiceInRequestContext(final RequestContext requestContext) {
-        final Service resolvedService = resolveServiceFromAuthenticationRequest(requestContext);
+        final var resolvedService = resolveServiceFromAuthenticationRequest(requestContext);
         if (resolvedService != null) {
-            final RegisteredService service = this.servicesManager.findServiceBy(resolvedService);
+            final var service = this.servicesManager.findServiceBy(resolvedService);
             RegisteredServiceAccessStrategyUtils.ensureServiceAccessIsAllowed(resolvedService, service);
             return service;
         }

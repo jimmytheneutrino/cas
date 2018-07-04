@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URIBuilder;
 import org.apereo.cas.authentication.AuthenticationServiceSelectionStrategy;
 import org.apereo.cas.authentication.principal.Service;
@@ -13,9 +12,7 @@ import org.apereo.cas.authentication.principal.ServiceFactory;
 import org.apereo.cas.web.support.WebUtils;
 import org.springframework.core.Ordered;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -36,9 +33,9 @@ public class ShibbolethIdPEntityIdAuthenticationServiceSelectionStrategy impleme
 
     @Override
     public Service resolveServiceFrom(final Service service) {
-        final Optional<String> result = getEntityIdAsParameter(service);
+        final var result = getEntityIdAsParameter(service);
         if (result.isPresent()) {
-            final String entityId = result.get();
+            final var entityId = result.get();
             LOGGER.debug("Located entity id [{}] from service authentication request at [{}]", entityId, service.getId());
             return this.webApplicationServiceFactory.createService(entityId);
         }
@@ -48,7 +45,7 @@ public class ShibbolethIdPEntityIdAuthenticationServiceSelectionStrategy impleme
 
     @Override
     public boolean supports(final Service service) {
-        final String casPattern = "^".concat(idpServerPrefix).concat(".*");
+        final var casPattern = "^".concat(idpServerPrefix).concat(".*");
         return service != null && service.getId().matches(casPattern)
                 && getEntityIdAsParameter(service).isPresent();
     }
@@ -61,8 +58,8 @@ public class ShibbolethIdPEntityIdAuthenticationServiceSelectionStrategy impleme
      */
     protected static Optional<String> getEntityIdAsParameter(final Service service) {
         try {
-            final URIBuilder builder = new URIBuilder(service.getId());
-            final Optional<NameValuePair> param = builder.getQueryParams()
+            final var builder = new URIBuilder(service.getId());
+            final var param = builder.getQueryParams()
                     .stream()
                     .filter(p -> p.getName().equals(SamlProtocolConstants.PARAMETER_ENTITY_ID))
                     .findFirst();
@@ -70,12 +67,12 @@ public class ShibbolethIdPEntityIdAuthenticationServiceSelectionStrategy impleme
             if (param.isPresent()) {
                 return Optional.of(param.get().getValue());
             }
-            final HttpServletRequest request = WebUtils.getHttpServletRequestFromExternalWebflowContext();
+            final var request = WebUtils.getHttpServletRequestFromExternalWebflowContext();
             if (request != null && StringUtils.isNotBlank(request.getQueryString())) {
-                final String[] query = request.getQueryString().split("&");
-                final Optional<String> paramRequest = Arrays.stream(query)
+                final var query = request.getQueryString().split("&");
+                final var paramRequest = Arrays.stream(query)
                         .map(p -> {
-                            final List<String> params = Splitter.on("=").splitToList(p);
+                            final var params = Splitter.on("=").splitToList(p);
                             return Pair.of(params.get(0), params.get(1));
                         })
                         .filter(p -> p.getKey().equals(SamlProtocolConstants.PARAMETER_ENTITY_ID))

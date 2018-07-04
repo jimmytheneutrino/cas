@@ -4,7 +4,6 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.support.dynamodb.DynamoDbServiceRegistryProperties;
 import org.apereo.cas.dynamodb.AmazonDynamoDbClientFactory;
 import org.apereo.cas.services.DynamoDbServiceRegistry;
 import org.apereo.cas.services.DynamoDbServiceRegistryFacilitator;
@@ -33,7 +32,7 @@ public class DynamoDbServiceRegistryConfiguration implements ServiceRegistryExec
     @RefreshScope
     @Bean
     public DynamoDbServiceRegistryFacilitator dynamoDbServiceRegistryFacilitator() {
-        final DynamoDbServiceRegistryProperties db = casProperties.getServiceRegistry().getDynamoDb();
+        final var db = casProperties.getServiceRegistry().getDynamoDb();
         return new DynamoDbServiceRegistryFacilitator(db, amazonDynamoDbClient());
     }
 
@@ -52,8 +51,8 @@ public class DynamoDbServiceRegistryConfiguration implements ServiceRegistryExec
     @Bean
     @SneakyThrows
     public AmazonDynamoDB amazonDynamoDbClient() {
-        final DynamoDbServiceRegistryProperties dynamoDbProperties = casProperties.getServiceRegistry().getDynamoDb();
-        final AmazonDynamoDbClientFactory factory = new AmazonDynamoDbClientFactory();
+        final var dynamoDbProperties = casProperties.getServiceRegistry().getDynamoDb();
+        final var factory = new AmazonDynamoDbClientFactory();
         return factory.createAmazonDynamoDb(dynamoDbProperties);
     }
 }

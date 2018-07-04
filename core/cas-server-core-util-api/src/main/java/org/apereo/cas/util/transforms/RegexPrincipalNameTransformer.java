@@ -3,7 +3,7 @@ package org.apereo.cas.util.transforms;
 import lombok.extern.slf4j.Slf4j;
 import org.apereo.cas.authentication.handler.PrincipalNameTransformer;
 import org.apereo.cas.util.RegexUtils;
-import java.util.regex.Matcher;
+
 import java.util.regex.Pattern;
 import lombok.Setter;
 
@@ -27,7 +27,7 @@ public class RegexPrincipalNameTransformer implements PrincipalNameTransformer {
 
     @Override
     public String transform(final String username) {
-        final Matcher matcher = this.pattern.matcher(username);
+        final var matcher = this.pattern.matcher(username);
         if (matcher.find()) {
             return matcher.group(1);
         }

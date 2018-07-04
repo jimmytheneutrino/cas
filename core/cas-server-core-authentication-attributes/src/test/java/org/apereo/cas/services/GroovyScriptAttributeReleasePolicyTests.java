@@ -27,7 +27,7 @@ public class GroovyScriptAttributeReleasePolicyTests {
 
     @Test
     public void verifySerializeAGroovyScriptAttributeReleasePolicyToJson() throws IOException {
-        final GroovyScriptAttributeReleasePolicy policyWritten = new GroovyScriptAttributeReleasePolicy();
+        final var policyWritten = new GroovyScriptAttributeReleasePolicy();
         MAPPER.writeValue(JSON_FILE, policyWritten);
         final RegisteredServiceAttributeReleasePolicy policyRead = MAPPER.readValue(JSON_FILE, GroovyScriptAttributeReleasePolicy.class);
         assertEquals(policyWritten, policyRead);
@@ -35,7 +35,7 @@ public class GroovyScriptAttributeReleasePolicyTests {
 
     @Test
     public void verifyAction() {
-        final GroovyScriptAttributeReleasePolicy policy = new GroovyScriptAttributeReleasePolicy();
+        final var policy = new GroovyScriptAttributeReleasePolicy();
         policy.setGroovyScript("classpath:GroovyAttributeRelease.groovy");
         final Map attributes = policy.getAttributes(CoreAuthenticationTestUtils.getPrincipal(), CoreAuthenticationTestUtils.getService(),
             CoreAuthenticationTestUtils.getRegisteredService());

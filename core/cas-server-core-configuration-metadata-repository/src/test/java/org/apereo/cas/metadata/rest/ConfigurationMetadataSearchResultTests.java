@@ -2,9 +2,6 @@ package org.apereo.cas.metadata.rest;
 
 import org.apereo.cas.metadata.CasConfigurationMetadataRepository;
 import org.junit.Test;
-import org.springframework.boot.configurationmetadata.ConfigurationMetadataProperty;
-
-import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -17,11 +14,11 @@ import static org.junit.Assert.*;
 public class ConfigurationMetadataSearchResultTests {
     @Test
     public void verifyAction() {
-        final CasConfigurationMetadataRepository repository = new CasConfigurationMetadataRepository();
-        final Map<String, ConfigurationMetadataProperty> properties = repository.getRepository().getAllProperties();
-        final ConfigurationMetadataProperty prop = properties.get("server.port");
+        final var repository = new CasConfigurationMetadataRepository();
+        final var properties = repository.getRepository().getAllProperties();
+        final var prop = properties.get("server.port");
         assertNotNull(prop);
-        final ConfigurationMetadataSearchResult r = new ConfigurationMetadataSearchResult(prop, repository);
+        final var r = new ConfigurationMetadataSearchResult(prop, repository);
         assertEquals(prop.getDefaultValue(), r.getDefaultValue());
         assertEquals(prop.getId(), r.getId());
         assertEquals(prop.getName(), r.getName());

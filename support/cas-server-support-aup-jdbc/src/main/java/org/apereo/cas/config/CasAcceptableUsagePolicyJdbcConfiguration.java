@@ -5,7 +5,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apereo.cas.aup.AcceptableUsagePolicyRepository;
 import org.apereo.cas.aup.JdbcAcceptableUsagePolicyRepository;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.support.aup.AcceptableUsagePolicyProperties;
 import org.apereo.cas.configuration.support.JpaBeans;
 import org.apereo.cas.ticket.registry.TicketRegistrySupport;
 import org.springframework.beans.factory.BeanCreationException;
@@ -38,14 +37,14 @@ public class CasAcceptableUsagePolicyJdbcConfiguration {
 
     @Bean
     public DataSource acceptableUsagePolicyDataSource() {
-        final AcceptableUsagePolicyProperties.Jdbc jdbc = casProperties.getAcceptableUsagePolicy().getJdbc();
+        final var jdbc = casProperties.getAcceptableUsagePolicy().getJdbc();
         return JpaBeans.newDataSource(jdbc);
     }
 
     @RefreshScope
     @Bean
     public AcceptableUsagePolicyRepository acceptableUsagePolicyRepository() {
-        final AcceptableUsagePolicyProperties.Jdbc jdbc = casProperties.getAcceptableUsagePolicy().getJdbc();
+        final var jdbc = casProperties.getAcceptableUsagePolicy().getJdbc();
 
         if (StringUtils.isBlank(jdbc.getTableName())) {
             throw new BeanCreationException("Database table for acceptable usage policy must be specified.");

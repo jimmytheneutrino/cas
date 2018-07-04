@@ -9,7 +9,6 @@ import org.apereo.cas.web.flow.resolver.CasDelegatingWebflowEventResolver;
 import org.apereo.cas.web.flow.resolver.CasWebflowEventResolver;
 
 import javax.servlet.http.HttpServletRequest;
-import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
@@ -40,22 +39,22 @@ public class PrincipalFromRequestHeaderNonInteractiveCredentialsAction extends B
 
     @Override
     protected String getRemotePrincipalId(final HttpServletRequest request) {
-        final Principal principal = request.getUserPrincipal();
+        final var principal = request.getUserPrincipal();
         if (principal != null) {
             LOGGER.debug("Principal [{}] found in request", principal.getName());
             return principal.getName();
         }
-        final String remoteUser = request.getRemoteUser();
+        final var remoteUser = request.getRemoteUser();
         if (StringUtils.isNotBlank(remoteUser)) {
             LOGGER.debug("Remote user [{}] found in HttpServletRequest", remoteUser);
             return remoteUser;
         }
 
         if (StringUtils.isNotBlank(this.remotePrincipalHeader)) {
-            final Map<String, List<String>> headers = getAllRequestHeaderValues(request);
+            final var headers = getAllRequestHeaderValues(request);
             LOGGER.debug("Available request headers are [{}]. Locating first header value for [{}]", headers, this.remotePrincipalHeader);
             if (headers.containsKey(this.remotePrincipalHeader)) {
-                final String header = headers.get(this.remotePrincipalHeader).get(0);
+                final var header = headers.get(this.remotePrincipalHeader).get(0);
                 LOGGER.debug("Remote user [{}] found in [{}] header", header, this.remotePrincipalHeader);
                 return remoteUser;
             }
@@ -68,12 +67,12 @@ public class PrincipalFromRequestHeaderNonInteractiveCredentialsAction extends B
         final Map<String, List<String>> headers = new LinkedHashMap<>(DEFAULT_SIZE);
         final Enumeration names = request.getHeaderNames();
         while (names.hasMoreElements()) {
-            final String name = (String) names.nextElement();
+            final var name = (String) names.nextElement();
             final Enumeration values = request.getHeaders(name);
             if (values != null) {
                 final List<String> listValues = new ArrayList<>(DEFAULT_SIZE);
                 while (values.hasMoreElements()) {
-                    final String value = (String) values.nextElement();
+                    final var value = (String) values.nextElement();
                     listValues.add(value);
                 }
                 headers.put(name, listValues);

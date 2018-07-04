@@ -4,7 +4,6 @@ import org.apereo.cas.authentication.Authentication;
 import org.apereo.cas.authentication.AuthenticationResultBuilder;
 import org.apereo.cas.authentication.CoreAuthenticationTestUtils;
 import org.apereo.cas.authentication.SurrogateUsernamePasswordCredential;
-import org.apereo.cas.authentication.principal.Principal;
 import org.apereo.cas.authentication.surrogate.SurrogateAuthenticationService;
 import org.apereo.cas.web.flow.SurrogateWebflowConfigurer;
 import org.apereo.cas.web.support.WebUtils;
@@ -45,8 +44,8 @@ public class LoadSurrogatesListActionTests extends BaseSurrogateInitialAuthentic
     @Test
     public void verifyGetListView() {
         try {
-            final MockRequestContext context = new MockRequestContext();
-            final MockHttpServletRequest request = new MockHttpServletRequest();
+            final var context = new MockRequestContext();
+            final var request = new MockHttpServletRequest();
             context.setExternalContext(new ServletExternalContext(new MockServletContext(), request, new MockHttpServletResponse()));
 
             WebUtils.putRequestSurrogateAuthentication(context, true);
@@ -61,26 +60,26 @@ public class LoadSurrogatesListActionTests extends BaseSurrogateInitialAuthentic
 
     @Test
     public void verifyAuthenticate() throws Exception {
-        final MockRequestContext context = new MockRequestContext();
+        final var context = new MockRequestContext();
         WebUtils.putService(context, CoreAuthenticationTestUtils.getWebApplicationService());
 
         final Map attributes = new LinkedHashMap<>();
         attributes.put(SurrogateAuthenticationService.AUTHENTICATION_ATTR_SURROGATE_ENABLED, true);
         attributes.putAll(CoreAuthenticationTestUtils.getAttributeRepository().getBackingMap());
 
-        final Principal p = CoreAuthenticationTestUtils.getPrincipal("casuser", attributes);
+        final var p = CoreAuthenticationTestUtils.getPrincipal("casuser", attributes);
         WebUtils.putAuthentication(CoreAuthenticationTestUtils.getAuthentication(p), context);
 
-        final MockHttpServletRequest request = new MockHttpServletRequest();
+        final var request = new MockHttpServletRequest();
         context.setExternalContext(new ServletExternalContext(new MockServletContext(), request, new MockHttpServletResponse()));
 
-        final SurrogateUsernamePasswordCredential creds = new SurrogateUsernamePasswordCredential();
+        final var creds = new SurrogateUsernamePasswordCredential();
         creds.setPassword("Mellon");
         creds.setUsername("casuser");
         creds.setSurrogateUsername("cassurrogate");
         WebUtils.putCredential(context, creds);
 
-        final AuthenticationResultBuilder builder = mock(AuthenticationResultBuilder.class);
+        final var builder = mock(AuthenticationResultBuilder.class);
         when(builder.getInitialAuthentication()).thenReturn(Optional.of(CoreAuthenticationTestUtils.getAuthentication()));
         when(builder.collect(any(Authentication.class))).thenReturn(builder);
         

@@ -16,8 +16,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.autoconfigure.RefreshAutoConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.Map;
-
 import static org.junit.Assert.*;
 
 /**
@@ -43,7 +41,7 @@ public class DefaultConsentDecisionBuilderTests {
 
     @Test
     public void verifyNewConsentDecision() {
-        final ConsentDecision consentDecision = getConsentDecision();
+        final var consentDecision = getConsentDecision();
         assertNotNull(consentDecision);
         assertEquals("casuser", consentDecision.getPrincipal());
         assertEquals(consentDecision.getService(), RegisteredServiceTestUtils.getService().getId());
@@ -51,22 +49,22 @@ public class DefaultConsentDecisionBuilderTests {
 
     @Test
     public void verifyAttributesRequireConsent() {
-        final ConsentDecision consentDecision = getConsentDecision();
+        final var consentDecision = getConsentDecision();
         assertTrue(consentDecisionBuilder.doesAttributeReleaseRequireConsent(consentDecision, CollectionUtils.wrap("attr2", "value2")));
         assertFalse(consentDecisionBuilder.doesAttributeReleaseRequireConsent(consentDecision, CollectionUtils.wrap("attr1", "something")));
     }
 
     @Test
     public void verifyAttributeValuesRequireConsent() {
-        final ConsentDecision consentDecision = getConsentDecision();
+        final var consentDecision = getConsentDecision();
         consentDecision.setOptions(ConsentReminderOptions.ATTRIBUTE_VALUE);
         assertTrue(consentDecisionBuilder.doesAttributeReleaseRequireConsent(consentDecision, CollectionUtils.wrap("attr1", "value2")));
     }
 
     @Test
     public void verifyAttributesAreRetrieved() {
-        final ConsentDecision consentDecision = getConsentDecision();
-        final Map<String, Object> attrs = consentDecisionBuilder.getConsentableAttributesFrom(consentDecision);
+        final var consentDecision = getConsentDecision();
+        final var attrs = consentDecisionBuilder.getConsentableAttributesFrom(consentDecision);
         assertTrue(attrs.containsKey("attr1"));
         assertEquals("value1", attrs.get("attr1"));
     }

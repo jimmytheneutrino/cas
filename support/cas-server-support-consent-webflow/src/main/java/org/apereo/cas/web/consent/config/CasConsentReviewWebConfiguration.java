@@ -11,7 +11,6 @@ import org.pac4j.cas.authorization.DefaultCasAuthorizationGenerator;
 import org.pac4j.cas.client.CasClient;
 import org.pac4j.cas.client.direct.DirectCasClient;
 import org.pac4j.cas.config.CasConfiguration;
-import org.pac4j.core.authorization.authorizer.Authorizer;
 import org.pac4j.core.authorization.authorizer.IsAuthenticatedAuthorizer;
 import org.pac4j.core.authorization.authorizer.RequireAnyRoleAuthorizer;
 import org.pac4j.core.client.BaseClient;
@@ -25,9 +24,7 @@ import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
-
-import java.util.Map;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * This is {@link CasConsentReviewWebConfiguration}.
@@ -37,7 +34,7 @@ import java.util.Map;
  */
 @Configuration("casConsentReviewWebConfiguration")
 @Slf4j
-public class CasConsentReviewWebConfiguration extends WebMvcConfigurerAdapter implements ServiceRegistryExecutionPlanConfigurer {
+public class CasConsentReviewWebConfiguration implements WebMvcConfigurer, ServiceRegistryExecutionPlanConfigurer {
     private static final String CAS_CONSENT_CLIENT = "CasConsentClient";
 
     @Autowired
@@ -64,22 +61,22 @@ public class CasConsentReviewWebConfiguration extends WebMvcConfigurerAdapter im
     @Bean
     @RefreshScope
     public Config casConsentPac4jConfig() {
-        final CasConfiguration conf = new CasConfiguration(casProperties.getServer().getLoginUrl());
+        final var conf = new CasConfiguration(casProperties.getServer().getLoginUrl());
 
-        final CasClient client = new CasClient(conf);
+        final var client = new CasClient(conf);
         client.setName(CAS_CONSENT_CLIENT);
         client.setCallbackUrl(casProperties.getServer().getPrefix().concat("/consentReview/callback"));
         client.setAuthorizationGenerator(new DefaultCasAuthorizationGenerator<>());
 
-        final Clients clients = new Clients(client);
-        final Config config = new Config(clients);
+        final var clients = new Clients(client);
+        final var config = new Config(clients);
         config.setAuthorizer(new IsAuthenticatedAuthorizer());
         config.setCallbackLogic(new DefaultCallbackLogic());
         config.setLogoutLogic(new DefaultLogoutLogic());
 
         // get role authorizer from admin pages for smooth integration
-        final Map<String, Authorizer> adminAuthorizers = casAdminPagesPac4jConfig.getAuthorizers();
-        final String auth = RequireAnyRoleAuthorizer.class.getSimpleName();
+        final var adminAuthorizers = casAdminPagesPac4jConfig.getAuthorizers();
+        final var auth = RequireAnyRoleAuthorizer.class.getSimpleName();
         if (adminAuthorizers.containsKey(auth)) {
             config.addAuthorizer(auth, adminAuthorizers.get(auth));
             final BaseClient adminClient = casAdminPagesPac4jConfig.getClients().findClient(DirectCasClient.class);

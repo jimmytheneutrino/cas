@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apereo.cas.CentralAuthenticationService;
 import org.apereo.cas.ticket.InvalidTicketException;
-import org.apereo.cas.ticket.Ticket;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,7 +40,7 @@ public class TicketStatusResource {
     @GetMapping(value = "/v1/tickets/{id:.+}")
     public ResponseEntity<String> getTicketStatus(@PathVariable("id") final String id) {
         try {
-            final Ticket ticket = this.centralAuthenticationService.getTicket(id);
+            final var ticket = this.centralAuthenticationService.getTicket(id);
             return new ResponseEntity<>(ticket.getId(), HttpStatus.OK);
         } catch (final InvalidTicketException e) {
             return new ResponseEntity<>("Ticket could not be found", HttpStatus.NOT_FOUND);

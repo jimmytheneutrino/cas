@@ -27,7 +27,6 @@ import org.apereo.cas.authentication.principal.PrincipalFactory;
 import org.apereo.cas.authentication.principal.PrincipalFactoryUtils;
 import org.apereo.cas.authentication.principal.PrincipalResolver;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.support.x509.X509Properties;
 import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.util.LdapUtils;
 import org.apereo.cas.util.RegexUtils;
@@ -39,10 +38,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -92,8 +89,8 @@ public class X509AuthenticationConfiguration {
 
     @Bean
     public RevocationChecker crlDistributionPointRevocationChecker() {
-        final X509Properties x509 = casProperties.getAuthn().getX509();
-        final Cache cache = new Cache("CRL".concat(UUID.randomUUID().toString()),
+        final var x509 = casProperties.getAuthn().getX509();
+        final var cache = new Cache("CRL".concat(UUID.randomUUID().toString()),
                 x509.getCacheMaxElementsInMemory(),
                 x509.isCacheDiskOverflow(),
                 x509.isCacheEternal(),
@@ -121,8 +118,8 @@ public class X509AuthenticationConfiguration {
 
     @Bean
     public RevocationChecker resourceCrlRevocationChecker() {
-        final X509Properties x509 = casProperties.getAuthn().getX509();
-        final Set<Resource> x509CrlResources = x509.getCrlResources()
+        final var x509 = casProperties.getAuthn().getX509();
+        final var x509CrlResources = x509.getCrlResources()
                 .stream()
                 .map(s -> this.resourceLoader.getResource(s))
                 .collect(Collectors.toSet());
@@ -150,7 +147,7 @@ public class X509AuthenticationConfiguration {
 
     @Bean
     public CRLFetcher crlFetcher() {
-        final X509Properties x509 = casProperties.getAuthn().getX509();
+        final var x509 = casProperties.getAuthn().getX509();
         switch (x509.getCrlFetcher().toLowerCase()) {
             case "ldap":
                 return ldaptiveResourceCRLFetcher();
@@ -163,7 +160,7 @@ public class X509AuthenticationConfiguration {
     @Bean
     @RefreshScope
     public AuthenticationHandler x509CredentialsAuthenticationHandler() {
-        final X509Properties x509 = casProperties.getAuthn().getX509();
+        final var x509 = casProperties.getAuthn().getX509();
         final RevocationChecker revChecker;
         switch (x509.getRevocationChecker().trim().toLowerCase()) {
             case "resource":
@@ -195,7 +192,7 @@ public class X509AuthenticationConfiguration {
 
     @Bean
     public CRLFetcher ldaptiveResourceCRLFetcher() {
-        final X509Properties x509 = casProperties.getAuthn().getX509();
+        final var x509 = casProperties.getAuthn().getX509();
         return new LdaptiveResourceCRLFetcher(LdapUtils.newLdaptiveConnectionConfig(x509.getLdap()),
                 LdapUtils.newLdaptiveSearchExecutor(x509.getLdap().getBaseDn(), x509.getLdap().getSearchFilter()),
                 x509.getLdap().getCertificateAttribute());
@@ -204,8 +201,8 @@ public class X509AuthenticationConfiguration {
     @Bean
     @RefreshScope
     public PrincipalResolver x509SubjectPrincipalResolver() {
-        final X509Properties x509 = casProperties.getAuthn().getX509();
-        final X509SubjectPrincipalResolver r = new X509SubjectPrincipalResolver(attributeRepository, 
+        final var x509 = casProperties.getAuthn().getX509();
+        final var r = new X509SubjectPrincipalResolver(attributeRepository,
                 x509PrincipalFactory(),
                 x509.getPrincipal().isReturnNull(),
                 x509.getPrincipal().getPrincipalAttribute(),
@@ -216,8 +213,8 @@ public class X509AuthenticationConfiguration {
     @Bean
     @RefreshScope
     public PrincipalResolver x509SubjectDNPrincipalResolver() {
-        final X509Properties x509 = casProperties.getAuthn().getX509();
-        final X509SubjectDNPrincipalResolver r = new X509SubjectDNPrincipalResolver(attributeRepository,
+        final var x509 = casProperties.getAuthn().getX509();
+        final var r = new X509SubjectDNPrincipalResolver(attributeRepository,
                 x509PrincipalFactory(),
                 x509.getPrincipal().isReturnNull(),
                 x509.getPrincipal().getPrincipalAttribute());
@@ -227,8 +224,8 @@ public class X509AuthenticationConfiguration {
     @Bean
     @RefreshScope
     public PrincipalResolver x509SubjectAlternativeNameUPNPrincipalResolver() {
-        final X509Properties x509 = casProperties.getAuthn().getX509();
-        final X509SubjectAlternativeNameUPNPrincipalResolver r = new X509SubjectAlternativeNameUPNPrincipalResolver(attributeRepository,
+        final var x509 = casProperties.getAuthn().getX509();
+        final var r = new X509SubjectAlternativeNameUPNPrincipalResolver(attributeRepository,
                 x509PrincipalFactory(),
                 x509.getPrincipal().isReturnNull(),
                 x509.getPrincipal().getPrincipalAttribute());
@@ -238,9 +235,9 @@ public class X509AuthenticationConfiguration {
     @Bean
     @RefreshScope
     public PrincipalResolver x509SerialNumberPrincipalResolver() {
-        final X509Properties x509 = casProperties.getAuthn().getX509();
+        final var x509 = casProperties.getAuthn().getX509();
         final X509SerialNumberPrincipalResolver r;
-        final int radix = x509.getPrincipalSNRadix();
+        final var radix = x509.getPrincipalSNRadix();
         if (Character.MIN_RADIX <= radix && radix <= Character.MAX_RADIX) {
             if (radix == HEX) {
                 r = new X509SerialNumberPrincipalResolver(attributeRepository,
@@ -273,7 +270,7 @@ public class X509AuthenticationConfiguration {
     @Bean
     @RefreshScope
     public PrincipalResolver x509SerialNumberAndIssuerDNPrincipalResolver() {
-        final X509Properties x509 = casProperties.getAuthn().getX509();
+        final var x509 = casProperties.getAuthn().getX509();
         return new X509SerialNumberAndIssuerDNPrincipalResolver(attributeRepository,
                 x509PrincipalFactory(),
                 x509.getPrincipal().isReturnNull(),
@@ -284,7 +281,7 @@ public class X509AuthenticationConfiguration {
     @Bean
     @RefreshScope
     public PrincipalResolver x509CommonNameEDIPIPrincipalResolver() {
-        final X509Properties x509 = casProperties.getAuthn().getX509();
+        final var x509 = casProperties.getAuthn().getX509();
         return new X509CommonNameEDIPIPrincipalResolver(attributeRepository,
                 x509PrincipalFactory(),
                 x509.getPrincipal().isReturnNull(),

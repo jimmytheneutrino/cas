@@ -22,20 +22,20 @@ import static org.mockito.Mockito.*;
 public class OAuth20UserProfileDataAuditResourceResolverTests {
     @Test
     public void verifyAction() {
-        final OAuth20UserProfileDataAuditResourceResolver r = new OAuth20UserProfileDataAuditResourceResolver();
-        final AccessToken token = mock(AccessToken.class);
+        final var r = new OAuth20UserProfileDataAuditResourceResolver();
+        final var token = mock(AccessToken.class);
         when(token.getId()).thenReturn("CODE");
         when(token.getService()).thenReturn(RegisteredServiceTestUtils.getService());
 
-        final OAuthRegisteredService service = new OAuthRegisteredService();
+        final var service = new OAuthRegisteredService();
         service.setClientId("CLIENTID");
         service.setName("OAUTH");
         service.setId(123);
 
-        final JoinPoint jp = mock(JoinPoint.class);
+        final var jp = mock(JoinPoint.class);
         when(jp.getArgs()).thenReturn(new Object[]{token});
 
-        final String[] result = r.resolveFrom(jp, CollectionUtils.wrap(OAuth20UserProfileViewRenderer.MODEL_ATTRIBUTE_ID, "id",
+        final var result = r.resolveFrom(jp, CollectionUtils.wrap(OAuth20UserProfileViewRenderer.MODEL_ATTRIBUTE_ID, "id",
             OAuth20Constants.CLIENT_ID, "clientid",
             CasProtocolConstants.PARAMETER_SERVICE, "service",
             "scopes", CollectionUtils.wrapSet("email"),

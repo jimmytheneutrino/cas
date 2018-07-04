@@ -12,12 +12,10 @@ import org.apereo.cas.authentication.principal.Service;
 import org.apereo.cas.util.CollectionUtils;
 import org.apereo.cas.util.ResourceUtils;
 import org.apereo.cas.util.ScriptingUtils;
-import org.springframework.core.io.AbstractResource;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import java.util.regex.Matcher;
 
 /**
  * Resolves the username for the service to be the default principal id.
@@ -39,8 +37,8 @@ public class GroovyRegisteredServiceUsernameProvider extends BaseRegisteredServi
 
     @Override
     public String resolveUsernameInternal(final Principal principal, final Service service, final RegisteredService registeredService) {
-        final Matcher matcherInline = ScriptingUtils.getMatcherForInlineGroovyScript(this.groovyScript);
-        final Matcher matcherFile = ScriptingUtils.getMatcherForExternalGroovyScript(this.groovyScript);
+        final var matcherInline = ScriptingUtils.getMatcherForInlineGroovyScript(this.groovyScript);
+        final var matcherFile = ScriptingUtils.getMatcherForExternalGroovyScript(this.groovyScript);
         if (matcherInline.find()) {
             return resolveUsernameFromInlineGroovyScript(principal, service, matcherInline.group(1));
         }
@@ -54,9 +52,9 @@ public class GroovyRegisteredServiceUsernameProvider extends BaseRegisteredServi
     private String resolveUsernameFromExternalGroovyScript(final Principal principal, final Service service, final String scriptFile) {
         try {
             LOGGER.debug("Found groovy script to execute");
-            final AbstractResource resourceFrom = ResourceUtils.getResourceFrom(scriptFile);
-            final String script = IOUtils.toString(resourceFrom.getInputStream(), StandardCharsets.UTF_8);
-            final Object result = getGroovyAttributeValue(principal, script);
+            final var resourceFrom = ResourceUtils.getResourceFrom(scriptFile);
+            final var script = IOUtils.toString(resourceFrom.getInputStream(), StandardCharsets.UTF_8);
+            final var result = getGroovyAttributeValue(principal, script);
             if (result != null) {
                 LOGGER.debug("Found username [{}] from script [{}]", result, scriptFile);
                 return result.toString();
@@ -71,7 +69,7 @@ public class GroovyRegisteredServiceUsernameProvider extends BaseRegisteredServi
     private String resolveUsernameFromInlineGroovyScript(final Principal principal, final Service service, final String script) {
         try {
             LOGGER.debug("Found groovy script to execute [{}]", this.groovyScript);
-            final Object result = getGroovyAttributeValue(principal, script);
+            final var result = getGroovyAttributeValue(principal, script);
             if (result != null) {
                 LOGGER.debug("Found username [{}] from script [{}]", result, this.groovyScript);
                 return result.toString();

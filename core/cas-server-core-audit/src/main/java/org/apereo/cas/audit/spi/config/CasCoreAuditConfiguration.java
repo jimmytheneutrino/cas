@@ -20,8 +20,6 @@ import org.apereo.cas.audit.spi.ThreadLocalPrincipalResolver;
 import org.apereo.cas.audit.spi.TicketAsFirstParameterResourceResolver;
 import org.apereo.cas.audit.spi.TicketValidationResourceResolver;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.core.audit.AuditProperties;
-import org.apereo.cas.configuration.model.core.audit.AuditSlf4jLogProperties;
 import org.apereo.cas.util.CollectionUtils;
 import org.apereo.inspektr.audit.AuditTrailManagementAspect;
 import org.apereo.inspektr.audit.spi.AuditActionResolver;
@@ -68,7 +66,7 @@ public class CasCoreAuditConfiguration implements AuditTrailExecutionPlanConfigu
     @Bean
     public AuditTrailManagementAspect auditTrailManagementAspect(@Qualifier("auditTrailExecutionPlan") final AuditTrailExecutionPlan auditTrailExecutionPlan,
                                                                  @Qualifier("auditTrailRecordResolutionPlan") final AuditTrailRecordResolutionPlan auditTrailRecordResolutionPlan) {
-        final AuditTrailManagementAspect aspect = new AuditTrailManagementAspect(
+        final var aspect = new AuditTrailManagementAspect(
                 casProperties.getAudit().getAppCode(),
                 auditablePrincipalResolver(auditPrincipalIdProvider()),
                 auditTrailExecutionPlan.getAuditTrailManagers(), auditTrailRecordResolutionPlan.getAuditActionResolvers(),
@@ -81,9 +79,9 @@ public class CasCoreAuditConfiguration implements AuditTrailExecutionPlanConfigu
     @ConditionalOnMissingBean(name = "auditTrailRecordResolutionPlan")
     @Bean
     public AuditTrailRecordResolutionPlan auditTrailRecordResolutionPlan(final List<AuditTrailRecordResolutionPlanConfigurer> configurers) {
-        final DefaultAuditTrailRecordResolutionPlan plan = new DefaultAuditTrailRecordResolutionPlan();
+        final var plan = new DefaultAuditTrailRecordResolutionPlan();
         configurers.forEach(c -> {
-            final String name = StringUtils.removePattern(c.getClass().getSimpleName(), "\\$.+");
+            final var name = StringUtils.removePattern(c.getClass().getSimpleName(), "\\$.+");
             LOGGER.debug("Registering audit trail manager [{}]", name);
             c.configureAuditTrailRecordResolutionPlan(plan);
         });
@@ -94,9 +92,9 @@ public class CasCoreAuditConfiguration implements AuditTrailExecutionPlanConfigu
     @ConditionalOnMissingBean(name = "auditTrailExecutionPlan")
     @Bean
     public AuditTrailExecutionPlan auditTrailExecutionPlan(final List<AuditTrailExecutionPlanConfigurer> configurers) {
-        final DefaultAuditTrailExecutionPlan plan = new DefaultAuditTrailExecutionPlan();
+        final var plan = new DefaultAuditTrailExecutionPlan();
         configurers.forEach(c -> {
-            final String name = StringUtils.removePattern(c.getClass().getSimpleName(), "\\$.+");
+            final var name = StringUtils.removePattern(c.getClass().getSimpleName(), "\\$.+");
             LOGGER.debug("Registering audit trail manager [{}]", name);
             c.configureAuditTrailExecutionPlan(plan);
         });
@@ -105,9 +103,9 @@ public class CasCoreAuditConfiguration implements AuditTrailExecutionPlanConfigu
 
     @Bean
     public FilterRegistrationBean casClientInfoLoggingFilter() {
-        final AuditProperties audit = casProperties.getAudit();
+        final var audit = casProperties.getAudit();
 
-        final FilterRegistrationBean bean = new FilterRegistrationBean();
+        final var bean = new FilterRegistrationBean();
         bean.setFilter(new ClientInfoThreadLocalFilter());
         bean.setUrlPatterns(CollectionUtils.wrap("/*"));
         bean.setName("CAS Client Info Logging Filter");
@@ -201,7 +199,7 @@ public class CasCoreAuditConfiguration implements AuditTrailExecutionPlanConfigu
     @ConditionalOnMissingBean(name = "ticketValidationResourceResolver")
     @Bean
     public AuditResourceResolver ticketValidationResourceResolver() {
-        final AuditProperties audit = casProperties.getAudit();
+        final var audit = casProperties.getAudit();
         if (audit.isIncludeValidationAssertion()) {
             return new TicketValidationResourceResolver();
         }
@@ -217,16 +215,16 @@ public class CasCoreAuditConfiguration implements AuditTrailExecutionPlanConfigu
     @ConditionalOnMissingBean(name = "auditPrincipalIdProvider")
     @Bean
     public AuditPrincipalIdProvider auditPrincipalIdProvider() {
-        final ChainingAuditPrincipalIdProvider chain = new ChainingAuditPrincipalIdProvider();
-        final Map<String, AuditPrincipalIdProvider> resolvers = applicationContext.getBeansOfType(AuditPrincipalIdProvider.class, false, true);
+        final var chain = new ChainingAuditPrincipalIdProvider();
+        final var resolvers = applicationContext.getBeansOfType(AuditPrincipalIdProvider.class, false, true);
         resolvers.values().forEach(chain::addProvider);
         return chain;
     }
 
     @Override
     public void configureAuditTrailExecutionPlan(final AuditTrailExecutionPlan plan) {
-        final AuditSlf4jLogProperties audit = casProperties.getAudit().getSlf4j();
-        final Slf4jLoggingAuditTrailManager slf4j = new Slf4jLoggingAuditTrailManager();
+        final var audit = casProperties.getAudit().getSlf4j();
+        final var slf4j = new Slf4jLoggingAuditTrailManager();
         slf4j.setUseSingleLine(audit.isUseSingleLine());
         slf4j.setEntrySeparator(audit.getSinglelineSeparator());
         slf4j.setAuditFormat(audit.getAuditFormat());
@@ -238,7 +236,7 @@ public class CasCoreAuditConfiguration implements AuditTrailExecutionPlanConfigu
         /*
             Add audit action resolvers here.
          */
-        final AuditActionResolver resolver = authenticationActionResolver();
+        final var resolver = authenticationActionResolver();
         plan.registerAuditActionResolver("AUTHENTICATION_RESOLVER", resolver);
         plan.registerAuditActionResolver("SAVE_SERVICE_ACTION_RESOLVER", resolver);
 
@@ -246,7 +244,7 @@ public class CasCoreAuditConfiguration implements AuditTrailExecutionPlanConfigu
         plan.registerAuditActionResolver("DESTROY_TICKET_GRANTING_TICKET_RESOLVER", defResolver);
         plan.registerAuditActionResolver("DESTROY_PROXY_GRANTING_TICKET_RESOLVER", defResolver);
 
-        final AuditActionResolver cResolver = ticketCreationActionResolver();
+        final var cResolver = ticketCreationActionResolver();
         plan.registerAuditActionResolver("CREATE_PROXY_GRANTING_TICKET_RESOLVER", cResolver);
         plan.registerAuditActionResolver("GRANT_SERVICE_TICKET_RESOLVER", cResolver);
         plan.registerAuditActionResolver("GRANT_PROXY_TICKET_RESOLVER", cResolver);
@@ -264,11 +262,11 @@ public class CasCoreAuditConfiguration implements AuditTrailExecutionPlanConfigu
          */
         plan.registerAuditResourceResolver("AUTHENTICATION_RESOURCE_RESOLVER", new CredentialsAsFirstParameterResourceResolver());
 
-        final AuditResourceResolver messageBundleAwareResourceResolver = messageBundleAwareResourceResolver();
+        final var messageBundleAwareResourceResolver = messageBundleAwareResourceResolver();
         plan.registerAuditResourceResolver("CREATE_TICKET_GRANTING_TICKET_RESOURCE_RESOLVER", messageBundleAwareResourceResolver);
         plan.registerAuditResourceResolver("CREATE_PROXY_GRANTING_TICKET_RESOURCE_RESOLVER", messageBundleAwareResourceResolver);
 
-        final AuditResourceResolver ticketResourceResolver = ticketResourceResolver();
+        final var ticketResourceResolver = ticketResourceResolver();
         plan.registerAuditResourceResolver("DESTROY_TICKET_GRANTING_TICKET_RESOURCE_RESOLVER", ticketResourceResolver);
         plan.registerAuditResourceResolver("DESTROY_PROXY_GRANTING_TICKET_RESOURCE_RESOLVER", ticketResourceResolver);
 

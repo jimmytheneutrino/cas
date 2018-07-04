@@ -1,6 +1,5 @@
 package org.apereo.cas.support.saml.authentication.principal;
 
-import org.apereo.cas.authentication.principal.Service;
 import org.apereo.cas.authentication.principal.ServiceFactory;
 import org.apereo.cas.config.SamlConfiguration;
 import org.apereo.cas.config.authentication.support.SamlAuthenticationEventExecutionPlanConfiguration;
@@ -36,22 +35,22 @@ public class SamlServiceFactoryTests extends AbstractOpenSamlTests {
 
     @Test
     public void verifyObtainService() {
-        final MockHttpServletRequest request = new MockHttpServletRequest();
+        final var request = new MockHttpServletRequest();
         request.setParameter(SamlProtocolConstants.CONST_PARAM_TARGET, "test");
 
-        final Service service = samlServiceFactory.createService(request);
+        final var service = samlServiceFactory.createService(request);
         assertEquals("test", service.getId());
     }
 
     @Test
     public void verifyServiceDoesNotExist() {
-        final MockHttpServletRequest request = new MockHttpServletRequest();
+        final var request = new MockHttpServletRequest();
         assertNull(samlServiceFactory.createService(request));
     }
 
     @Test
     public void verifyPayloadCanBeParsedProperly() {
-        final String body = "<!--    Licensed to Jasig under one or more contributor license    agreements. See the NOTICE file distributed with this work"
+        final var body = "<!--    Licensed to Jasig under one or more contributor license    agreements. See the NOTICE file distributed with this work"
             + "for additional information regarding copyright ownership.    Jasig licenses this file to you under the Apache License,    "
             + "Version 2.0 (the \"License\"); you may not use this file    except in compliance with the License.  You may obtain a    "
             + "copy of the License at the following location:      http://www.apache.org/licenses/LICENSE-2.0    Unless required by applicable law or agreed to in writing,"
@@ -60,7 +59,7 @@ public class SamlServiceFactoryTests extends AbstractOpenSamlTests {
             + "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns=\"urn:oasis:names:tc:SAML:1.0:protocol\">    <soap:Header/>   "
             + "<soap:Body>        <Request MajorVersion=\"1\" MinorVersion=\"1\" RequestID=\"_e444ee1af9a7f6d656d76e8810299544\" IssueInstant=\"2018-05-10T16:39:46Z\">"
             + "<AssertionArtifact>ST-AAHJJ4pD5ZyoQkY9i08GsvYRVOyKeWws4SA4xwv+5HX9UgL7fCRBp2Ad</AssertionArtifact>        </Request>    </soap:Body></soap:Envelope>";
-        final MockHttpServletRequest request = new MockHttpServletRequest();
+        final var request = new MockHttpServletRequest();
         request.setParameter(SamlProtocolConstants.CONST_PARAM_TARGET, "test");
         request.setContent(body.getBytes(StandardCharsets.UTF_8));
         assertNotNull(samlServiceFactory.createService(request));

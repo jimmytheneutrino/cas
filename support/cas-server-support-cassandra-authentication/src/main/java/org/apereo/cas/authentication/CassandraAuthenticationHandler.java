@@ -10,7 +10,6 @@ import javax.security.auth.login.AccountNotFoundException;
 import javax.security.auth.login.FailedLoginException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
-import java.util.Map;
 
 /**
  * This is {@link CassandraAuthenticationHandler}.
@@ -36,10 +35,10 @@ public class CassandraAuthenticationHandler extends AbstractUsernamePasswordAuth
     @Override
     protected AuthenticationHandlerExecutionResult authenticateUsernamePasswordInternal(final UsernamePasswordCredential credential,
                                                                                         final String originalPassword) throws GeneralSecurityException {
-        final String username = credential.getUsername();
-        final String password = credential.getPassword();
+        final var username = credential.getUsername();
+        final var password = credential.getPassword();
 
-        final Map<String, Object> attributes = this.cassandraRepository.getUser(username);
+        final var attributes = this.cassandraRepository.getUser(username);
 
         if (attributes == null || attributes.isEmpty()
                 || !attributes.containsKey(cassandraAuthenticationProperties.getUsernameAttribute())
@@ -49,7 +48,7 @@ public class CassandraAuthenticationHandler extends AbstractUsernamePasswordAuth
         }
 
         LOGGER.debug("Located account attributes [{}] for [{}]", attributes.keySet(), username);
-        final String userPassword = attributes.get(cassandraAuthenticationProperties.getPasswordAttribute()).toString();
+        final var userPassword = attributes.get(cassandraAuthenticationProperties.getPasswordAttribute()).toString();
         if (!password.equals(userPassword)) {
             LOGGER.warn("Account password on record for [{}] does not match the given password", username);
             throw new FailedLoginException();

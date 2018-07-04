@@ -6,11 +6,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apereo.cas.CasProtocolConstants;
-import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.util.HttpRequestUtils;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 /**
@@ -74,10 +72,10 @@ public abstract class AbstractWebApplicationServiceResponseBuilder implements Re
      * @return the response type
      */
     protected Response.ResponseType getWebApplicationServiceResponseType(final WebApplicationService finalService) {
-        final HttpServletRequest request = HttpRequestUtils.getHttpServletRequestFromRequestAttributes();
-        String method = request != null ? request.getParameter(CasProtocolConstants.PARAMETER_METHOD) : null;
+        final var request = HttpRequestUtils.getHttpServletRequestFromRequestAttributes();
+        var method = request != null ? request.getParameter(CasProtocolConstants.PARAMETER_METHOD) : null;
         if (StringUtils.isBlank(method)) {
-            final RegisteredService registeredService = this.servicesManager.findServiceBy(finalService);
+            final var registeredService = this.servicesManager.findServiceBy(finalService);
             if (registeredService != null) {
                 method = registeredService.getResponseType();
             }

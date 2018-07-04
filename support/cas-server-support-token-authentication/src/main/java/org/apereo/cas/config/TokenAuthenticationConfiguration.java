@@ -8,7 +8,6 @@ import org.apereo.cas.authentication.principal.PrincipalFactoryUtils;
 import org.apereo.cas.authentication.principal.PrincipalNameTransformerUtils;
 import org.apereo.cas.authentication.principal.PrincipalResolver;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.support.token.TokenAuthenticationProperties;
 import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.token.authentication.TokenAuthenticationHandler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,8 +38,7 @@ public class TokenAuthenticationConfiguration {
     @Autowired
     @Qualifier("personDirectoryPrincipalResolver")
     private PrincipalResolver personDirectoryPrincipalResolver;
-
-
+    
     @ConditionalOnMissingBean(name = "tokenPrincipalFactory")
     @Bean
     public PrincipalFactory tokenPrincipalFactory() {
@@ -50,7 +48,7 @@ public class TokenAuthenticationConfiguration {
     @ConditionalOnMissingBean(name = "tokenAuthenticationHandler")
     @Bean
     public AuthenticationHandler tokenAuthenticationHandler() {
-        final TokenAuthenticationProperties token = casProperties.getAuthn().getToken();
+        final var token = casProperties.getAuthn().getToken();
         return new TokenAuthenticationHandler(token.getName(), servicesManager, tokenPrincipalFactory(),
                 PrincipalNameTransformerUtils.newPrincipalNameTransformer(token.getPrincipalTransformation()));
     }

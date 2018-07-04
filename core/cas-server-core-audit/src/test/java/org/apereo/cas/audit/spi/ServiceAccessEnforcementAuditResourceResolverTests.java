@@ -17,12 +17,12 @@ import static org.mockito.Mockito.*;
 public class ServiceAccessEnforcementAuditResourceResolverTests {
     @Test
     public void verifyAction() {
-        final ServiceAccessEnforcementAuditResourceResolver r = new ServiceAccessEnforcementAuditResourceResolver();
-        final AuditableExecutionResult result = AuditableExecutionResult.of(
+        final var r = new ServiceAccessEnforcementAuditResourceResolver();
+        final var result = AuditableExecutionResult.of(
             CoreAuthenticationTestUtils.getAuthentication(),
             CoreAuthenticationTestUtils.getService(),
             CoreAuthenticationTestUtils.getRegisteredService());
-        final String[] outcome = r.resolveFrom(mock(JoinPoint.class), result);
+        final var outcome = r.resolveFrom(mock(JoinPoint.class), result);
         assertTrue(outcome.length > 0);
     }
 }

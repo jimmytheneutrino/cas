@@ -13,9 +13,9 @@ import org.apereo.cas.config.CasCoreWebConfiguration;
 import org.apereo.cas.config.CasDefaultServiceTicketIdGeneratorsConfiguration;
 import org.apereo.cas.config.support.CasWebApplicationServiceFactoryConfiguration;
 import org.hamcrest.CustomMatcher;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.Before;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
@@ -35,8 +35,11 @@ import javax.security.auth.login.AccountNotFoundException;
 import javax.security.auth.login.FailedLoginException;
 
 import static org.junit.Assert.*;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 /**
  * This is {@link RestfulAuthenticationPolicyTests}.
@@ -71,7 +74,7 @@ public class RestfulAuthenticationPolicyTests {
     private RestfulAuthenticationPolicy policy;
 
     @Before
-    public void setUp() {
+    public void initialize() {
         MockitoAnnotations.initMocks(this);
         mockServer = MockRestServiceServer.createServer(restTemplate);
         policy = new RestfulAuthenticationPolicy(this.restTemplate, URI);
@@ -101,7 +104,7 @@ public class RestfulAuthenticationPolicyTests {
 
 
     private void verifyPolicyFails(final Class exceptionClass, final HttpStatus status) throws Exception {
-        thrown.expectCause(new CustomMatcher<Throwable>("policy") {
+        thrown.expectCause(new CustomMatcher<>("policy") {
             @Override
             public boolean matches(final Object o) {
                 return o.getClass().equals(exceptionClass);

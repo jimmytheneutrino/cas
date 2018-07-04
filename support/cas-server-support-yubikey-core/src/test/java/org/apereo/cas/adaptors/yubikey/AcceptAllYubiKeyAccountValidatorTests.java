@@ -13,7 +13,7 @@ import static org.junit.Assert.*;
 public class AcceptAllYubiKeyAccountValidatorTests {
     @Test
     public void verifyAction() {
-        final AcceptAllYubiKeyAccountValidator v = new AcceptAllYubiKeyAccountValidator();
+        final var v = new AcceptAllYubiKeyAccountValidator();
         assertTrue(v.isValid("anything", "anything"));
     }
 }

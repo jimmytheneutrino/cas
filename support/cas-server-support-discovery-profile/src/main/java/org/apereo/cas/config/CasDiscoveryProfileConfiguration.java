@@ -3,14 +3,15 @@ package org.apereo.cas.config;
 import lombok.extern.slf4j.Slf4j;
 import org.apereo.cas.authentication.CoreAuthenticationUtils;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.support.jdbc.JdbcAuthenticationProperties;
-import org.apereo.cas.configuration.model.support.ldap.LdapAuthenticationProperties;
+import org.apereo.cas.discovery.CasServerDiscoveryProfileEndpoint;
 import org.apereo.cas.discovery.CasServerProfileRegistrar;
 import org.apereo.cas.services.ServicesManager;
 import org.apereo.services.persondir.IPersonAttributeDao;
 import org.pac4j.core.client.Clients;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.actuate.autoconfigure.endpoint.condition.ConditionalOnEnabledEndpoint;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,9 +38,9 @@ public class CasDiscoveryProfileConfiguration {
     @Autowired
     private CasConfigurationProperties casProperties;
 
-    @Autowired(required = false)
+    @Autowired
     @Qualifier("builtClients")
-    private Clients builtClients;
+    private ObjectProvider<Clients> builtClients;
 
     @Autowired
     @Qualifier("attributeRepository")
@@ -47,18 +48,26 @@ public class CasDiscoveryProfileConfiguration {
 
     @Bean
     public CasServerProfileRegistrar casServerProfileRegistrar() {
-        return new CasServerProfileRegistrar(this.servicesManager, casProperties, this.builtClients, availableAttributes());
+        return new CasServerProfileRegistrar(this.servicesManager, casProperties,
+            this.builtClients.getIfAvailable(),
+            availableAttributes());
+    }
+
+    @Bean
+    @ConditionalOnEnabledEndpoint
+    public CasServerDiscoveryProfileEndpoint discoveryProfileEndpoint() {
+        return new CasServerDiscoveryProfileEndpoint(casProperties, servicesManager, casServerProfileRegistrar());
     }
 
     @Bean
     public Set<String> availableAttributes() {
         final Set<String> attributes = new LinkedHashSet<>(0);
-        final Set<String> possibleUserAttributeNames = attributeRepository.getPossibleUserAttributeNames();
+        final var possibleUserAttributeNames = attributeRepository.getPossibleUserAttributeNames();
         if (possibleUserAttributeNames != null) {
             attributes.addAll(possibleUserAttributeNames);
         }
         
-        final List<LdapAuthenticationProperties> ldapProps = casProperties.getAuthn().getLdap();
+        final var ldapProps = casProperties.getAuthn().getLdap();
         if (ldapProps != null) {
             ldapProps.stream()
                 .forEach(ldap -> {
@@ -66,7 +75,7 @@ public class CasDiscoveryProfileConfiguration {
                     attributes.addAll(transformAttributes(ldap.getAdditionalAttributes()));
                 });
         }
-        final JdbcAuthenticationProperties jdbcProps = casProperties.getAuthn().getJdbc();
+        final var jdbcProps = casProperties.getAuthn().getJdbc();
         if (jdbcProps != null) {
             jdbcProps.getQuery().stream()
                 .forEach(jdbc -> attributes.addAll(transformAttributes(jdbc.getPrincipalAttributeList())));

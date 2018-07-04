@@ -13,6 +13,7 @@ import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.ticket.registry.TicketRegistrySupport;
 import org.apereo.cas.web.flow.authentication.RankedMultifactorAuthenticationProviderSelector;
 import org.apereo.cas.web.flow.resolver.CasWebflowEventResolver;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -31,8 +32,6 @@ import org.springframework.webflow.execution.Action;
 @EnableConfigurationProperties(CasConfigurationProperties.class)
 @Slf4j
 public class DuoSecurityConfiguration {
-
-
     @Autowired
     @Qualifier("authenticationServiceSelectionPlan")
     private AuthenticationServiceSelectionPlan authenticationRequestServiceSelectionStrategies;
@@ -53,10 +52,9 @@ public class DuoSecurityConfiguration {
     @Qualifier("servicesManager")
     private ServicesManager servicesManager;
 
-    @Autowired(required = false)
+    @Autowired
     @Qualifier("multifactorAuthenticationProviderSelector")
-    private MultifactorAuthenticationProviderSelector multifactorAuthenticationProviderSelector =
-            new RankedMultifactorAuthenticationProviderSelector();
+    private ObjectProvider<MultifactorAuthenticationProviderSelector> multifactorAuthenticationProviderSelector;
 
     @Autowired
     @Qualifier("warnCookieGenerator")
@@ -80,6 +78,8 @@ public class DuoSecurityConfiguration {
                 ticketRegistrySupport,
                 warnCookieGenerator,
                 authenticationRequestServiceSelectionStrategies,
-                multifactorAuthenticationProviderSelector);
+                multifactorAuthenticationProviderSelector.getIfAvailable(RankedMultifactorAuthenticationProviderSelector::new));
     }
+
+
 }

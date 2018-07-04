@@ -8,9 +8,7 @@ import org.apereo.cas.authentication.principal.Service;
 import org.apereo.cas.authentication.principal.ServiceFactory;
 import org.apereo.cas.authentication.principal.WebApplicationService;
 import org.apereo.cas.configuration.model.core.logout.LogoutProperties;
-import org.apereo.cas.logout.LogoutRequest;
 import org.apereo.cas.logout.LogoutRequestStatus;
-import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.web.flow.CasWebflowConstants;
 import org.apereo.cas.web.support.WebUtils;
@@ -19,7 +17,6 @@ import org.springframework.webflow.execution.RequestContext;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.List;
 
 /**
  * Action to delete the TGT and the appropriate cookies.
@@ -45,22 +42,22 @@ public class LogoutAction extends AbstractLogoutAction {
     protected Event doInternalExecute(final HttpServletRequest request, final HttpServletResponse response,
                                       final RequestContext context) {
 
-        boolean needFrontSlo = false;
-        final List<LogoutRequest> logoutRequests = WebUtils.getLogoutRequests(context);
+        var needFrontSlo = false;
+        final var logoutRequests = WebUtils.getLogoutRequests(context);
         if (logoutRequests != null) {
             needFrontSlo = logoutRequests
                     .stream()
                     .anyMatch(logoutRequest -> logoutRequest.getStatus() == LogoutRequestStatus.NOT_ATTEMPTED);
         }
 
-        final String paramName = StringUtils.defaultIfEmpty(logoutProperties.getRedirectParameter(), CasProtocolConstants.PARAMETER_SERVICE);
+        final var paramName = StringUtils.defaultIfEmpty(logoutProperties.getRedirectParameter(), CasProtocolConstants.PARAMETER_SERVICE);
         LOGGER.debug("Using parameter name [{}] to detect destination service, if any", paramName);
-        final String service = request.getParameter(paramName);
+        final var service = request.getParameter(paramName);
         LOGGER.debug("Located target service [{}] for redirection after logout", paramName);
 
         if (logoutProperties.isFollowServiceRedirects() && StringUtils.isNotBlank(service)) {
             final Service webAppService = webApplicationServiceFactory.createService(service);
-            final RegisteredService rService = this.servicesManager.findServiceBy(webAppService);
+            final var rService = this.servicesManager.findServiceBy(webAppService);
 
             if (rService != null && rService.getAccessStrategy().isServiceAccessAllowed()) {
                 LOGGER.debug("Redirecting to service [{}]", service);

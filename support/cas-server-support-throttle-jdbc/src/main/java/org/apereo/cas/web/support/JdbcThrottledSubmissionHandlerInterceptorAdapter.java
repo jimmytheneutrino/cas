@@ -2,16 +2,13 @@ package org.apereo.cas.web.support;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apereo.cas.audit.AuditTrailExecutionPlan;
-import org.apereo.inspektr.common.web.ClientInfo;
 import org.apereo.inspektr.common.web.ClientInfoHolder;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
-import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Date;
-import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -47,10 +44,10 @@ public class JdbcThrottledSubmissionHandlerInterceptorAdapter extends AbstractIn
 
     @Override
     public boolean exceedsThreshold(final HttpServletRequest request) {
-        final ClientInfo clientInfo = ClientInfoHolder.getClientInfo();
-        final String remoteAddress = clientInfo.getClientIpAddress();
+        final var clientInfo = ClientInfoHolder.getClientInfo();
+        final var remoteAddress = clientInfo.getClientIpAddress();
 
-        final List<Timestamp> failuresInAudits = this.jdbcTemplate.query(
+        final var failuresInAudits = this.jdbcTemplate.query(
             this.sqlQueryAudit,
             new Object[]{
                 remoteAddress,
@@ -61,7 +58,7 @@ public class JdbcThrottledSubmissionHandlerInterceptorAdapter extends AbstractIn
             new int[]{Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.TIMESTAMP},
             (resultSet, i) -> resultSet.getTimestamp(1));
 
-        final List<Date> failures = failuresInAudits.stream().map(t -> new Date(t.getTime())).collect(Collectors.toList());
+        final var failures = failuresInAudits.stream().map(t -> new Date(t.getTime())).collect(Collectors.toList());
         return calculateFailureThresholdRateAndCompare(failures);
     }
 

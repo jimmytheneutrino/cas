@@ -39,7 +39,6 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Optional;
 
 import static org.junit.Assert.*;
 
@@ -87,12 +86,12 @@ public class RestfulPasswordlessUserAccountStoreTests {
 
     @Test
     public void verifyAction() throws Exception {
-        final PasswordlessUserAccount u = new PasswordlessUserAccount("casuser", "casuser@example.org", "123-456-7890", "CAS");
-        final String data = MAPPER.writeValueAsString(u);
-        try (MockWebServer webServer = new MockWebServer(9291,
+        final var u = new PasswordlessUserAccount("casuser", "casuser@example.org", "123-456-7890", "CAS");
+        final var data = MAPPER.writeValueAsString(u);
+        try (var webServer = new MockWebServer(9291,
             new ByteArrayResource(data.getBytes(StandardCharsets.UTF_8), "REST Output"), MediaType.APPLICATION_JSON_VALUE)) {
             webServer.start();
-            final Optional<PasswordlessUserAccount> user = passwordlessUserAccountStore.findUser("casuser");
+            final var user = passwordlessUserAccountStore.findUser("casuser");
             assertTrue(user.isPresent());
         } catch (final Exception e) {
             throw new AssertionError(e.getMessage(), e);

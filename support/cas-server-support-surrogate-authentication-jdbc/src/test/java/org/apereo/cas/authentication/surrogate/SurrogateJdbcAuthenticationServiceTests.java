@@ -2,8 +2,6 @@ package org.apereo.cas.authentication.surrogate;
 
 import org.apereo.cas.audit.spi.config.CasCoreAuditConfiguration;
 import org.apereo.cas.authentication.CoreAuthenticationTestUtils;
-import org.apereo.cas.authentication.principal.Principal;
-import org.apereo.cas.authentication.principal.Service;
 import org.apereo.cas.config.CasCoreAuthenticationConfiguration;
 import org.apereo.cas.config.CasCoreAuthenticationHandlersConfiguration;
 import org.apereo.cas.config.CasCoreAuthenticationMetadataConfiguration;
@@ -20,8 +18,8 @@ import org.apereo.cas.config.CasCoreWebConfiguration;
 import org.apereo.cas.config.CasPersonDirectoryConfiguration;
 import org.apereo.cas.config.SurrogateJdbcAuthenticationConfiguration;
 import org.apereo.cas.config.support.CasWebApplicationServiceFactoryConfiguration;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -96,8 +94,8 @@ public class SurrogateJdbcAuthenticationServiceTests {
 
     @Test
     public void verifyAccountQualifying() {
-        final Principal casuser = CoreAuthenticationTestUtils.getPrincipal("casuser");
-        final Service service = CoreAuthenticationTestUtils.getService();
+        final var casuser = CoreAuthenticationTestUtils.getPrincipal("casuser");
+        final var service = CoreAuthenticationTestUtils.getService();
         assertTrue(surrogateAuthenticationService.canAuthenticateAs("surrogate1", casuser, service));
         assertTrue(surrogateAuthenticationService.canAuthenticateAs("surrogate2", casuser, service));
         assertTrue(surrogateAuthenticationService.canAuthenticateAs("surrogate3", casuser, service));

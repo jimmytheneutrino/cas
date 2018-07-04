@@ -6,9 +6,9 @@ import static org.mockito.Mockito.*;
 import org.apereo.cas.CipherExecutor;
 import org.apereo.inspektr.common.web.ClientInfo;
 import org.apereo.inspektr.common.web.ClientInfoHolder;
+import org.junit.Test;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.stubbing.OngoingStubbing;
@@ -36,7 +36,7 @@ public class DefaultCasCookieValueManagerTests {
     private Cookie cookie;
 
     @Before
-    public void setup() {
+    public void initialize() {
         MockitoAnnotations.initMocks(this);
 
         ClientInfoHolder.setClientInfo(clientInfo);
@@ -54,12 +54,12 @@ public class DefaultCasCookieValueManagerTests {
         whenGettingUserAgent().thenReturn(USER_AGENT);
 
         // test encoding first
-        final String encoded = cookieValueManager.buildCookieValue(VALUE, request);
-        assertEquals(VALUE + "@" + CLIENT_IP + "@" + USER_AGENT, encoded);
+        final var encoded = cookieValueManager.buildCookieValue(VALUE, request);
+        assertEquals(VALUE + '@' + CLIENT_IP + '@' + USER_AGENT, encoded);
 
         // now test decoding the cookie
         when(cookie.getValue()).thenReturn(encoded);
-        final String decoded = cookieValueManager.obtainCookieValue(cookie, request);
+        final var decoded = cookieValueManager.obtainCookieValue(cookie, request);
         assertEquals(VALUE, decoded);
     }
 

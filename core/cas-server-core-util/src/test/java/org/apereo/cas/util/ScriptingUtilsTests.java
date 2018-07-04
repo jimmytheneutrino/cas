@@ -28,7 +28,7 @@ public class ScriptingUtilsTests {
 
     @Test
     public void verifyExternalGroovyScript() {
-        assertTrue(ScriptingUtils.isExternalGroovyScript("file:/etc/cas/sample.groovy"));
+        assertTrue(ScriptingUtils.isExternalGroovyScript("file:/tmp/sample.groovy"));
     }
 
     @Test
@@ -40,7 +40,7 @@ public class ScriptingUtilsTests {
     @Test
     public void verifyGroovyResourceExecution() {
         try {
-            final File file = File.createTempFile("test", ".groovy");
+            final var file = File.createTempFile("test", ".groovy");
             FileUtils.write(file, "def process(String name) { return name }", StandardCharsets.UTF_8);
             final Resource resource = new FileSystemResource(file);
 
@@ -60,7 +60,7 @@ public class ScriptingUtilsTests {
     @Test
     public void verifyResourceScriptEngineExecution() {
         try {
-            final File file = File.createTempFile("test", ".groovy");
+            final var file = File.createTempFile("test", ".groovy");
             FileUtils.write(file, "def run(String name) { return name }", StandardCharsets.UTF_8);
 
             final Object result = ScriptingUtils.executeScriptEngine(file.getCanonicalPath(), new Object[]{"casuser"}, String.class);

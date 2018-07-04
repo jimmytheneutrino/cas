@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -28,7 +27,7 @@ public class RegisteredServiceReverseMappedRegexAttributeFilter extends Register
         return attributeValues.stream()
                 .filter(v -> {
                     LOGGER.debug("Matching attribute value [{}] against pattern [{}]", v, pattern.pattern());
-                    final Matcher matcher = pattern.matcher(v.toString());
+                    final var matcher = pattern.matcher(v.toString());
                     if (isCompleteMatch()) {
                         return !matcher.matches();
                     }

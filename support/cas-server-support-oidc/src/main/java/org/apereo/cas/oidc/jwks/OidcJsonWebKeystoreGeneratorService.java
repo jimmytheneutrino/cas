@@ -5,10 +5,12 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apereo.cas.configuration.model.support.oidc.OidcProperties;
+import org.apereo.cas.util.ResourceUtils;
 import org.jose4j.jwk.JsonWebKey;
 import org.jose4j.jwk.JsonWebKeySet;
-import org.jose4j.jwk.RsaJsonWebKey;
 import org.jose4j.jwk.RsaJwkGenerator;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -23,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 @RequiredArgsConstructor
 public class OidcJsonWebKeystoreGeneratorService {
     private static final int DEFAULT_KEYSTORE_BITS = 2048;
+    private static final File DEFAULT_JWKS_LOCATION = new File("/etc/cas/config/oidc-keystore.jwks");
 
     private final OidcProperties oidcProperties;
 
@@ -31,8 +34,7 @@ public class OidcJsonWebKeystoreGeneratorService {
      */
     @SneakyThrows
     public void generate() {
-        final File file = oidcProperties.getJwksFile().getFile();
-        generate(file, DEFAULT_KEYSTORE_BITS);
+        generate(oidcProperties.getJwksFile(), DEFAULT_KEYSTORE_BITS);
     }
 
     /**
@@ -40,7 +42,7 @@ public class OidcJsonWebKeystoreGeneratorService {
      *
      * @param file the file
      */
-    public void generate(final File file) {
+    public void generate(final Resource file) {
         generate(file, DEFAULT_KEYSTORE_BITS);
     }
 
@@ -51,13 +53,19 @@ public class OidcJsonWebKeystoreGeneratorService {
      * @param bits the bits
      */
     @SneakyThrows
-    protected void generate(final File file, final int bits) {
-        if (!file.exists()) {
-            final RsaJsonWebKey rsaJsonWebKey = RsaJwkGenerator.generateJwk(bits);
-            final JsonWebKeySet jsonWebKeySet = new JsonWebKeySet(rsaJsonWebKey);
-            final String data = jsonWebKeySet.toJson(JsonWebKey.OutputControlLevel.INCLUDE_PRIVATE);
-            FileUtils.write(file, data, StandardCharsets.UTF_8);
-            LOGGER.debug("Generated JSON web keystore at [{}]", file);
+    protected void generate(final Resource file, final int bits) {
+        if (!ResourceUtils.doesResourceExist(file)) {
+            final var rsaJsonWebKey = RsaJwkGenerator.generateJwk(bits);
+            final var jsonWebKeySet = new JsonWebKeySet(rsaJsonWebKey);
+            final var data = jsonWebKeySet.toJson(JsonWebKey.OutputControlLevel.INCLUDE_PRIVATE);
+            final File location;
+            if (file instanceof FileSystemResource) {
+                location = FileSystemResource.class.cast(file).getFile();
+            } else {
+                location = DEFAULT_JWKS_LOCATION;
+            }
+            FileUtils.write(location, data, StandardCharsets.UTF_8);
+            LOGGER.debug("Generated JSON web keystore at [{}]", location);
         } else {
             LOGGER.debug("Located JSON web keystore at [{}]", file);
         }

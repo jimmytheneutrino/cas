@@ -33,9 +33,6 @@ import java.util.List;
 @EnableConfigurationProperties(CasConfigurationProperties.class)
 @Slf4j
 public class CasCoreValidationConfiguration implements ServiceTicketValidationAuthorizerConfigurer {
-
-
-
     @Autowired
     @Qualifier("servicesManager")
     private ServicesManager servicesManager;
@@ -62,9 +59,9 @@ public class CasCoreValidationConfiguration implements ServiceTicketValidationAu
     @Bean
     @ConditionalOnMissingBean(name = "serviceValidationAuthorizers")
     public ServiceTicketValidationAuthorizersExecutionPlan serviceValidationAuthorizers(final List<ServiceTicketValidationAuthorizerConfigurer> configurers) {
-        final DefaultServiceTicketValidationAuthorizersExecutionPlan plan = new DefaultServiceTicketValidationAuthorizersExecutionPlan();
+        final var plan = new DefaultServiceTicketValidationAuthorizersExecutionPlan();
         configurers.forEach(c -> {
-            final String name = StringUtils.removePattern(c.getClass().getSimpleName(), "\\$.+");
+            final var name = StringUtils.removePattern(c.getClass().getSimpleName(), "\\$.+");
             LOGGER.debug("Configuring service ticket validation authorizer execution plan [{}]", name);
             c.configureAuthorizersExecutionPlan(plan);
         });

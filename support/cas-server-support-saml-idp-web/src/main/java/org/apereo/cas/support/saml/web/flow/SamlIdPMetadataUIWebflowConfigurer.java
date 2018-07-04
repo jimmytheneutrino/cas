@@ -6,7 +6,6 @@ import org.apereo.cas.web.flow.configurer.AbstractCasWebflowConfigurer;
 import org.apereo.cas.web.flow.CasWebflowConstants;
 import org.springframework.context.ApplicationContext;
 import org.springframework.webflow.definition.registry.FlowDefinitionRegistry;
-import org.springframework.webflow.engine.Flow;
 import org.springframework.webflow.engine.ViewState;
 import org.springframework.webflow.engine.builder.support.FlowBuilderServices;
 import org.springframework.webflow.execution.Action;
@@ -31,9 +30,9 @@ public class SamlIdPMetadataUIWebflowConfigurer extends AbstractCasWebflowConfig
 
     @Override
     protected void doInitialize() {
-        final Flow flow = getLoginFlow();
+        final var flow = getLoginFlow();
         if (flow != null) {
-            final ViewState state = getTransitionableState(flow, CasWebflowConstants.STATE_ID_VIEW_LOGIN_FORM, ViewState.class);
+            final var state = getTransitionableState(flow, CasWebflowConstants.STATE_ID_VIEW_LOGIN_FORM, ViewState.class);
             state.getEntryActionList().add(this.samlMetadataUIParserAction);
         }
     }

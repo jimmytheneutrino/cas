@@ -19,12 +19,12 @@ import static org.mockito.Mockito.*;
 public class DefaultYubiKeyAccountValidatorTests {
     @Test
     public void verifyAction() throws Exception {
-        final YubicoClient client = mock(YubicoClient.class);
-        final VerificationResponse r = mock(VerificationResponse.class);
+        final var client = mock(YubicoClient.class);
+        final var r = mock(VerificationResponse.class);
         when(client.verify(anyString())).thenReturn(r);
         when(r.getStatus()).thenReturn(ResponseStatus.OK);
         when(r.getTimestamp()).thenReturn(String.valueOf(new Date().getTime()));
-        final DefaultYubiKeyAccountValidator v = new DefaultYubiKeyAccountValidator(client);
+        final var v = new DefaultYubiKeyAccountValidator(client);
         assertTrue(v.isValid("casuser", "cccccccvlidcrkrrculeevnlcjbngciggidutebbkjrv"));
     }
 }

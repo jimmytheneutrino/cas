@@ -3,13 +3,10 @@ package org.apereo.cas.support.saml.web.flow;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apereo.cas.authentication.AuthenticationServiceSelectionPlan;
-import org.apereo.cas.authentication.principal.Service;
-import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceAccessStrategyUtils;
 import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.services.UnauthorizedServiceException;
 import org.apereo.cas.support.saml.mdui.MetadataUIUtils;
-import org.apereo.cas.support.saml.mdui.SamlMetadataUIInfo;
 import org.apereo.cas.support.saml.services.SamlRegisteredService;
 import org.apereo.cas.support.saml.services.idp.metadata.SamlRegisteredServiceServiceProviderMetadataFacade;
 import org.apereo.cas.support.saml.services.idp.metadata.cache.SamlRegisteredServiceCachingMetadataResolver;
@@ -17,8 +14,6 @@ import org.apereo.cas.web.support.WebUtils;
 import org.springframework.webflow.action.AbstractAction;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
-
-import java.util.Optional;
 
 /**
  * This is {@link SamlIdPMetadataUIAction}.
@@ -37,14 +32,14 @@ public class SamlIdPMetadataUIAction extends AbstractAction {
 
     @Override
     protected Event doExecute(final RequestContext requestContext) {
-        final Service service = this.serviceSelectionStrategy.resolveService(WebUtils.getService(requestContext));
+        final var service = this.serviceSelectionStrategy.resolveService(WebUtils.getService(requestContext));
         if (service != null) {
-            final RegisteredService registeredService = this.servicesManager.findServiceBy(service);
+            final var registeredService = this.servicesManager.findServiceBy(service);
             RegisteredServiceAccessStrategyUtils.ensureServiceAccessIsAllowed(service, registeredService);
 
             if (registeredService instanceof SamlRegisteredService) {
-                final SamlRegisteredService samlService = SamlRegisteredService.class.cast(registeredService);
-                final Optional<SamlRegisteredServiceServiceProviderMetadataFacade> adaptor =
+                final var samlService = SamlRegisteredService.class.cast(registeredService);
+                final var adaptor =
                         SamlRegisteredServiceServiceProviderMetadataFacade.get(resolver, samlService, service.getId());
 
                 if (!adaptor.isPresent()) {
@@ -52,7 +47,7 @@ public class SamlIdPMetadataUIAction extends AbstractAction {
                             "Cannot find metadata linked to " + service.getId());
                 }
 
-                final SamlMetadataUIInfo mdui = MetadataUIUtils.locateMetadataUserInterfaceForEntityId(adaptor.get().getEntityDescriptor(),
+                final var mdui = MetadataUIUtils.locateMetadataUserInterfaceForEntityId(adaptor.get().getEntityDescriptor(),
                         service.getId(), registeredService, WebUtils.getHttpServletRequestFromExternalWebflowContext(requestContext));
                 WebUtils.putServiceUserInterfaceMetadata(requestContext, mdui);
             }

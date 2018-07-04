@@ -15,7 +15,6 @@ import org.opensaml.saml.saml2.binding.encoding.impl.BaseSAML2MessageEncoder;
 import org.opensaml.saml.saml2.binding.encoding.impl.HTTPArtifactEncoder;
 import org.opensaml.saml.saml2.core.RequestAbstractType;
 import org.opensaml.saml.saml2.core.Response;
-import org.opensaml.saml.saml2.metadata.AssertionConsumerService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -57,30 +56,31 @@ public class SamlResponseArtifactEncoder extends BaseSamlResponseEncoder {
 
     @Override
     protected BaseSAML2MessageEncoder getMessageEncoderInstance() {
-        final HTTPArtifactEncoder encoder = new HTTPArtifactEncoder();
+        final var encoder = new HTTPArtifactEncoder();
         encoder.setVelocityEngine(this.velocityEngineFactory);
         return encoder;
     }
 
     @Override
-    protected void finalizeEncode(final BaseSAML2MessageEncoder e,
+    protected void finalizeEncode(final RequestAbstractType authnRequest,
+                                  final BaseSAML2MessageEncoder e,
                                   final Response samlResponse,
                                   final String relayState) throws Exception {
-        final HTTPArtifactEncoder encoder = (HTTPArtifactEncoder) e;
+        final var encoder = (HTTPArtifactEncoder) e;
         encoder.setArtifactMap(this.samlArtifactMap);
 
-        final MessageContext ctx = getEncoderMessageContext(samlResponse, relayState);
+        final var ctx = getEncoderMessageContext(authnRequest, samlResponse, relayState);
         prepareArtifactContext(samlResponse, ctx);
         encoder.setMessageContext(ctx);
-        super.finalizeEncode(encoder, samlResponse, relayState);
+        super.finalizeEncode(authnRequest, encoder, samlResponse, relayState);
     }
 
 
     private void prepareArtifactContext(final Response samlResponse, final MessageContext ctx) {
-        final SAMLArtifactContext art = ctx.getSubcontext(SAMLArtifactContext.class, true);
+        final var art = ctx.getSubcontext(SAMLArtifactContext.class, true);
         art.setArtifactType(SAML2ArtifactType0004.TYPE_CODE);
         art.setSourceEntityId(samlResponse.getIssuer().getValue());
-        final AssertionConsumerService svc = adaptor.getAssertionConsumerServiceForArtifactBinding();
+        final var svc = adaptor.getAssertionConsumerServiceForArtifactBinding();
         art.setSourceArtifactResolutionServiceEndpointIndex(svc.getIndex());
         art.setSourceArtifactResolutionServiceEndpointURL(svc.getLocation());
     }

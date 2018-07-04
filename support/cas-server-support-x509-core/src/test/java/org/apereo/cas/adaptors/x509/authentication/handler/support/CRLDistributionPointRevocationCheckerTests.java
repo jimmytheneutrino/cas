@@ -11,8 +11,8 @@ import org.apereo.cas.adaptors.x509.authentication.revocation.checker.Revocation
 import org.apereo.cas.adaptors.x509.authentication.revocation.policy.AllowRevocationPolicy;
 import org.apereo.cas.adaptors.x509.authentication.revocation.policy.ThresholdExpiredCRLRevocationPolicy;
 import org.apereo.cas.util.MockWebServer;
-import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -69,7 +69,7 @@ public class CRLDistributionPointRevocationCheckerTests extends AbstractCRLRevoc
 
         super(certFiles, expected);
 
-        final File file = new File(System.getProperty("java.io.tmpdir"), "ca.crl");
+        final var file = new File(System.getProperty("java.io.tmpdir"), "ca.crl");
         if (file.exists()) {
             file.delete();
         }
@@ -92,8 +92,8 @@ public class CRLDistributionPointRevocationCheckerTests extends AbstractCRLRevoc
         CacheManager.getInstance().removeAllCaches();
         final Collection<Object[]> params = new ArrayList<>();
         Cache cache;
-        final ThresholdExpiredCRLRevocationPolicy defaultPolicy = new ThresholdExpiredCRLRevocationPolicy(0);
-        final ThresholdExpiredCRLRevocationPolicy zeroThresholdPolicy = new ThresholdExpiredCRLRevocationPolicy(0);
+        final var defaultPolicy = new ThresholdExpiredCRLRevocationPolicy(0);
+        final var zeroThresholdPolicy = new ThresholdExpiredCRLRevocationPolicy(0);
 
         // Test case #0
         // Valid certificate on valid CRL data with encoded url
@@ -157,7 +157,7 @@ public class CRLDistributionPointRevocationCheckerTests extends AbstractCRLRevoc
         // "AllowRevocationPolicy" set to allow unavailable CRL data
         cache = new Cache("crlCache-5", 100, false, false, 20, 10);
         CacheManager.getInstance().addCache(cache);
-        final CRLDistributionPointRevocationChecker checker5 =
+        final var checker5 =
                 new CRLDistributionPointRevocationChecker(cache, defaultPolicy, new AllowRevocationPolicy());
         params.add(new Object[]{checker5,
             new String[]{"user-valid.crt"},
@@ -189,7 +189,7 @@ public class CRLDistributionPointRevocationCheckerTests extends AbstractCRLRevoc
      * @throws Exception On setup errors.
      */
     @Before
-    public void setUp() throws Exception {
+    public void initialize() throws Exception {
         this.webServer.start();
         Thread.sleep(500);
     }
@@ -199,7 +199,7 @@ public class CRLDistributionPointRevocationCheckerTests extends AbstractCRLRevoc
      *
      */
     @After
-    public void tearDown() {
+    public void afterEachTest() {
         LOGGER.debug("Stopping web server...");
         this.webServer.stop();
         LOGGER.debug("Web server stopped [{}]", !this.webServer.isRunning());
@@ -207,7 +207,7 @@ public class CRLDistributionPointRevocationCheckerTests extends AbstractCRLRevoc
 
     @AfterClass
     public static void destroy() {
-        final File file = new File("ca.crl");
+        final var file = new File("ca.crl");
         if (file.exists()) {
             file.delete();
         }

@@ -3,6 +3,7 @@ package org.apereo.cas.oidc.jwks;
 import org.apache.commons.io.FileUtils;
 import org.apereo.cas.oidc.AbstractOidcTests;
 import org.junit.Test;
+import org.springframework.core.io.FileSystemResource;
 
 import java.io.File;
 
@@ -17,9 +18,9 @@ import static org.junit.Assert.*;
 public class OidcJsonWebKeystoreGeneratorServiceTests extends AbstractOidcTests {
     @Test
     public void verifyOperation() {
-        final File file = new File(FileUtils.getTempDirectoryPath(), "something.jwks");
+        final var file = new File(FileUtils.getTempDirectoryPath(), "something.jwks");
         file.delete();
-        oidcJsonWebKeystoreGeneratorService.generate(file);
+        oidcJsonWebKeystoreGeneratorService.generate(new FileSystemResource(file));
         assertTrue(file.exists());
     }
 }

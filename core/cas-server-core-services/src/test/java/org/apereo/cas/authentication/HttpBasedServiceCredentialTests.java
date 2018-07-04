@@ -32,25 +32,26 @@ public class HttpBasedServiceCredentialTests {
 
     @Test
     public void verifyEqualsWithNull() throws Exception {
-        final HttpBasedServiceCredential c = new HttpBasedServiceCredential(new URL(CNN_URL), CoreAuthenticationTestUtils.getRegisteredService(SOME_APP_URL));
+        final var registeredService = CoreAuthenticationTestUtils.getRegisteredService(SOME_APP_URL);
+        final var c = new HttpBasedServiceCredential(new URL(CNN_URL), registeredService);
         assertNotEquals(c, null);
     }
 
     @Test
     public void verifyEqualsWithFalse() throws Exception {
-        final HttpBasedServiceCredential c = new HttpBasedServiceCredential(new URL(CNN_URL),
-                CoreAuthenticationTestUtils.getRegisteredService(SOME_APP_URL));
-        final HttpBasedServiceCredential c2 = new HttpBasedServiceCredential(new URL("http://www.msn.com"),
-                CoreAuthenticationTestUtils.getRegisteredService(SOME_APP_URL));
-
+        final var registeredService = CoreAuthenticationTestUtils.getRegisteredService(SOME_APP_URL);
+        final var c = new HttpBasedServiceCredential(new URL(CNN_URL), registeredService);
+        final var c2 = new HttpBasedServiceCredential(new URL("http://www.msn.com"), registeredService);
         assertFalse(c.equals(c2));
         assertFalse(c.equals(new Object()));
     }
 
     @Test
     public void verifyEqualsWithTrue() throws Exception {
-        final HttpBasedServiceCredential c = new HttpBasedServiceCredential(new URL(CNN_URL), RegisteredServiceTestUtils.getRegisteredService(SOME_APP_URL));
-        final HttpBasedServiceCredential c2 = new HttpBasedServiceCredential(new URL(CNN_URL), RegisteredServiceTestUtils.getRegisteredService(SOME_APP_URL));
+        final var registeredService = RegisteredServiceTestUtils.getRegisteredService(SOME_APP_URL);
+        final var callbackUrl = new URL(CNN_URL);
+        final var c = new HttpBasedServiceCredential(callbackUrl, registeredService);
+        final var c2 = new HttpBasedServiceCredential(callbackUrl, registeredService);
 
         assertTrue(c.equals(c2));
         assertTrue(c2.equals(c));
@@ -58,7 +59,7 @@ public class HttpBasedServiceCredentialTests {
 
     @Test
     public void verifySerializeAnHttpBasedServiceCredentialToJson() throws IOException {
-        final HttpBasedServiceCredential credentialMetaDataWritten = 
+        final var credentialMetaDataWritten =
                 new HttpBasedServiceCredential(new URL(CNN_URL),
                 RegisteredServiceTestUtils.getRegisteredService(SOME_APP_URL));
 

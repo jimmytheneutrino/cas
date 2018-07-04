@@ -23,13 +23,13 @@ import static org.junit.Assert.*;
 public class YubiKeyAccountSaveRegistrationActionTests {
     @Test
     public void verifyActionSuccess() throws Exception {
-        final MockRequestContext context = new MockRequestContext();
-        final MockHttpServletRequest request = new MockHttpServletRequest();
+        final var context = new MockRequestContext();
+        final var request = new MockHttpServletRequest();
         request.addParameter("token", "yubikeyToken");
         context.setExternalContext(new ServletExternalContext(new MockServletContext(), request, new MockHttpServletResponse()));
 
         WebUtils.putAuthentication(CoreAuthenticationTestUtils.getAuthentication(), context);
-        final YubiKeyAccountSaveRegistrationAction action =
+        final var action =
             new YubiKeyAccountSaveRegistrationAction(new OpenYubiKeyAccountRegistry(new AcceptAllYubiKeyAccountValidator()));
         assertEquals(CasWebflowConstants.TRANSITION_ID_SUCCESS, action.execute(context).getId());
     }

@@ -7,7 +7,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
 import java.security.cert.CRLException;
@@ -29,10 +28,10 @@ public class ResourceCRLFetcher implements CRLFetcher {
     @Override
     public Collection<X509CRL> fetch(final Collection<Resource> crls) throws IOException, CRLException {
         final Set<X509CRL> results = new HashSet<>();
-        for (final Resource r : crls) {
+        for (final var r : crls) {
             LOGGER.debug("Fetching CRL data from [{}]", r);
-            try(InputStream ins = r.getInputStream()) {
-                final X509CRL crl = (X509CRL) CertUtils.getCertificateFactory().generateCRL(ins);
+            try(var ins = r.getInputStream()) {
+                final var crl = (X509CRL) CertUtils.getCertificateFactory().generateCRL(ins);
                 if (crl != null) {
                     results.add(crl);
                 }
@@ -68,7 +67,7 @@ public class ResourceCRLFetcher implements CRLFetcher {
      */
     @Override
     public X509CRL fetch(final Resource crl) throws IOException, CRLException, CertificateException {
-        final Collection<X509CRL> results = fetch(CollectionUtils.wrap(crl));
+        final var results = fetch(CollectionUtils.wrap(crl));
         if (!results.isEmpty()) {
             return results.iterator().next();
         }

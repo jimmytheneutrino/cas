@@ -4,6 +4,7 @@ import com.unboundid.ldap.sdk.LDAPConnection;
 import lombok.SneakyThrows;
 import org.apereo.cas.adaptors.ldap.LdapIntegrationTestsOperations;
 import org.apereo.cas.authentication.CoreAuthenticationTestUtils;
+import org.apereo.cas.category.LdapCategory;
 import org.apereo.cas.config.CasCoreAuthenticationConfiguration;
 import org.apereo.cas.config.CasCoreAuthenticationHandlersConfiguration;
 import org.apereo.cas.config.CasCoreAuthenticationMetadataConfiguration;
@@ -28,20 +29,24 @@ import org.apereo.cas.config.support.CasWebApplicationServiceFactoryConfiguratio
 import org.apereo.cas.logout.config.CasCoreLogoutConfiguration;
 import org.apereo.cas.services.web.config.CasThemesConfiguration;
 import org.apereo.cas.util.junit.ConditionalIgnore;
-import org.apereo.cas.util.junit.ConditionalSpringRunner;
+import org.apereo.cas.util.junit.ConditionalIgnoreRule;
 import org.apereo.cas.util.junit.RunningContinuousIntegrationCondition;
 import org.apereo.cas.web.config.CasCookieConfiguration;
 import org.apereo.cas.web.flow.config.CasCoreWebflowConfiguration;
 import org.apereo.cas.web.flow.config.CasWebflowContextConfiguration;
-import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.experimental.categories.Category;
+import org.junit.BeforeClass;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.autoconfigure.RefreshAutoConfiguration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit4.rules.SpringClassRule;
+import org.springframework.test.context.junit4.rules.SpringMethodRule;
 
 import java.util.Collection;
 
@@ -54,8 +59,9 @@ import static org.junit.Assert.*;
  * @since 5.3.0
  */
 @TestPropertySource(locations = "classpath:/surrogate-ldap.properties")
-@RunWith(ConditionalSpringRunner.class)
-@SpringBootTest(classes = {RefreshAutoConfiguration.class,
+@Category(LdapCategory.class)
+@SpringBootTest(classes = {
+    RefreshAutoConfiguration.class,
     CasCoreAuthenticationPrincipalConfiguration.class,
     CasCoreAuthenticationPolicyConfiguration.class,
     CasCoreAuthenticationMetadataConfiguration.class,
@@ -86,7 +92,17 @@ import static org.junit.Assert.*;
 })
 @ConditionalIgnore(condition = RunningContinuousIntegrationCondition.class)
 public class SurrogateLdapAuthenticationServiceTests {
+
+    @ClassRule
+    public static final SpringClassRule SPRING_CLASS_RULE = new SpringClassRule();
+
     private static final int LDAP_PORT = 10389;
+
+    @Rule
+    public final SpringMethodRule springMethodRule = new SpringMethodRule();
+
+    @Rule
+    public final ConditionalIgnoreRule conditionalIgnoreRule = new ConditionalIgnoreRule();
 
     @Autowired
     @Qualifier("surrogateAuthenticationService")
@@ -100,7 +116,7 @@ public class SurrogateLdapAuthenticationServiceTests {
 
     @Test
     public void verifyAccountQualifying() {
-        final boolean result = surrogateAuthenticationService.canAuthenticateAs("cassurrogate",
+        final var result = surrogateAuthenticationService.canAuthenticateAs("cassurrogate",
             CoreAuthenticationTestUtils.getPrincipal("casuser"),
             CoreAuthenticationTestUtils.getService());
         assertTrue(result);
@@ -109,7 +125,7 @@ public class SurrogateLdapAuthenticationServiceTests {
     @BeforeClass
     @SneakyThrows
     public static void bootstrap() {
-        final LDAPConnection localhost = new LDAPConnection("localhost", LDAP_PORT,
+        final var localhost = new LDAPConnection("localhost", LDAP_PORT,
             "cn=Directory Manager", "password");
         localhost.connect("localhost", LDAP_PORT);
         localhost.bind("cn=Directory Manager", "password");

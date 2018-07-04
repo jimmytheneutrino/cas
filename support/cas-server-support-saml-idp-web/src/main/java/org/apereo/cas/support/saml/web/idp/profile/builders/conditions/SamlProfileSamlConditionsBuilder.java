@@ -20,7 +20,6 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * This is {@link SamlProfileSamlConditionsBuilder}.
@@ -64,8 +63,8 @@ public class SamlProfileSamlConditionsBuilder extends AbstractSaml20ObjectBuilde
                                          final SamlRegisteredServiceServiceProviderMetadataFacade adaptor,
                                          final MessageContext messageContext) throws SamlException {
 
-        final ZonedDateTime currentDateTime = ZonedDateTime.now(ZoneOffset.UTC);
-        int skewAllowance = casProperties.getAuthn().getSamlIdp().getResponse().getSkewAllowance();
+        final var currentDateTime = ZonedDateTime.now(ZoneOffset.UTC);
+        var skewAllowance = casProperties.getAuthn().getSamlIdp().getResponse().getSkewAllowance();
         if (skewAllowance <= 0) {
             skewAllowance = casProperties.getSamlCore().getSkewAllowance();
         }
@@ -73,10 +72,10 @@ public class SamlProfileSamlConditionsBuilder extends AbstractSaml20ObjectBuilde
         final List<String> audienceUrls = new ArrayList<>();
         audienceUrls.add(adaptor.getEntityId());
         if (StringUtils.isNotBlank(service.getAssertionAudiences())) {
-            final Set<String> audiences = org.springframework.util.StringUtils.commaDelimitedListToSet(service.getAssertionAudiences());
+            final var audiences = org.springframework.util.StringUtils.commaDelimitedListToSet(service.getAssertionAudiences());
             audienceUrls.addAll(audiences);
         }
-        final Conditions conditions = newConditions(currentDateTime,
+        final var conditions = newConditions(currentDateTime,
             currentDateTime.plusSeconds(skewAllowance),
             audienceUrls.toArray(new String[]{}));
         return conditions;

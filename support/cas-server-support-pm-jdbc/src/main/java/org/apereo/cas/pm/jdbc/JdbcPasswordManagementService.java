@@ -12,12 +12,10 @@ import org.apereo.cas.pm.BasePasswordManagementService;
 import org.apereo.cas.pm.PasswordChangeBean;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.sql.DataSource;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -43,17 +41,17 @@ public class JdbcPasswordManagementService extends BasePasswordManagementService
 
     @Override
     public boolean changeInternal(final Credential credential, final PasswordChangeBean bean) {
-        final UsernamePasswordCredential c = (UsernamePasswordCredential) credential;
-        final PasswordEncoder encoder = PasswordEncoderUtils.newPasswordEncoder(properties.getJdbc().getPasswordEncoder());
-        final String password = encoder.encode(bean.getPassword());
-        final int count = this.jdbcTemplate.update(properties.getJdbc().getSqlChangePassword(), password, c.getId());
+        final var c = (UsernamePasswordCredential) credential;
+        final var encoder = PasswordEncoderUtils.newPasswordEncoder(properties.getJdbc().getPasswordEncoder());
+        final var password = encoder.encode(bean.getPassword());
+        final var count = this.jdbcTemplate.update(properties.getJdbc().getSqlChangePassword(), password, c.getId());
         return count > 0;
     }
 
     @Override
     public String findEmail(final String username) {
         try {
-            final String email = this.jdbcTemplate.queryForObject(properties.getJdbc().getSqlFindEmail(), String.class, username);
+            final var email = this.jdbcTemplate.queryForObject(properties.getJdbc().getSqlFindEmail(), String.class, username);
             if (StringUtils.isNotBlank(email) && EmailValidator.getInstance().isValid(email)) {
                 return email;
             }
@@ -67,9 +65,9 @@ public class JdbcPasswordManagementService extends BasePasswordManagementService
 
     @Override
     public Map<String, String> getSecurityQuestions(final String username) {
-        final String sqlSecurityQuestions = properties.getJdbc().getSqlSecurityQuestions();
+        final var sqlSecurityQuestions = properties.getJdbc().getSqlSecurityQuestions();
         final Map<String, String> map = new LinkedHashMap<>();
-        final List<Map<String, Object>> results = jdbcTemplate.queryForList(sqlSecurityQuestions, username);
+        final var results = jdbcTemplate.queryForList(sqlSecurityQuestions, username);
         results.forEach(row -> {
             if (row.containsKey("question") && row.containsKey("answer")) {
                 map.put(row.get("question").toString(), row.get("answer").toString());

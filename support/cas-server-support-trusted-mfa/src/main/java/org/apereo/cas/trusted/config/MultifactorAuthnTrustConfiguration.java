@@ -9,8 +9,6 @@ import org.apereo.cas.audit.AuditTrailRecordResolutionPlanConfigurer;
 import org.apereo.cas.authentication.PseudoPlatformTransactionManager;
 import org.apereo.cas.config.CasCoreUtilConfiguration;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.core.util.EncryptionJwtSigningJwtCryptographyProperties;
-import org.apereo.cas.configuration.model.support.mfa.TrustedDevicesMultifactorProperties;
 import org.apereo.cas.trusted.authentication.MultifactorAuthenticationTrustCipherExecutor;
 import org.apereo.cas.trusted.authentication.api.MultifactorAuthenticationTrustRecord;
 import org.apereo.cas.trusted.authentication.api.MultifactorAuthenticationTrustStorage;
@@ -18,10 +16,12 @@ import org.apereo.cas.trusted.authentication.storage.BaseMultifactorAuthenticati
 import org.apereo.cas.trusted.authentication.storage.InMemoryMultifactorAuthenticationTrustStorage;
 import org.apereo.cas.trusted.authentication.storage.JsonMultifactorAuthenticationTrustStorage;
 import org.apereo.cas.trusted.authentication.storage.MultifactorAuthenticationTrustStorageCleaner;
+import org.apereo.cas.trusted.web.MultifactorTrustedDevicesReportEndpoint;
 import org.apereo.inspektr.audit.spi.AuditActionResolver;
 import org.apereo.inspektr.audit.spi.AuditResourceResolver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.actuate.autoconfigure.endpoint.condition.ConditionalOnEnabledEndpoint;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -60,7 +60,7 @@ public class MultifactorAuthnTrustConfiguration implements AuditTrailRecordResol
     @Bean
     @RefreshScope
     public MultifactorAuthenticationTrustStorage mfaTrustEngine() {
-        final TrustedDevicesMultifactorProperties trusted = casProperties.getAuthn().getMfa().getTrusted();
+        final var trusted = casProperties.getAuthn().getMfa().getTrusted();
         final LoadingCache<String, MultifactorAuthenticationTrustRecord> storage = Caffeine.newBuilder()
             .initialCapacity(INITIAL_CACHE_SIZE)
             .maximumSize(MAX_CACHE_SIZE)
@@ -92,7 +92,7 @@ public class MultifactorAuthnTrustConfiguration implements AuditTrailRecordResol
     @Bean
     @RefreshScope
     public CipherExecutor mfaTrustCipherExecutor() {
-        final EncryptionJwtSigningJwtCryptographyProperties crypto = casProperties.getAuthn().getMfa().getTrusted().getCrypto();
+        final var crypto = casProperties.getAuthn().getMfa().getTrusted().getCrypto();
         if (crypto.isEnabled()) {
             return new MultifactorAuthenticationTrustCipherExecutor(
                 crypto.getEncryption().getKey(),
@@ -120,4 +120,12 @@ public class MultifactorAuthnTrustConfiguration implements AuditTrailRecordResol
         plan.registerAuditResourceResolver("TRUSTED_AUTHENTICATION_RESOURCE_RESOLVER", this.returnValueResourceResolver);
         plan.registerAuditActionResolver("TRUSTED_AUTHENTICATION_ACTION_RESOLVER", this.ticketCreationActionResolver);
     }
+
+    @Bean
+    @ConditionalOnEnabledEndpoint
+    public MultifactorTrustedDevicesReportEndpoint mfaTrustedDevicesReportEndpoint() {
+        return new MultifactorTrustedDevicesReportEndpoint(mfaTrustEngine(),
+            casProperties.getAuthn().getMfa().getTrusted());
+    }
+
 }

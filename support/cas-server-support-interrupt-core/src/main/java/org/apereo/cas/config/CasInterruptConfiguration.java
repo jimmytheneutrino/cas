@@ -3,7 +3,6 @@ package org.apereo.cas.config;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.support.interrupt.InterruptProperties;
 import org.apereo.cas.interrupt.GroovyScriptInterruptInquirer;
 import org.apereo.cas.interrupt.InterruptInquirer;
 import org.apereo.cas.interrupt.InterruptResponse;
@@ -32,7 +31,7 @@ public class CasInterruptConfiguration {
     @Bean
     @ConditionalOnMissingBean(name = "interruptInquirer")
     public InterruptInquirer interruptInquirer() {
-        final InterruptProperties ip = casProperties.getInterrupt();
+        final var ip = casProperties.getInterrupt();
         if (StringUtils.isNotBlank(ip.getAttributeName()) && StringUtils.isNotBlank(ip.getAttributeValue())) {
             return new RegexAttributeInterruptInquirer(ip.getAttributeName(), ip.getAttributeValue());
         }
@@ -45,6 +44,6 @@ public class CasInterruptConfiguration {
         if (StringUtils.isNotBlank(ip.getRest().getUrl())) {
             return new RestEndpointInterruptInquirer(ip.getRest());
         }
-        return (authentication, registeredService, service) -> new InterruptResponse();
+        return (authentication, registeredService, service, credential) -> new InterruptResponse();
     }
 }

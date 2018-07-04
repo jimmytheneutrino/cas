@@ -21,16 +21,16 @@ import static org.mockito.Mockito.*;
 public class AccessTokenGrantRequestAuditResourceResolverTests {
     @Test
     public void verifyAction() {
-        final AccessTokenGrantRequestAuditResourceResolver r = new AccessTokenGrantRequestAuditResourceResolver();
-        final OAuthToken token = mock(OAuthToken.class);
+        final var r = new AccessTokenGrantRequestAuditResourceResolver();
+        final var token = mock(OAuthToken.class);
         when(token.getId()).thenReturn("CODE");
         when(token.getService()).thenReturn(RegisteredServiceTestUtils.getService());
 
-        final OAuthRegisteredService service = new OAuthRegisteredService();
+        final var service = new OAuthRegisteredService();
         service.setClientId("CLIENTID");
         service.setName("OAUTH");
         service.setId(123);
-        final AccessTokenRequestDataHolder holder =
+        final var holder =
             new AccessTokenRequestDataHolder(token, service, OAuth20GrantTypes.AUTHORIZATION_CODE,
                 true, CollectionUtils.wrapSet("email"));
         assertTrue(r.resolveFrom(mock(JoinPoint.class), holder).length > 0);

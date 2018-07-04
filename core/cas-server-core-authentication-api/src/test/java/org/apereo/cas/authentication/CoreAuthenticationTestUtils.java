@@ -15,6 +15,7 @@ import org.apereo.services.persondir.support.StubPersonAttributeDao;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -54,7 +55,7 @@ public class CoreAuthenticationTestUtils {
     }
 
     public static UsernamePasswordCredential getCredentialsWithDifferentUsernameAndPassword(final String username, final String password) {
-        final UsernamePasswordCredential usernamePasswordCredentials = new UsernamePasswordCredential();
+        final var usernamePasswordCredentials = new UsernamePasswordCredential();
         usernamePasswordCredentials.setUsername(username);
         usernamePasswordCredentials.setPassword(password);
 
@@ -74,7 +75,7 @@ public class CoreAuthenticationTestUtils {
     }
 
     public static Service getService(final String id) {
-        final Service svc = mock(Service.class);
+        final var svc = mock(Service.class);
         when(svc.getId()).thenReturn(id);
         when(svc.matches(any(Service.class))).thenReturn(true);
         return svc;
@@ -89,7 +90,7 @@ public class CoreAuthenticationTestUtils {
     }
 
     public static WebApplicationService getWebApplicationService(final String id) {
-        final WebApplicationService svc = mock(WebApplicationService.class);
+        final var svc = mock(WebApplicationService.class);
         when(svc.getId()).thenReturn(id);
         when(svc.matches(any(WebApplicationService.class))).thenReturn(true);
         when(svc.getOriginalUrl()).thenReturn(id);
@@ -134,15 +135,24 @@ public class CoreAuthenticationTestUtils {
         return getAuthentication(getPrincipal(name));
     }
 
+    public static Authentication getAuthentication(final String name, final ZonedDateTime authnDate) {
+        return getAuthentication(getPrincipal(name), new HashMap<>(0), authnDate);
+    }
+
     public static Authentication getAuthentication(final Principal principal) {
         return getAuthentication(principal, new HashMap<>(0));
     }
 
     public static Authentication getAuthentication(final Principal principal, final Map<String, Object> attributes) {
+        return getAuthentication(principal, attributes, null);
+    }
+
+    public static Authentication getAuthentication(final Principal principal, final Map<String, Object> attributes, final ZonedDateTime authnDate) {
         final AuthenticationHandler handler = new SimpleTestUsernamePasswordAuthenticationHandler();
         final CredentialMetaData meta = new BasicCredentialMetaData(new UsernamePasswordCredential());
         return new DefaultAuthenticationBuilder(principal)
             .addCredential(meta)
+            .setAuthenticationDate(authnDate)
             .addSuccess("testHandler", new DefaultAuthenticationHandlerExecutionResult(handler, meta))
             .setAttributes(attributes)
             .build();
@@ -153,13 +163,13 @@ public class CoreAuthenticationTestUtils {
     }
 
     public static RegisteredService getRegisteredService(final String url) {
-        final RegisteredService service = mock(RegisteredService.class);
+        final var service = mock(RegisteredService.class);
         when(service.getServiceId()).thenReturn(url);
         when(service.getName()).thenReturn("service name");
         when(service.getId()).thenReturn(Long.MAX_VALUE);
         when(service.getDescription()).thenReturn("service description");
 
-        final RegisteredServiceAccessStrategy access = mock(RegisteredServiceAccessStrategy.class);
+        final var access = mock(RegisteredServiceAccessStrategy.class);
         when(access.isServiceAccessAllowed()).thenReturn(true);
         when(service.getAccessStrategy()).thenReturn(access);
         return service;

@@ -35,7 +35,7 @@ public class DatabaseAuthenticationTestConfiguration {
 
     @Bean
     public DataSource dataSource() {
-        final SimpleDriverDataSource ds = new SimpleDriverDataSource();
+        final var ds = new SimpleDriverDataSource();
         ds.setDriverClass(org.hsqldb.jdbcDriver.class);
         ds.setUsername(databaseUser);
         ds.setPassword(databasePassword);
@@ -45,7 +45,7 @@ public class DatabaseAuthenticationTestConfiguration {
 
     @Bean
     public HibernateJpaVendorAdapter jpaVendorAdapter() {
-        final DatabaseProperties properties = new DatabaseProperties();
+        final var properties = new DatabaseProperties();
         properties.setGenDdl(true);
         properties.setShowSql(true);
         return JpaBeans.newHibernateJpaVendorAdapter(properties);
@@ -53,13 +53,13 @@ public class DatabaseAuthenticationTestConfiguration {
 
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
-        final LocalContainerEntityManagerFactoryBean bean = new LocalContainerEntityManagerFactoryBean();
+        final var bean = new LocalContainerEntityManagerFactoryBean();
         bean.setPersistenceUnitName("databaseAuthnContext");
         bean.setJpaVendorAdapter(jpaVendorAdapter());
         bean.setPackagesToScan(CentralAuthenticationService.NAMESPACE);
         bean.setDataSource(dataSource());
 
-        final Properties properties = new Properties();
+        final var properties = new Properties();
         properties.put("hibernate.dialect", "org.hibernate.dialect.HSQLDialect");
         properties.put("hibernate.hbm2ddl.auto", "create-drop");
         properties.put("hibernate.jdbc.batch_size", 1);

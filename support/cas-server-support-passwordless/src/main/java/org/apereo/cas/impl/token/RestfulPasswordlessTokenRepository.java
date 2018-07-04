@@ -2,7 +2,6 @@ package org.apereo.cas.impl.token;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpResponse;
 import org.apereo.cas.CipherExecutor;
 import org.apereo.cas.configuration.model.support.passwordless.PasswordlessAuthenticationProperties;
 import org.apereo.cas.util.HttpUtils;
@@ -38,12 +37,12 @@ public class RestfulPasswordlessTokenRepository extends BasePasswordlessTokenRep
         try {
             final Map<String, Object> parameters = new HashMap<>();
             parameters.put("username", username);
-            final HttpResponse response = HttpUtils.execute(restProperties.getUrl(), HttpMethod.GET.name(),
+            final var response = HttpUtils.execute(restProperties.getUrl(), HttpMethod.GET.name(),
                 restProperties.getBasicAuthUsername(), restProperties.getBasicAuthPassword(),
                 parameters, new HashMap<>());
             if (response != null && response.getEntity() != null) {
-                final String token = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
-                final String result = cipherExecutor.decode(token).toString();
+                final var token = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
+                final var result = cipherExecutor.decode(token).toString();
                 return Optional.of(result);
             }
         } catch (final Exception e) {

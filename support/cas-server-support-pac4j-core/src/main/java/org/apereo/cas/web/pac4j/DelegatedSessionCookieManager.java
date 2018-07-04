@@ -9,7 +9,6 @@ import org.apereo.cas.web.support.CookieRetrievingCookieGenerator;
 import org.pac4j.core.context.J2EContext;
 
 import javax.servlet.http.HttpSession;
-import java.util.Enumeration;
 import java.util.Map;
 
 /**
@@ -31,14 +30,14 @@ public class DelegatedSessionCookieManager {
      */
     public void store(final J2EContext webContext) {
         final Map<String, Object> session = Maps.newLinkedHashMap();
-        final HttpSession webSession = (HttpSession) webContext.getSessionStore().getTrackableSession(webContext);
-        final Enumeration<String> names = webSession.getAttributeNames();
+        final var webSession = (HttpSession) webContext.getSessionStore().getTrackableSession(webContext);
+        final var names = webSession.getAttributeNames();
         while (names.hasMoreElements()) {
-            final String name = names.nextElement();
-            final Object value = webSession.getAttribute(name);
+            final var name = names.nextElement();
+            final var value = webSession.getAttribute(name);
             session.put(name, value);
         }
-        final String cookieValue = serializeSessionValues(session);
+        final var cookieValue = serializeSessionValues(session);
         cookieGenerator.addCookie(webContext.getRequest(), webContext.getResponse(), cookieValue);
     }
 
@@ -48,17 +47,17 @@ public class DelegatedSessionCookieManager {
      * @param webContext the web context
      */
     public void restore(final J2EContext webContext) {
-        final String value = cookieGenerator.retrieveCookieValue(webContext.getRequest());
+        final var value = cookieGenerator.retrieveCookieValue(webContext.getRequest());
         if (StringUtils.isNotBlank(value)) {
-            final String blob = EncodingUtils.hexDecode(value);
-            final Map<String, Object> session = serializer.from(blob);
+            final var blob = EncodingUtils.hexDecode(value);
+            final var session = serializer.from(blob);
             session.forEach((k, v) -> webContext.getSessionStore().set(webContext, k, v));
         }
         cookieGenerator.removeCookie(webContext.getResponse());
     }
 
     private String serializeSessionValues(final Map<String, Object> attributes) {
-        final String blob = serializer.toString(attributes);
+        final var blob = serializer.toString(attributes);
         return EncodingUtils.hexEncode(blob);
     }
 

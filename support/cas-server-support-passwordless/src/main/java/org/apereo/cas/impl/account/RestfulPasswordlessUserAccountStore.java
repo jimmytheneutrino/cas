@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.HttpResponse;
 import org.apereo.cas.api.PasswordlessUserAccount;
 import org.apereo.cas.api.PasswordlessUserAccountStore;
 import org.apereo.cas.configuration.model.support.passwordless.PasswordlessAuthenticationProperties;
@@ -36,11 +35,11 @@ public class RestfulPasswordlessUserAccountStore implements PasswordlessUserAcco
             final Map<String, Object> parameters = new HashMap<>();
             parameters.put("username", username);
 
-            final HttpResponse response = HttpUtils.execute(restProperties.getUrl(), restProperties.getMethod(),
+            final var response = HttpUtils.execute(restProperties.getUrl(), restProperties.getMethod(),
                 restProperties.getBasicAuthUsername(), restProperties.getBasicAuthPassword(),
                 parameters, new HashMap<>());
             if (response != null && response.getEntity() != null) {
-                final PasswordlessUserAccount account = MAPPER.readValue(response.getEntity().getContent(), PasswordlessUserAccount.class);
+                final var account = MAPPER.readValue(response.getEntity().getContent(), PasswordlessUserAccount.class);
                 return Optional.ofNullable(account);
             }
         } catch (final Exception e) {

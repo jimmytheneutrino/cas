@@ -4,7 +4,6 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.support.saml.idp.SamlIdPProperties;
 import org.apereo.cas.support.saml.InMemoryResourceMetadataResolver;
 import org.apereo.cas.support.saml.OpenSamlConfigBean;
 import org.apereo.cas.support.saml.idp.metadata.generator.FileSystemSamlIdPMetadataGenerator;
@@ -41,7 +40,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.ResourceLoader;
 
 import java.net.URL;
-import java.util.Map;
 
 /**
  * This is {@link SamlIdPMetadataConfiguration}.
@@ -77,8 +75,8 @@ public class SamlIdPMetadataConfiguration {
     @SneakyThrows
     @Autowired
     public MetadataResolver casSamlIdPMetadataResolver(@Qualifier("samlMetadataLocator") final SamlIdPMetadataLocator samlMetadataLocator) {
-        final SamlIdPProperties idp = casProperties.getAuthn().getSamlIdp();
-        final InMemoryResourceMetadataResolver resolver = new InMemoryResourceMetadataResolver(samlMetadataLocator.getMetadata(), openSamlConfigBean);
+        final var idp = casProperties.getAuthn().getSamlIdp();
+        final var resolver = new InMemoryResourceMetadataResolver(samlMetadataLocator.getMetadata(), openSamlConfigBean);
         resolver.setParserPool(this.openSamlConfigBean.getParserPool());
         resolver.setFailFastInitialization(idp.getMetadata().isFailFast());
         resolver.setRequireValidMetadata(idp.getMetadata().isRequireValidMetadata());
@@ -96,7 +94,7 @@ public class SamlIdPMetadataConfiguration {
     @Bean
     @SneakyThrows
     public SamlIdPMetadataGenerator samlIdPMetadataGenerator() {
-        final SamlIdPProperties idp = casProperties.getAuthn().getSamlIdp();
+        final var idp = casProperties.getAuthn().getSamlIdp();
         return new FileSystemSamlIdPMetadataGenerator(idp.getEntityId(), this.resourceLoader,
             casProperties.getServer().getPrefix(), idp.getScope(),
             samlMetadataLocator(), samlSelfSignedCertificateWriter());
@@ -106,8 +104,8 @@ public class SamlIdPMetadataConfiguration {
     @Bean
     @SneakyThrows
     public SamlIdPCertificateAndKeyWriter samlSelfSignedCertificateWriter() {
-        final URL url = new URL(casProperties.getServer().getPrefix());
-        final DefaultSamlIdPCertificateAndKeyWriter generator = new DefaultSamlIdPCertificateAndKeyWriter();
+        final var url = new URL(casProperties.getServer().getPrefix());
+        final var generator = new DefaultSamlIdPCertificateAndKeyWriter();
         generator.setHostname(url.getHost());
         generator.setUriSubjectAltNames(CollectionUtils.wrap(url.getHost().concat("/idp/metadata")));
         return generator;
@@ -117,7 +115,7 @@ public class SamlIdPMetadataConfiguration {
     @Bean
     @SneakyThrows
     public SamlIdPMetadataLocator samlMetadataLocator() {
-        final SamlIdPProperties idp = casProperties.getAuthn().getSamlIdp();
+        final var idp = casProperties.getAuthn().getSamlIdp();
         return new DefaultSamlIdPMetadataLocator(idp.getMetadata().getLocation());
     }
 
@@ -133,20 +131,20 @@ public class SamlIdPMetadataConfiguration {
     @ConditionalOnMissingBean(name = "samlRegisteredServiceMetadataResolvers")
     @Bean
     public SamlRegisteredServiceMetadataResolutionPlan samlRegisteredServiceMetadataResolvers() {
-        final DefaultSamlRegisteredServiceMetadataResolutionPlan plan = new DefaultSamlRegisteredServiceMetadataResolutionPlan();
+        final var plan = new DefaultSamlRegisteredServiceMetadataResolutionPlan();
 
-        final SamlIdPProperties samlIdp = casProperties.getAuthn().getSamlIdp();
+        final var samlIdp = casProperties.getAuthn().getSamlIdp();
         plan.registerMetadataResolver(new DynamicMetadataResolver(samlIdp, openSamlConfigBean));
         plan.registerMetadataResolver(new FileSystemResourceMetadataResolver(samlIdp, openSamlConfigBean));
         plan.registerMetadataResolver(new UrlResourceMetadataResolver(samlIdp, openSamlConfigBean));
         plan.registerMetadataResolver(new ClasspathResourceMetadataResolver(samlIdp, openSamlConfigBean));
         plan.registerMetadataResolver(new GroovyResourceMetadataResolver(samlIdp, openSamlConfigBean));
 
-        final Map<String, SamlRegisteredServiceMetadataResolutionPlanConfigurator> configurers =
+        final var configurers =
             this.applicationContext.getBeansOfType(SamlRegisteredServiceMetadataResolutionPlanConfigurator.class, false, true);
 
         configurers.values().forEach(c -> {
-            final String name = StringUtils.removePattern(c.getClass().getSimpleName(), "\\$.+");
+            final var name = StringUtils.removePattern(c.getClass().getSimpleName(), "\\$.+");
             LOGGER.debug("Configuring saml metadata resolution plan [{}]", name);
             c.configureMetadataResolutionPlan(plan);
         });

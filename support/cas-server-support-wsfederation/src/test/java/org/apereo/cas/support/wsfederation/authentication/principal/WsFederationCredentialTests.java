@@ -2,8 +2,8 @@ package org.apereo.cas.support.wsfederation.authentication.principal;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apereo.cas.support.wsfederation.AbstractWsFederationTests;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.Before;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -24,7 +24,7 @@ public class WsFederationCredentialTests extends AbstractWsFederationTests {
     private WsFederationCredential standardCred;
 
     @Before
-    public void setUp() {
+    public void initialize() {
         standardCred = new WsFederationCredential();
         standardCred.setNotBefore(ZonedDateTime.now(ZoneOffset.UTC));
         standardCred.setNotOnOrAfter(ZonedDateTime.now(ZoneOffset.UTC).plusHours(1));
@@ -37,21 +37,21 @@ public class WsFederationCredentialTests extends AbstractWsFederationTests {
 
     @Test
     public void verifyIsValidAllGood() {
-        final boolean result = standardCred.isValid(AUDIENCE, ISSUER, 2000);
+        final var result = standardCred.isValid(AUDIENCE, ISSUER, 2000);
         assertTrue("testIsValidAllGood() - True", result);
     }
 
     @Test
     public void verifyIsValidBadAudience() {
         standardCred.setAudience("urn:NotUs");
-        final boolean result = standardCred.isValid(AUDIENCE, ISSUER, 2000);
+        final var result = standardCred.isValid(AUDIENCE, ISSUER, 2000);
         assertFalse("testIsValidBadAudeience() - False", result);
     }
 
     @Test
     public void verifyIsValidBadIssuer() {
         standardCred.setIssuer("urn:NotThem");
-        final boolean result = standardCred.isValid(AUDIENCE, ISSUER, 2000);
+        final var result = standardCred.isValid(AUDIENCE, ISSUER, 2000);
         assertFalse("testIsValidBadIssuer() - False", result);
     }
 
@@ -61,7 +61,7 @@ public class WsFederationCredentialTests extends AbstractWsFederationTests {
         standardCred.setNotOnOrAfter(ZonedDateTime.now(ZoneOffset.UTC).plusHours(1).plusDays(1));
         standardCred.setIssuedOn(ZonedDateTime.now(ZoneOffset.UTC).plusDays(1));
         
-        final boolean result = standardCred.isValid(AUDIENCE, ISSUER, 2000);
+        final var result = standardCred.isValid(AUDIENCE, ISSUER, 2000);
         assertFalse("testIsValidEarlyToken() - False", result);
     }
 
@@ -71,7 +71,7 @@ public class WsFederationCredentialTests extends AbstractWsFederationTests {
         standardCred.setNotOnOrAfter(ZonedDateTime.now(ZoneOffset.UTC).plusHours(1).minusDays(1));
         standardCred.setIssuedOn(ZonedDateTime.now(ZoneOffset.UTC).minusDays(1));
         
-        final boolean result = standardCred.isValid(AUDIENCE, ISSUER, 2000);
+        final var result = standardCred.isValid(AUDIENCE, ISSUER, 2000);
         assertFalse("testIsValidOldToken() - False", result);
     }
 
@@ -79,7 +79,7 @@ public class WsFederationCredentialTests extends AbstractWsFederationTests {
     public void verifyIsValidExpiredIssuedOn() {
         standardCred.setIssuedOn(ZonedDateTime.now(ZoneOffset.UTC).minusSeconds(3));
         
-        final boolean result = standardCred.isValid(AUDIENCE, ISSUER, 2000);
+        final var result = standardCred.isValid(AUDIENCE, ISSUER, 2000);
         assertFalse("testIsValidOldToken() - False", result);
     }
 }

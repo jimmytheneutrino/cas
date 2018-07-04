@@ -13,7 +13,6 @@ import org.springframework.boot.Banner;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * This is {@link CasEmbeddedContainerUtils}.
@@ -47,14 +46,14 @@ public class CasEmbeddedContainerUtils {
      * @return the cas banner instance
      */
     public static Banner getCasBannerInstance() {
-        final String packageName = CasEmbeddedContainerUtils.class.getPackage().getName();
-        final Reflections reflections =
+        final var packageName = CasEmbeddedContainerUtils.class.getPackage().getName();
+        final var reflections =
             new Reflections(new ConfigurationBuilder()
                 .filterInputsBy(new FilterBuilder().includePackage(packageName))
                 .setUrls(ClasspathHelper.forPackage(packageName))
                 .setScanners(new SubTypesScanner(true)));
 
-        final Set<Class<? extends AbstractCasBanner>> subTypes = reflections.getSubTypesOf(AbstractCasBanner.class);
+        final var subTypes = reflections.getSubTypesOf(AbstractCasBanner.class);
         subTypes.remove(DefaultCasBanner.class);
 
         if (subTypes.isEmpty()) {

@@ -25,30 +25,30 @@ public class SamlAttributeEncoderTests {
 
     @Test
     public void verifyAction() {
-        final SamlAttributeEncoder encoder = new SamlAttributeEncoder();
-        final Map original = CoreAuthenticationTestUtils.getAttributes();
+        final var encoder = new SamlAttributeEncoder();
+        final var original = CoreAuthenticationTestUtils.getAttributes();
         original.put("address", EncodingUtils.hexEncode("123 Main Street"));
-        final Map attributes = encoder.encodeAttributes(original, CoreAuthenticationTestUtils.getRegisteredService());
+        final var attributes = encoder.encodeAttributes(original, CoreAuthenticationTestUtils.getRegisteredService());
         assertEquals(original.size(), attributes.size());
         assertTrue(attributes.containsKey("address"));
     }
 
     @Test
     public void ensureSamlUrnAttributesEncoded() {
-        final SamlAttributeEncoder encoder = new SamlAttributeEncoder();
+        final var encoder = new SamlAttributeEncoder();
         final Map<String, Object> attributes = new HashMap<>();
         attributes.put(EncodingUtils.hexEncode("urn:oid:2.5.4.3"), "testValue");
-        final Map<String, Object> result =
+        final var result =
             encoder.encodeAttributes(attributes, CoreAuthenticationTestUtils.getRegisteredService("test"));
         assertTrue(result.containsKey("urn:oid:2.5.4.3"));
     }
 
     @Test
     public void ensureSamlMsftClaimsAttributesEncoded() {
-        final SamlAttributeEncoder encoder = new SamlAttributeEncoder();
+        final var encoder = new SamlAttributeEncoder();
         final Map<String, Object> attributes = new HashMap<>();
         attributes.put("http://schemas.microsoft.com/ws/2008/06/identity/claims/windowsaccountname", "testValue");
-        final Map<String, Object> result = encoder.encodeAttributes(attributes, CoreAuthenticationTestUtils.getRegisteredService("test"));
+        final var result = encoder.encodeAttributes(attributes, CoreAuthenticationTestUtils.getRegisteredService("test"));
         assertTrue(result.containsKey("http://schemas.microsoft.com/ws/2008/06/identity/claims/windowsaccountname"));
     }
 }

@@ -9,8 +9,6 @@ import org.apereo.cas.authentication.UsernamePasswordCredential;
 import org.apereo.cas.authentication.principal.Principal;
 import org.apereo.cas.util.CollectionUtils;
 
-import java.util.Map;
-
 /**
  * This is {@link ScimV1PrincipalAttributeMapper}.
  *
@@ -28,7 +26,7 @@ public class ScimV1PrincipalAttributeMapper {
      * @return the principal attribute value
      */
     public String getPrincipalAttributeValue(final Principal p, final String attributeName) {
-        final Map<String, Object> attributes = p.getAttributes();
+        final var attributes = p.getAttributes();
         if (attributes.containsKey(attributeName)) {
             return CollectionUtils.toCollection(attributes.get(attributeName)).iterator().next().toString();
         }
@@ -53,7 +51,7 @@ public class ScimV1PrincipalAttributeMapper {
         user.setNickName(getPrincipalAttributeValue(p, "nickName"));
         user.setDisplayName(getPrincipalAttributeValue(p, "displayName"));
 
-        final Name name = new Name(getPrincipalAttributeValue(p, "formattedName"),
+        final var name = new Name(getPrincipalAttributeValue(p, "formattedName"),
             getPrincipalAttributeValue(p, "familyName"),
             getPrincipalAttributeValue(p, "middleName"),
             getPrincipalAttributeValue(p, "givenName"),
@@ -61,7 +59,7 @@ public class ScimV1PrincipalAttributeMapper {
             getPrincipalAttributeValue(p, "honorificSuffix"));
         user.setName(name);
 
-        Entry entry = new Entry(getPrincipalAttributeValue(p, "mail"), "primary");
+        var entry = new Entry(getPrincipalAttributeValue(p, "mail"), "primary");
         user.setEmails(CollectionUtils.wrap(entry));
 
         entry = new Entry(getPrincipalAttributeValue(p, "phoneNumber"), "primary");

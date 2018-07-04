@@ -14,9 +14,7 @@ import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.glassfish.jersey.client.oauth2.OAuth2ClientSupport;
 
-import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.WebTarget;
 
 /**
  * This is {@link ScimV2PrincipalProvisioner}.
@@ -33,10 +31,11 @@ public class ScimV2PrincipalProvisioner implements PrincipalProvisioner {
     public ScimV2PrincipalProvisioner(final String target, final String oauthToken,
                                       final String username, final String password,
                                       final ScimV2PrincipalAttributeMapper mapper) {
-        final ClientConfig config = new ClientConfig();
-        final ApacheConnectorProvider connectorProvider = new ApacheConnectorProvider();
+        final var config = new ClientConfig();
+        final var connectorProvider = new ApacheConnectorProvider();
         config.connectorProvider(connectorProvider);
-        final Client client = ClientBuilder.newClient(config);
+        
+        final var client = ClientBuilder.newClient(config);
 
         if (StringUtils.isNotBlank(oauthToken)) {
             client.register(OAuth2ClientSupport.feature(oauthToken));
@@ -45,7 +44,7 @@ public class ScimV2PrincipalProvisioner implements PrincipalProvisioner {
             client.register(HttpAuthenticationFeature.basic(username, password));
         }
 
-        final WebTarget webTarget = client.target(target);
+        final var webTarget = client.target(target);
         this.scimService = new ScimService(webTarget);
         this.mapper = mapper;
     }
@@ -53,7 +52,7 @@ public class ScimV2PrincipalProvisioner implements PrincipalProvisioner {
     @Override
     public boolean create(final Authentication auth, final Principal p, final Credential credential) {
         try {
-            final UserResource currentUser = scimService.retrieve("Users", p.getId(), UserResource.class);
+            final var currentUser = scimService.retrieve("Users", p.getId(), UserResource.class);
             if (currentUser != null) {
                 return updateUserResource(currentUser, p, credential);
             }
@@ -88,7 +87,7 @@ public class ScimV2PrincipalProvisioner implements PrincipalProvisioner {
      */
     @SneakyThrows
     protected boolean createUserResource(final Principal p, final Credential credential) {
-        final UserResource user = new UserResource();
+        final var user = new UserResource();
         this.mapper.map(user, p, credential);
         return scimService.create("Users", user) != null;
     }

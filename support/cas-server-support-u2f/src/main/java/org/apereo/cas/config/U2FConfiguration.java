@@ -14,8 +14,6 @@ import org.apereo.cas.adaptors.u2f.storage.U2FJsonResourceDeviceRepository;
 import org.apereo.cas.adaptors.u2f.storage.U2FRestResourceDeviceRepository;
 import org.apereo.cas.authentication.PseudoPlatformTransactionManager;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.core.util.EncryptionJwtSigningJwtCryptographyProperties;
-import org.apereo.cas.configuration.model.support.mfa.U2FMultifactorProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -63,7 +61,7 @@ public class U2FConfiguration {
     @ConditionalOnMissingBean(name = "u2fDeviceRepository")
     @Bean
     public U2FDeviceRepository u2fDeviceRepository() {
-        final U2FMultifactorProperties u2f = casProperties.getAuthn().getMfa().getU2f();
+        final var u2f = casProperties.getAuthn().getMfa().getU2f();
 
         final LoadingCache<String, String> requestStorage =
                 Caffeine.newBuilder()
@@ -115,7 +113,7 @@ public class U2FConfiguration {
     @Bean
     @RefreshScope
     public CipherExecutor u2fRegistrationRecordCipherExecutor() {
-        final EncryptionJwtSigningJwtCryptographyProperties crypto = casProperties.getAuthn().getMfa().getU2f().getCrypto();
+        final var crypto = casProperties.getAuthn().getMfa().getU2f().getCrypto();
         if (crypto.isEnabled()) {
             return new U2FAuthenticationRegistrationRecordCipherExecutor(
                     crypto.getEncryption().getKey(),

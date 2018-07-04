@@ -9,8 +9,8 @@ import org.apereo.cas.ticket.TicketGrantingTicket;
 import org.apereo.cas.web.config.CasSupportActionsConfiguration;
 import org.apereo.cas.web.flow.login.ServiceWarningAction;
 import org.apereo.cas.web.support.WebUtils;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Import;
@@ -48,7 +48,7 @@ public class ServiceWarningActionTests extends AbstractCentralAuthenticationServ
 
     @Test
     public void verifyAction() throws Exception {
-        final MockHttpServletRequest request = new MockHttpServletRequest();
+        final var request = new MockHttpServletRequest();
         request.addParameter(ServiceWarningAction.PARAMETER_NAME_IGNORE_WARNING, "true");
         this.context.setExternalContext(new ServletExternalContext(new MockServletContext(), request, new MockHttpServletResponse()));
 

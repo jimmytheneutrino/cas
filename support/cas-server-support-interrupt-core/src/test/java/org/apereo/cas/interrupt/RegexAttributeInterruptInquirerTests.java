@@ -2,7 +2,6 @@ package org.apereo.cas.interrupt;
 
 import org.apereo.cas.authentication.CoreAuthenticationTestUtils;
 import org.apereo.cas.services.DefaultRegisteredServiceProperty;
-import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceProperty;
 import org.junit.Test;
 
@@ -21,11 +20,12 @@ import static org.mockito.Mockito.*;
 public class RegexAttributeInterruptInquirerTests {
     @Test
     public void verifyResponseCanBeFoundFromAttributes() {
-        final RegexAttributeInterruptInquirer q =
+        final var q =
             new RegexAttributeInterruptInquirer("member..", "CA.|system");
-        final InterruptResponse response = q.inquire(CoreAuthenticationTestUtils.getAuthentication("casuser"),
+        final var response = q.inquire(CoreAuthenticationTestUtils.getAuthentication("casuser"),
             CoreAuthenticationTestUtils.getRegisteredService(),
-            CoreAuthenticationTestUtils.getService());
+            CoreAuthenticationTestUtils.getService(),
+            CoreAuthenticationTestUtils.getCredentialsWithSameUsernameAndPassword());
         assertNotNull(response);
         assertFalse(response.isBlock());
         assertTrue(response.isSsoEnabled());
@@ -34,18 +34,19 @@ public class RegexAttributeInterruptInquirerTests {
 
     @Test
     public void verifyInterruptSkipped() {
-        final RegexAttributeInterruptInquirer q =
+        final var q =
             new RegexAttributeInterruptInquirer("member..", "CA.|system");
-        final RegisteredService registeredService = CoreAuthenticationTestUtils.getRegisteredService();
+        final var registeredService = CoreAuthenticationTestUtils.getRegisteredService();
 
         final Map<String, RegisteredServiceProperty> properties = new LinkedHashMap<>();
-        final DefaultRegisteredServiceProperty value = new DefaultRegisteredServiceProperty();
+        final var value = new DefaultRegisteredServiceProperty();
         value.addValue(Boolean.TRUE.toString());
         properties.put(RegisteredServiceProperty.RegisteredServiceProperties.SKIP_INTERRUPT_NOTIFICATIONS.getPropertyName(), value);
         when(registeredService.getProperties()).thenReturn(properties);
-        final InterruptResponse response = q.inquire(CoreAuthenticationTestUtils.getAuthentication("casuser"),
+        final var response = q.inquire(CoreAuthenticationTestUtils.getAuthentication("casuser"),
             registeredService,
-            CoreAuthenticationTestUtils.getService());
+            CoreAuthenticationTestUtils.getService(),
+            CoreAuthenticationTestUtils.getCredentialsWithSameUsernameAndPassword());
         assertNotNull(response);
         assertFalse(response.isInterrupt());
     }

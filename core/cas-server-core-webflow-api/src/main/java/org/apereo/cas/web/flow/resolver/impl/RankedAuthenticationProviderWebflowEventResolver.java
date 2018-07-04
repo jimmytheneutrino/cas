@@ -2,17 +2,11 @@ package org.apereo.cas.web.flow.resolver.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apereo.cas.CentralAuthenticationService;
-import org.apereo.cas.authentication.Authentication;
 import org.apereo.cas.authentication.AuthenticationContextValidator;
-import org.apereo.cas.authentication.AuthenticationResultBuilder;
 import org.apereo.cas.authentication.AuthenticationServiceSelectionPlan;
 import org.apereo.cas.authentication.AuthenticationSystemSupport;
-import org.apereo.cas.authentication.Credential;
-import org.apereo.cas.services.MultifactorAuthenticationProvider;
 import org.apereo.cas.services.MultifactorAuthenticationProviderSelector;
-import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.ticket.registry.TicketRegistrySupport;
 import org.apereo.cas.util.CollectionUtils;
@@ -25,8 +19,6 @@ import org.springframework.webflow.action.EventFactorySupport;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
-import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -59,8 +51,8 @@ public class RankedAuthenticationProviderWebflowEventResolver extends AbstractCa
 
     @Override
     public Set<Event> resolveInternal(final RequestContext context) {
-        final String tgt = WebUtils.getTicketGrantingTicketId(context);
-        final RegisteredService service = WebUtils.getRegisteredService(context);
+        final var tgt = WebUtils.getTicketGrantingTicketId(context);
+        final var service = WebUtils.getRegisteredService(context);
 
         if (service == null) {
             LOGGER.debug("No service is available to determine event for principal");
@@ -71,26 +63,26 @@ public class RankedAuthenticationProviderWebflowEventResolver extends AbstractCa
             LOGGER.trace("TGT is blank; proceed with flow normally.");
             return resumeFlow();
         }
-        final Authentication authentication = this.ticketRegistrySupport.getAuthenticationFrom(tgt);
+        final var authentication = this.ticketRegistrySupport.getAuthenticationFrom(tgt);
         if (authentication == null) {
             LOGGER.trace("TGT has no authentication and is blank; proceed with flow normally.");
             return resumeFlow();
         }
 
-        final Credential credential = WebUtils.getCredential(context);
-        final AuthenticationResultBuilder builder = this.authenticationSystemSupport.establishAuthenticationContextFromInitial(authentication, credential);
+        final var credential = WebUtils.getCredential(context);
+        final var builder = this.authenticationSystemSupport.establishAuthenticationContextFromInitial(authentication, credential);
 
         LOGGER.debug("Recording and tracking initial authentication results in the request context");
         WebUtils.putAuthenticationResultBuilder(builder, context);
         WebUtils.putAuthentication(authentication, context);
 
-        final Event event = this.initialAuthenticationAttemptWebflowEventResolver.resolveSingle(context);
+        final var event = this.initialAuthenticationAttemptWebflowEventResolver.resolveSingle(context);
         if (event == null) {
             LOGGER.trace("Request does not indicate a requirement for authentication policy; proceed with flow normally.");
             return resumeFlow();
         }
 
-        final String id = event.getId();
+        final var id = event.getId();
         LOGGER.debug("Resolved event from the initial authentication leg is [{}]", id);
 
         if (id.equals(CasWebflowConstants.TRANSITION_ID_ERROR)
@@ -102,16 +94,16 @@ public class RankedAuthenticationProviderWebflowEventResolver extends AbstractCa
         }
 
         LOGGER.debug("Validating authentication context for event [{}] and service [{}]", id, service);
-        final Pair<Boolean, Optional<MultifactorAuthenticationProvider>> result = this.authenticationContextValidator.validate(authentication, id, service);
+        final var result = this.authenticationContextValidator.validate(authentication, id, service);
 
         if (result.getKey()) {
             LOGGER.debug("Authentication context is successfully validated by [{}] for service [{}]", id, service);
             return resumeFlow();
         }
 
-        final Optional<MultifactorAuthenticationProvider> value = result.getValue();
+        final var value = result.getValue();
         if (value.isPresent()) {
-            final Map<String, Object> attributeMap = buildEventAttributeMap(authentication.getPrincipal(), service, value.get());
+            final var attributeMap = buildEventAttributeMap(authentication.getPrincipal(), service, value.get());
             return CollectionUtils.wrapSet(validateEventIdForMatchingTransitionInContext(id, context, attributeMap));
         }
         LOGGER.warn("The authentication context cannot be satisfied and the requested event [{}] is unrecognized", id);

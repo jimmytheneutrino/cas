@@ -22,20 +22,20 @@ public class UserAgentDeviceFingerprintComponentExtractorTests {
     @Test
     public void verifyAgentFingerprintNotFound() {
         ClientInfoHolder.setClientInfo(null);
-        final UserAgentDeviceFingerprintComponentExtractor ex = new UserAgentDeviceFingerprintComponentExtractor();
-        final MockRequestContext context = new MockRequestContext();
+        final var ex = new UserAgentDeviceFingerprintComponentExtractor();
+        final var context = new MockRequestContext();
         context.setExternalContext(new ServletExternalContext(new MockServletContext(), new MockHttpServletRequest(), new MockHttpServletResponse()));
         assertFalse(ex.extractComponent("casuser", context, false).isPresent());
     }
 
     @Test
     public void verifyAgentFingerprintFound() {
-        final MockHttpServletRequest request = new MockHttpServletRequest();
+        final var request = new MockHttpServletRequest();
         request.setRemoteAddr("1.2.3.4");
         request.addHeader(HttpRequestUtils.USER_AGENT_HEADER, "TestAgent");
-        final UserAgentDeviceFingerprintComponentExtractor ex = new UserAgentDeviceFingerprintComponentExtractor();
+        final var ex = new UserAgentDeviceFingerprintComponentExtractor();
 
-        final MockRequestContext context = new MockRequestContext();
+        final var context = new MockRequestContext();
         context.setExternalContext(new ServletExternalContext(new MockServletContext(), request, new MockHttpServletResponse()));
         assertTrue(ex.extractComponent("casuser", context, false).isPresent());
     }

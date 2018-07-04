@@ -18,7 +18,7 @@ import static org.mockito.Mockito.*;
 public class SimpleSurrogateAuthenticationServiceTests {
     @Test
     public void verifyList() throws Exception {
-        final ServicesManager mgr = mock(ServicesManager.class);
+        final var mgr = mock(ServicesManager.class);
         final SurrogateAuthenticationService r = new SimpleSurrogateAuthenticationService(
             CollectionUtils.wrap("casuser", CollectionUtils.wrapList("banderson")), mgr);
         assertFalse(r.getEligibleAccountsForSurrogateToProxy("casuser").isEmpty());
@@ -26,7 +26,7 @@ public class SimpleSurrogateAuthenticationServiceTests {
 
     @Test
     public void verifyProxying() {
-        final ServicesManager mgr = mock(ServicesManager.class);
+        final var mgr = mock(ServicesManager.class);
         final SurrogateAuthenticationService r = new SimpleSurrogateAuthenticationService(
             CollectionUtils.wrap("casuser", CollectionUtils.wrapList("banderson")), mgr);
         assertTrue(r.canAuthenticateAs("banderson", CoreAuthenticationTestUtils.getPrincipal("casuser"),

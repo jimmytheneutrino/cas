@@ -1,8 +1,8 @@
 package org.apereo.cas.configuration.support;
 
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -29,21 +29,21 @@ public class CasConfigurationJasyptCipherExecutorTests {
     private CasConfigurationJasyptCipherExecutor jasypt;
 
     @Before
-    public void setup() {
+    public void initialize() {
         this.jasypt = new CasConfigurationJasyptCipherExecutor(this.environment);
     }
 
     @Test
     public void verifyDecryptionEncryption() {
-        final String result = jasypt.encryptValue(getClass().getSimpleName());
+        final var result = jasypt.encryptValue(getClass().getSimpleName());
         assertNotNull(result);
-        final String plain = jasypt.decryptValue(result);
+        final var plain = jasypt.decryptValue(result);
         assertEquals(plain, getClass().getSimpleName());
     }
 
     @Test
     public void verifyDecryptionEncryptionPairNotNeeded() {
-        final String result = jasypt.decryptValue("keyValue");
+        final var result = jasypt.decryptValue("keyValue");
         assertNotNull(result);
         assertEquals("keyValue", result);
 
@@ -51,15 +51,15 @@ public class CasConfigurationJasyptCipherExecutorTests {
 
     @Test
     public void verifyDecryptionEncryptionPairFails() {
-        final String encVal = CasConfigurationJasyptCipherExecutor.ENCRYPTED_VALUE_PREFIX + "keyValue";
-        final String result = jasypt.decode(encVal, new Object[]{});
+        final var encVal = CasConfigurationJasyptCipherExecutor.ENCRYPTED_VALUE_PREFIX + "keyValue";
+        final var result = jasypt.decode(encVal, new Object[]{});
         assertNull(result);
     }
 
     @Test
     public void verifyDecryptionEncryptionPairSuccess() {
-        final String value = jasypt.encryptValue("Testing");
-        final String result = jasypt.decode(value, new Object[]{});
+        final var value = jasypt.encryptValue("Testing");
+        final var result = jasypt.decode(value, new Object[]{});
         assertNotNull(result);
         assertEquals("Testing", result);
     }

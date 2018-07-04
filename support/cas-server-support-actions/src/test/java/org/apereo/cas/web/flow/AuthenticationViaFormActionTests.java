@@ -3,12 +3,10 @@ package org.apereo.cas.web.flow;
 import lombok.extern.slf4j.Slf4j;
 import org.apereo.cas.AbstractCentralAuthenticationServiceTests;
 import org.apereo.cas.CasProtocolConstants;
-import org.apereo.cas.authentication.AuthenticationResult;
 import org.apereo.cas.authentication.CoreAuthenticationTestUtils;
 import org.apereo.cas.authentication.Credential;
 import org.apereo.cas.authentication.principal.Service;
 import org.apereo.cas.services.RegisteredServiceTestUtils;
-import org.apereo.cas.ticket.TicketGrantingTicket;
 import org.apereo.cas.web.config.CasSupportActionsConfiguration;
 import org.apereo.cas.web.support.WebUtils;
 import org.junit.Test;
@@ -23,7 +21,6 @@ import org.springframework.validation.BindException;
 import org.springframework.web.util.CookieGenerator;
 import org.springframework.webflow.context.servlet.ServletExternalContext;
 import org.springframework.webflow.execution.Action;
-import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 import org.springframework.webflow.test.MockRequestContext;
 
@@ -52,8 +49,8 @@ public class AuthenticationViaFormActionTests extends AbstractCentralAuthenticat
 
     @Test
     public void verifySuccessfulAuthenticationWithNoService() throws Exception {
-        final MockHttpServletRequest request = new MockHttpServletRequest();
-        final MockRequestContext context = new MockRequestContext();
+        final var request = new MockHttpServletRequest();
+        final var context = new MockRequestContext();
 
         request.addParameter(USERNAME_PARAM, TEST);
         request.addParameter(PASSWORD_PARAM, TEST);
@@ -67,9 +64,9 @@ public class AuthenticationViaFormActionTests extends AbstractCentralAuthenticat
 
     @Test
     public void verifySuccessfulAuthenticationWithNoServiceAndWarn() throws Exception {
-        final MockHttpServletRequest request = new MockHttpServletRequest();
-        final MockHttpServletResponse response = new MockHttpServletResponse();
-        final MockRequestContext context = new MockRequestContext();
+        final var request = new MockHttpServletRequest();
+        final var response = new MockHttpServletResponse();
+        final var context = new MockRequestContext();
 
         request.addParameter(USERNAME_PARAM, TEST);
         request.addParameter(PASSWORD_PARAM, TEST);
@@ -84,9 +81,9 @@ public class AuthenticationViaFormActionTests extends AbstractCentralAuthenticat
 
     @Test
     public void verifySuccessfulAuthenticationWithServiceAndWarn() throws Exception {
-        final MockHttpServletRequest request = new MockHttpServletRequest();
-        final MockHttpServletResponse response = new MockHttpServletResponse();
-        final MockRequestContext context = new MockRequestContext();
+        final var request = new MockHttpServletRequest();
+        final var response = new MockHttpServletResponse();
+        final var context = new MockRequestContext();
 
         request.addParameter(USERNAME_PARAM, TEST);
         request.addParameter(PASSWORD_PARAM, TEST);
@@ -103,8 +100,8 @@ public class AuthenticationViaFormActionTests extends AbstractCentralAuthenticat
 
     @Test
     public void verifyFailedAuthenticationWithNoService() throws Exception {
-        final MockHttpServletRequest request = new MockHttpServletRequest();
-        final MockRequestContext context = new MockRequestContext();
+        final var request = new MockHttpServletRequest();
+        final var context = new MockRequestContext();
 
         request.addParameter(USERNAME_PARAM, TEST);
         request.addParameter(PASSWORD_PARAM, "test2");
@@ -122,12 +119,12 @@ public class AuthenticationViaFormActionTests extends AbstractCentralAuthenticat
     public void verifyRenewWithServiceAndSameCredentials() throws Exception {
         final Credential c = CoreAuthenticationTestUtils.getCredentialsWithSameUsernameAndPassword();
         final Service service = RegisteredServiceTestUtils.getService(RegisteredServiceTestUtils.CONST_TEST_URL);
-        final AuthenticationResult ctx = CoreAuthenticationTestUtils.getAuthenticationResult(
+        final var ctx = CoreAuthenticationTestUtils.getAuthenticationResult(
                 getAuthenticationSystemSupport(), service, c);
 
-        final TicketGrantingTicket ticketGrantingTicket = getCentralAuthenticationService().createTicketGrantingTicket(ctx);
-        final MockHttpServletRequest request = new MockHttpServletRequest();
-        final MockRequestContext context = new MockRequestContext();
+        final var ticketGrantingTicket = getCentralAuthenticationService().createTicketGrantingTicket(ctx);
+        final var request = new MockHttpServletRequest();
+        final var context = new MockRequestContext();
 
         WebUtils.putTicketGrantingTicketInScopes(context, ticketGrantingTicket);
 
@@ -139,7 +136,7 @@ public class AuthenticationViaFormActionTests extends AbstractCentralAuthenticat
         context.setExternalContext(new ServletExternalContext(new MockServletContext(), request, new MockHttpServletResponse()));
         context.getFlowScope().put(CasProtocolConstants.PARAMETER_SERVICE, RegisteredServiceTestUtils.getService());
 
-        final Event ev = this.action.execute(context);
+        final var ev = this.action.execute(context);
         assertEquals(CasWebflowConstants.STATE_ID_WARN, ev.getId());
     }
 
@@ -147,12 +144,12 @@ public class AuthenticationViaFormActionTests extends AbstractCentralAuthenticat
     public void verifyRenewWithServiceAndDifferentCredentials() throws Exception {
         final Credential c = CoreAuthenticationTestUtils.getCredentialsWithSameUsernameAndPassword();
 
-        final AuthenticationResult ctx = CoreAuthenticationTestUtils.getAuthenticationResult(
+        final var ctx = CoreAuthenticationTestUtils.getAuthenticationResult(
                 getAuthenticationSystemSupport(), RegisteredServiceTestUtils.getService(TEST), c);
 
-        final TicketGrantingTicket ticketGrantingTicket = getCentralAuthenticationService().createTicketGrantingTicket(ctx);
-        final MockHttpServletRequest request = new MockHttpServletRequest();
-        final MockRequestContext context = new MockRequestContext();
+        final var ticketGrantingTicket = getCentralAuthenticationService().createTicketGrantingTicket(ctx);
+        final var request = new MockHttpServletRequest();
+        final var context = new MockRequestContext();
 
         WebUtils.putTicketGrantingTicketInScopes(context, ticketGrantingTicket);
         request.addParameter(CasProtocolConstants.PARAMETER_RENEW, "true");
@@ -169,12 +166,12 @@ public class AuthenticationViaFormActionTests extends AbstractCentralAuthenticat
     public void verifyRenewWithServiceAndBadCredentials() throws Exception {
         final Credential c = CoreAuthenticationTestUtils.getCredentialsWithSameUsernameAndPassword();
         final Service service = RegisteredServiceTestUtils.getService(TEST);
-        final AuthenticationResult ctx = CoreAuthenticationTestUtils.getAuthenticationResult(
+        final var ctx = CoreAuthenticationTestUtils.getAuthenticationResult(
                 getAuthenticationSystemSupport(), service, c);
 
-        final TicketGrantingTicket ticketGrantingTicket = getCentralAuthenticationService().createTicketGrantingTicket(ctx);
-        final MockHttpServletRequest request = new MockHttpServletRequest();
-        final MockRequestContext context = new MockRequestContext();
+        final var ticketGrantingTicket = getCentralAuthenticationService().createTicketGrantingTicket(ctx);
+        final var request = new MockHttpServletRequest();
+        final var context = new MockRequestContext();
 
         WebUtils.putTicketGrantingTicketInScopes(context, ticketGrantingTicket);
         request.addParameter(CasProtocolConstants.PARAMETER_RENEW, "true");

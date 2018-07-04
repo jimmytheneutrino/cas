@@ -14,10 +14,10 @@ import static org.junit.Assert.*;
 public class CasInfoEndpointContributorTests {
     @Test
     public void verifyAction() {
-        final CasInfoEndpointContributor c = new CasInfoEndpointContributor();
-        final Info.Builder builder = new Info.Builder();
+        final var c = new CasInfoEndpointContributor();
+        final var builder = new Info.Builder();
         c.contribute(builder);
-        final Info info = builder.build();
+        final var info = builder.build();
         assertFalse(info.getDetails().isEmpty());
     }
 }

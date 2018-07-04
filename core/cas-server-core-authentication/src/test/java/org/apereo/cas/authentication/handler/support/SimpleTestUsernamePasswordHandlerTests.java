@@ -1,12 +1,11 @@
 package org.apereo.cas.authentication.handler.support;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apereo.cas.authentication.AuthenticationHandlerExecutionResult;
 import org.apereo.cas.authentication.CoreAuthenticationTestUtils;
 import org.apereo.cas.authentication.RememberMeUsernamePasswordCredential;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.Before;
 import org.junit.rules.ExpectedException;
 
 import javax.security.auth.login.FailedLoginException;
@@ -28,7 +27,7 @@ public class SimpleTestUsernamePasswordHandlerTests {
     private SimpleTestUsernamePasswordAuthenticationHandler authenticationHandler;
 
     @Before
-    public void setUp() {
+    public void initialize() {
         this.authenticationHandler = new SimpleTestUsernamePasswordAuthenticationHandler();
     }
 
@@ -49,7 +48,7 @@ public class SimpleTestUsernamePasswordHandlerTests {
 
     @Test
     public void verifyValidUsernamePassword() throws Exception {
-        final AuthenticationHandlerExecutionResult result =
+        final var result =
             authenticationHandler.authenticate(CoreAuthenticationTestUtils.getCredentialsWithSameUsernameAndPassword());
         assertEquals("SimpleTestUsernamePasswordAuthenticationHandler", result.getHandlerName());
     }

@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.Before;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
 import java.io.File;
@@ -27,7 +27,7 @@ public class DefaultAuthenticationTests {
     private ObjectMapper mapper;
 
     @Before
-    public void setUp() {
+    public void initialize() {
         mapper = Jackson2ObjectMapperBuilder.json()
                 .featuresToDisable(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE)
                 .featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
@@ -37,9 +37,9 @@ public class DefaultAuthenticationTests {
     
     @Test
     public void verifySerializeADefaultAuthenticationToJson() throws IOException {
-        final Authentication serviceWritten = CoreAuthenticationTestUtils.getAuthentication();
+        final var serviceWritten = CoreAuthenticationTestUtils.getAuthentication();
         mapper.writeValue(JSON_FILE, serviceWritten);
-        final Authentication serviceRead = mapper.readValue(JSON_FILE, Authentication.class);
+        final var serviceRead = mapper.readValue(JSON_FILE, Authentication.class);
         assertEquals(serviceWritten, serviceRead);
     }
 }

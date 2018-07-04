@@ -6,7 +6,6 @@ import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.thymeleaf.IEngineConfiguration;
 import org.thymeleaf.templateresolver.AbstractConfigurableTemplateResolver;
 import org.thymeleaf.templateresolver.AbstractTemplateResolver;
-import org.thymeleaf.templateresolver.TemplateResolution;
 import org.thymeleaf.templateresource.ITemplateResource;
 
 import java.util.ArrayList;
@@ -52,8 +51,8 @@ public class ChainingTemplateViewResolver extends AbstractConfigurableTemplateRe
                                                         final String resourceName,
                                                         final String characterEncoding,
                                                         final Map<String, Object> templateResolutionAttributes) {
-        for (final AbstractTemplateResolver r : this.resolvers) {
-            final TemplateResolution resource = r.resolveTemplate(configuration, ownerTemplate, template, templateResolutionAttributes);
+        for (final var r : this.resolvers) {
+            final var resource = r.resolveTemplate(configuration, ownerTemplate, template, templateResolutionAttributes);
             if (resource != null && resource.isTemplateResourceExistenceVerified()) {
                 return resource.getTemplateResource();
             }

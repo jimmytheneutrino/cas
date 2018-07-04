@@ -12,7 +12,6 @@ import org.apereo.cas.authentication.principal.PrincipalFactoryUtils;
 import org.apereo.cas.authentication.principal.PrincipalResolver;
 import org.apereo.cas.authentication.support.password.PasswordEncoderUtils;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.support.rest.RestAuthenticationProperties;
 import org.apereo.cas.services.ServicesManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -69,8 +68,8 @@ public class CasRestAuthenticationConfiguration {
 
     @Bean
     public AuthenticationHandler restAuthenticationHandler() {
-        final RestAuthenticationProperties rest = casProperties.getAuthn().getRest();
-        final RestAuthenticationHandler r = new RestAuthenticationHandler(rest.getName(), restAuthenticationApi(),
+        final var rest = casProperties.getAuthn().getRest();
+        final var r = new RestAuthenticationHandler(rest.getName(), restAuthenticationApi(),
             servicesManager, restAuthenticationPrincipalFactory());
         r.setPasswordEncoder(PasswordEncoderUtils.newPasswordEncoder(rest.getPasswordEncoder()));
         return r;

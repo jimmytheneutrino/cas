@@ -5,8 +5,6 @@ import org.apereo.cas.authentication.principal.ServiceFactory;
 import org.apereo.cas.authentication.principal.ServiceFactoryConfigurer;
 import org.apereo.cas.authentication.principal.WebApplicationService;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.core.authentication.HttpClientProperties;
-import org.apereo.cas.configuration.model.core.web.MessageBundleProperties;
 import org.apereo.cas.web.SimpleUrlValidatorFactoryBean;
 import org.apereo.cas.web.UrlValidator;
 import org.apereo.cas.web.support.ArgumentExtractor;
@@ -54,16 +52,15 @@ public class CasCoreWebConfiguration {
      */
     @Bean
     public PropertiesFactoryBean casCommonMessages() {
-        final PropertiesFactoryBean properties = new PropertiesFactoryBean();
-        final DefaultResourceLoader resourceLoader = new DefaultResourceLoader();
-        final List<String> commonNames = casProperties.getMessageBundle().getCommonNames();
+        final var properties = new PropertiesFactoryBean();
+        final var resourceLoader = new DefaultResourceLoader();
+        final var commonNames = casProperties.getMessageBundle().getCommonNames();
 
-        final List<Resource> resourceList = commonNames
+        final var resourceList = commonNames
             .stream()
             .map(resourceLoader::getResource)
             .collect(Collectors.toList());
         resourceList.add(resourceLoader.getResource("classpath:/cas_common_messages.properties"));
-
         properties.setLocations(resourceList.toArray(new Resource[]{}));
         properties.setSingleton(true);
         properties.setIgnoreResourceNotFound(true);
@@ -73,8 +70,8 @@ public class CasCoreWebConfiguration {
     @RefreshScope
     @Bean
     public HierarchicalMessageSource messageSource(@Qualifier("casCommonMessages") final Properties casCommonMessages) {
-        final CasReloadableMessageBundle bean = new CasReloadableMessageBundle();
-        final MessageBundleProperties mb = casProperties.getMessageBundle();
+        final var bean = new CasReloadableMessageBundle();
+        final var mb = casProperties.getMessageBundle();
         bean.setDefaultEncoding(mb.getEncoding());
         bean.setCacheSeconds(mb.getCacheSeconds());
         bean.setFallbackToSystemLocale(mb.isFallbackSystemLocale());
@@ -94,10 +91,10 @@ public class CasCoreWebConfiguration {
 
     @Bean
     public FactoryBean<UrlValidator> urlValidator() {
-        final HttpClientProperties httpClient = this.casProperties.getHttpClient();
-        final boolean allowLocalLogoutUrls = httpClient.isAllowLocalLogoutUrls();
-        final String authorityValidationRegEx = httpClient.getAuthorityValidationRegEx();
-        final boolean authorityValidationRegExCaseSensitive = httpClient.isAuthorityValidationRegExCaseSensitive();
+        final var httpClient = this.casProperties.getHttpClient();
+        final var allowLocalLogoutUrls = httpClient.isAllowLocalLogoutUrls();
+        final var authorityValidationRegEx = httpClient.getAuthorityValidationRegEx();
+        final var authorityValidationRegExCaseSensitive = httpClient.isAuthorityValidationRegExCaseSensitive();
         return new SimpleUrlValidatorFactoryBean(allowLocalLogoutUrls, authorityValidationRegEx, authorityValidationRegExCaseSensitive);
     }
 }

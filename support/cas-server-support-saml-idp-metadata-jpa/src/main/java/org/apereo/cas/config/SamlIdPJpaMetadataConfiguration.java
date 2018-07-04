@@ -3,8 +3,6 @@ package org.apereo.cas.config;
 import lombok.extern.slf4j.Slf4j;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.configuration.model.support.jpa.JpaConfigDataHolder;
-import org.apereo.cas.configuration.model.support.saml.idp.SamlIdPProperties;
-import org.apereo.cas.configuration.model.support.saml.idp.metadata.SamlIdPMetadataProperties;
 import org.apereo.cas.configuration.support.JpaBeans;
 import org.apereo.cas.support.saml.OpenSamlConfigBean;
 import org.apereo.cas.support.saml.metadata.resolver.JpaSamlRegisteredServiceMetadataResolver;
@@ -51,7 +49,7 @@ public class SamlIdPJpaMetadataConfiguration implements SamlRegisteredServiceMet
 
     @Bean
     public SamlRegisteredServiceMetadataResolver jpaSamlRegisteredServiceMetadataResolver() {
-        final SamlIdPProperties idp = casProperties.getAuthn().getSamlIdp();
+        final var idp = casProperties.getAuthn().getSamlIdp();
         return new JpaSamlRegisteredServiceMetadataResolver(idp, openSamlConfigBean);
     }
 
@@ -69,7 +67,7 @@ public class SamlIdPJpaMetadataConfiguration implements SamlRegisteredServiceMet
     
     @Bean
     public DataSource dataSourceSamlMetadata() {
-        final SamlIdPMetadataProperties idp = casProperties.getAuthn().getSamlIdp().getMetadata();
+        final var idp = casProperties.getAuthn().getSamlIdp().getMetadata();
         return JpaBeans.newDataSource(idp.getJpa());
     }
 
@@ -81,8 +79,8 @@ public class SamlIdPJpaMetadataConfiguration implements SamlRegisteredServiceMet
     @Lazy
     @Bean
     public LocalContainerEntityManagerFactoryBean samlMetadataEntityManagerFactory() {
-        final SamlIdPMetadataProperties idp = casProperties.getAuthn().getSamlIdp().getMetadata();
-        final LocalContainerEntityManagerFactoryBean bean =
+        final var idp = casProperties.getAuthn().getSamlIdp().getMetadata();
+        final var bean =
             JpaBeans.newHibernateEntityManagerFactoryBean(
                 new JpaConfigDataHolder(
                     jpaSamlMetadataVendorAdapter(),
@@ -96,7 +94,7 @@ public class SamlIdPJpaMetadataConfiguration implements SamlRegisteredServiceMet
     @Bean
     public PlatformTransactionManager transactionManagerSamlMetadata(
         @Qualifier("samlMetadataEntityManagerFactory") final EntityManagerFactory emf) {
-        final JpaTransactionManager mgmr = new JpaTransactionManager();
+        final var mgmr = new JpaTransactionManager();
         mgmr.setEntityManagerFactory(emf);
         return mgmr;
     }

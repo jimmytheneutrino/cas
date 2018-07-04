@@ -8,9 +8,7 @@ import org.ldaptive.ConnectionFactory;
 import org.ldaptive.LdapAttribute;
 import org.ldaptive.LdapEntry;
 import org.ldaptive.LdapException;
-import org.ldaptive.Response;
 import org.ldaptive.SearchExecutor;
-import org.ldaptive.SearchFilter;
 import org.ldaptive.SearchResult;
 import org.pac4j.core.authorization.generator.AuthorizationGenerator;
 import org.pac4j.core.context.WebContext;
@@ -63,13 +61,13 @@ public abstract class BaseUseAttributesAuthorizationGenerator implements Authori
 
     @Override
     public CommonProfile generate(final WebContext context, final CommonProfile profile) {
-        final String username = profile.getId();
+        final var username = profile.getId();
         final SearchResult userResult;
         try {
             LOGGER.debug("Attempting to get details for user [{}].", username);
-            final SearchFilter filter = LdapUtils.newLdaptiveSearchFilter(this.userSearchExecutor.getSearchFilter().getFilter(),
+            final var filter = LdapUtils.newLdaptiveSearchFilter(this.userSearchExecutor.getSearchFilter().getFilter(),
                 LdapUtils.LDAP_SEARCH_FILTER_DEFAULT_PARAM_NAME, CollectionUtils.wrap(username));
-            final Response<SearchResult> response = this.userSearchExecutor.search(this.connectionFactory, filter);
+            final var response = this.userSearchExecutor.search(this.connectionFactory, filter);
 
             LOGGER.debug("LDAP user search response: [{}]", response);
             userResult = response.getResult();
@@ -81,7 +79,7 @@ public abstract class BaseUseAttributesAuthorizationGenerator implements Authori
                 throw new IllegalStateException("Found multiple results for user which is not allowed.");
             }
 
-            final LdapEntry userEntry = userResult.getEntry();
+            final var userEntry = userResult.getEntry();
             return generateAuthorizationForLdapEntry(profile, userEntry);
         } catch (final LdapException e) {
             throw new IllegalArgumentException("LDAP error fetching details for user.", e);

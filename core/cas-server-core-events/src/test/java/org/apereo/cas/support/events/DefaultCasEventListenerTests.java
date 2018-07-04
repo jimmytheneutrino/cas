@@ -14,8 +14,8 @@ import org.apereo.cas.util.CollectionUtils;
 import org.apereo.cas.util.HttpRequestUtils;
 import org.apereo.inspektr.common.web.ClientInfo;
 import org.apereo.inspektr.common.web.ClientInfoHolder;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -55,8 +55,8 @@ public class DefaultCasEventListenerTests {
     private CasEventRepository casEventRepository;
 
     @Before
-    public void setup() {
-        final MockHttpServletRequest request = new MockHttpServletRequest();
+    public void initialize() {
+        final var request = new MockHttpServletRequest();
         request.setRemoteAddr("123.456.789.000");
         request.setLocalAddr("123.456.789.000");
         request.addHeader(HttpRequestUtils.USER_AGENT_HEADER, "test");
@@ -65,7 +65,7 @@ public class DefaultCasEventListenerTests {
 
     @Test
     public void verifyCasAuthenticationTransactionFailureEvent() {
-        final CasAuthenticationTransactionFailureEvent event = new CasAuthenticationTransactionFailureEvent(this,
+        final var event = new CasAuthenticationTransactionFailureEvent(this,
             CollectionUtils.wrap("error", new FailedLoginException()),
             CollectionUtils.wrap(CoreAuthenticationTestUtils.getCredentialsWithSameUsernameAndPassword()));
         eventPublisher.publishEvent(event);
@@ -74,15 +74,15 @@ public class DefaultCasEventListenerTests {
 
     @Test
     public void verifyTicketGrantingTicketCreated() {
-        final MockTicketGrantingTicket tgt = new MockTicketGrantingTicket("casuser");
-        final CasTicketGrantingTicketCreatedEvent event = new CasTicketGrantingTicketCreatedEvent(this, tgt);
+        final var tgt = new MockTicketGrantingTicket("casuser");
+        final var event = new CasTicketGrantingTicketCreatedEvent(this, tgt);
         eventPublisher.publishEvent(event);
         assertFalse(casEventRepository.load().isEmpty());
     }
 
     @Test
     public void verifyCasAuthenticationPolicyFailureEvent() {
-        final CasAuthenticationPolicyFailureEvent event = new CasAuthenticationPolicyFailureEvent(this,
+        final var event = new CasAuthenticationPolicyFailureEvent(this,
             CollectionUtils.wrap("error", new FailedLoginException()),
             new DefaultAuthenticationTransaction(CoreAuthenticationTestUtils.getService(),
                 CollectionUtils.wrap(CoreAuthenticationTestUtils.getCredentialsWithSameUsernameAndPassword())),
@@ -93,7 +93,7 @@ public class DefaultCasEventListenerTests {
 
     @Test
     public void verifyCasRiskyAuthenticationDetectedEvent() {
-        final CasRiskyAuthenticationDetectedEvent event = new CasRiskyAuthenticationDetectedEvent(this,
+        final var event = new CasRiskyAuthenticationDetectedEvent(this,
             CoreAuthenticationTestUtils.getAuthentication(),
             CoreAuthenticationTestUtils.getRegisteredService(),
             new Object());

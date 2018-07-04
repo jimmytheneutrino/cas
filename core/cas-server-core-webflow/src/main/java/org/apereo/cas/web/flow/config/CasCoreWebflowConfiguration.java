@@ -17,9 +17,6 @@ import org.apereo.cas.authentication.exceptions.InvalidLoginLocationException;
 import org.apereo.cas.authentication.exceptions.InvalidLoginTimeException;
 import org.apereo.cas.authentication.principal.ResponseBuilderLocator;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.core.sso.SsoProperties;
-import org.apereo.cas.configuration.model.core.util.EncryptionRandomizedSigningJwtCryptographyProperties;
-import org.apereo.cas.configuration.model.webapp.WebflowProperties;
 import org.apereo.cas.services.MultifactorAuthenticationProviderSelector;
 import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.services.UnauthorizedServiceForPrincipalException;
@@ -63,7 +60,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.Resource;
 import org.springframework.web.util.CookieGenerator;
 import org.springframework.webflow.execution.Action;
 
@@ -121,7 +117,7 @@ public class CasCoreWebflowConfiguration {
 
     @Autowired
     @Qualifier("authenticationServiceSelectionPlan")
-    private AuthenticationServiceSelectionPlan authenticationRequestServiceSelectionStrategies;
+    private ObjectProvider<AuthenticationServiceSelectionPlan> authenticationServiceSelectionPlan;
 
     @Autowired
     @Qualifier("registeredServiceAccessStrategyEnforcer")
@@ -136,7 +132,7 @@ public class CasCoreWebflowConfiguration {
             servicesManager.getIfAvailable(),
             ticketRegistrySupport.getIfAvailable(),
             warnCookieGenerator.getIfAvailable(),
-            authenticationRequestServiceSelectionStrategies,
+            authenticationServiceSelectionPlan.getIfAvailable(),
             multifactorAuthenticationProviderSelector,
             casProperties,
             geoLocationService.getIfAvailable());
@@ -152,8 +148,9 @@ public class CasCoreWebflowConfiguration {
             servicesManager.getIfAvailable(),
             ticketRegistrySupport.getIfAvailable(),
             warnCookieGenerator.getIfAvailable(),
-            authenticationRequestServiceSelectionStrategies,
-            multifactorAuthenticationProviderSelector, casProperties);
+            authenticationServiceSelectionPlan.getIfAvailable(),
+            multifactorAuthenticationProviderSelector,
+            casProperties);
     }
 
     @ConditionalOnMissingBean(name = "principalAttributeAuthenticationPolicyWebflowEventResolver")
@@ -166,7 +163,7 @@ public class CasCoreWebflowConfiguration {
             servicesManager.getIfAvailable(),
             ticketRegistrySupport.getIfAvailable(),
             warnCookieGenerator.getIfAvailable(),
-            authenticationRequestServiceSelectionStrategies,
+            authenticationServiceSelectionPlan.getIfAvailable(),
             multifactorAuthenticationProviderSelector,
             casProperties);
     }
@@ -181,7 +178,7 @@ public class CasCoreWebflowConfiguration {
             servicesManager.getIfAvailable(),
             ticketRegistrySupport.getIfAvailable(),
             warnCookieGenerator.getIfAvailable(),
-            authenticationRequestServiceSelectionStrategies,
+            authenticationServiceSelectionPlan.getIfAvailable(),
             multifactorAuthenticationProviderSelector,
             casProperties);
     }
@@ -197,7 +194,7 @@ public class CasCoreWebflowConfiguration {
             servicesManager.getIfAvailable(),
             ticketRegistrySupport.getIfAvailable(),
             warnCookieGenerator.getIfAvailable(),
-            authenticationRequestServiceSelectionStrategies,
+            authenticationServiceSelectionPlan.getIfAvailable(),
             multifactorAuthenticationProviderSelector,
             casProperties);
     }
@@ -206,7 +203,7 @@ public class CasCoreWebflowConfiguration {
     @Bean
     @RefreshScope
     public MultifactorAuthenticationProviderSelector multifactorAuthenticationProviderSelector() {
-        final Resource script = casProperties.getAuthn().getMfa().getProviderSelectorGroovyScript();
+        final var script = casProperties.getAuthn().getMfa().getProviderSelectorGroovyScript();
         if (script != null) {
             return new GroovyScriptMultifactorAuthenticationProviderSelector(script);
         }
@@ -218,13 +215,13 @@ public class CasCoreWebflowConfiguration {
     @Bean
     @RefreshScope
     public CasDelegatingWebflowEventResolver initialAuthenticationAttemptWebflowEventResolver() {
-        final InitialAuthenticationAttemptWebflowEventResolver r = new InitialAuthenticationAttemptWebflowEventResolver(
+        final var r = new InitialAuthenticationAttemptWebflowEventResolver(
             authenticationSystemSupport.getIfAvailable(),
             centralAuthenticationService.getIfAvailable(),
             servicesManager.getIfAvailable(),
             ticketRegistrySupport.getIfAvailable(),
             warnCookieGenerator.getIfAvailable(),
-            authenticationRequestServiceSelectionStrategies,
+            authenticationServiceSelectionPlan.getIfAvailable(),
             multifactorAuthenticationProviderSelector,
             registeredServiceAccessStrategyEnforcer);
         r.addDelegate(adaptiveAuthenticationPolicyWebflowEventResolver());
@@ -254,7 +251,7 @@ public class CasCoreWebflowConfiguration {
             servicesManager.getIfAvailable(),
             ticketRegistrySupport.getIfAvailable(),
             warnCookieGenerator.getIfAvailable(),
-            authenticationRequestServiceSelectionStrategies,
+            authenticationServiceSelectionPlan.getIfAvailable(),
             multifactorAuthenticationProviderSelector,
             casProperties);
     }
@@ -268,7 +265,7 @@ public class CasCoreWebflowConfiguration {
             servicesManager.getIfAvailable(),
             ticketRegistrySupport.getIfAvailable(),
             warnCookieGenerator.getIfAvailable(),
-            authenticationRequestServiceSelectionStrategies,
+            authenticationServiceSelectionPlan.getIfAvailable(),
             multifactorAuthenticationProviderSelector,
             registeredServiceAccessStrategyEnforcer,
             casProperties);
@@ -284,7 +281,7 @@ public class CasCoreWebflowConfiguration {
             servicesManager.getIfAvailable(),
             ticketRegistrySupport.getIfAvailable(),
             warnCookieGenerator.getIfAvailable(),
-            authenticationRequestServiceSelectionStrategies,
+            authenticationServiceSelectionPlan.getIfAvailable(),
             multifactorAuthenticationProviderSelector,
             casProperties);
     }
@@ -299,7 +296,7 @@ public class CasCoreWebflowConfiguration {
             servicesManager.getIfAvailable(),
             ticketRegistrySupport.getIfAvailable(),
             warnCookieGenerator.getIfAvailable(),
-            authenticationRequestServiceSelectionStrategies,
+            authenticationServiceSelectionPlan.getIfAvailable(),
             multifactorAuthenticationProviderSelector,
             casProperties);
     }
@@ -314,7 +311,7 @@ public class CasCoreWebflowConfiguration {
             servicesManager.getIfAvailable(),
             ticketRegistrySupport.getIfAvailable(),
             warnCookieGenerator.getIfAvailable(),
-            authenticationRequestServiceSelectionStrategies,
+            authenticationServiceSelectionPlan.getIfAvailable(),
             multifactorAuthenticationProviderSelector);
     }
 
@@ -327,7 +324,7 @@ public class CasCoreWebflowConfiguration {
             servicesManager.getIfAvailable(),
             ticketRegistrySupport.getIfAvailable(),
             warnCookieGenerator.getIfAvailable(),
-            authenticationRequestServiceSelectionStrategies,
+            authenticationServiceSelectionPlan.getIfAvailable(),
             multifactorAuthenticationProviderSelector, casProperties);
     }
 
@@ -341,7 +338,8 @@ public class CasCoreWebflowConfiguration {
             servicesManager.getIfAvailable(),
             ticketRegistrySupport.getIfAvailable(),
             warnCookieGenerator.getIfAvailable(),
-            authenticationRequestServiceSelectionStrategies, multifactorAuthenticationProviderSelector, casProperties);
+            authenticationServiceSelectionPlan.getIfAvailable(),
+            multifactorAuthenticationProviderSelector, casProperties);
     }
 
     @ConditionalOnMissingBean(name = "requestSessionAttributeAuthenticationPolicyWebflowEventResolver")
@@ -354,7 +352,8 @@ public class CasCoreWebflowConfiguration {
             servicesManager.getIfAvailable(),
             ticketRegistrySupport.getIfAvailable(),
             warnCookieGenerator.getIfAvailable(),
-            authenticationRequestServiceSelectionStrategies, multifactorAuthenticationProviderSelector, casProperties);
+            authenticationServiceSelectionPlan.getIfAvailable(),
+            multifactorAuthenticationProviderSelector, casProperties);
     }
 
     @ConditionalOnMissingBean(name = "registeredServicePrincipalAttributeAuthenticationPolicyWebflowEventResolver")
@@ -367,7 +366,7 @@ public class CasCoreWebflowConfiguration {
             servicesManager.getIfAvailable(),
             ticketRegistrySupport.getIfAvailable(),
             warnCookieGenerator.getIfAvailable(),
-            authenticationRequestServiceSelectionStrategies,
+            authenticationServiceSelectionPlan.getIfAvailable(),
             multifactorAuthenticationProviderSelector);
     }
 
@@ -381,7 +380,8 @@ public class CasCoreWebflowConfiguration {
             servicesManager.getIfAvailable(),
             ticketRegistrySupport.getIfAvailable(),
             warnCookieGenerator.getIfAvailable(),
-            authenticationRequestServiceSelectionStrategies, multifactorAuthenticationProviderSelector);
+            authenticationServiceSelectionPlan.getIfAvailable(),
+            multifactorAuthenticationProviderSelector);
     }
 
     @ConditionalOnMissingBean(name = "rankedAuthenticationProviderWebflowEventResolver")
@@ -394,7 +394,7 @@ public class CasCoreWebflowConfiguration {
             servicesManager.getIfAvailable(),
             ticketRegistrySupport.getIfAvailable(),
             warnCookieGenerator.getIfAvailable(),
-            authenticationRequestServiceSelectionStrategies,
+            authenticationServiceSelectionPlan.getIfAvailable(),
             multifactorAuthenticationProviderSelector,
             authenticationContextValidator.getIfAvailable(),
             initialAuthenticationAttemptWebflowEventResolver());
@@ -403,10 +403,10 @@ public class CasCoreWebflowConfiguration {
     @Bean
     @RefreshScope
     public CipherExecutor webflowCipherExecutor() {
-        final WebflowProperties webflow = casProperties.getWebflow();
-        final EncryptionRandomizedSigningJwtCryptographyProperties crypto = webflow.getCrypto();
+        final var webflow = casProperties.getWebflow();
+        final var crypto = webflow.getCrypto();
 
-        boolean enabled = crypto.isEnabled();
+        var enabled = crypto.isEnabled();
         if (!enabled && (StringUtils.isNotBlank(crypto.getEncryption().getKey())) && StringUtils.isNotBlank(crypto.getSigning().getKey())) {
             LOGGER.warn("Webflow encryption/signing is not enabled explicitly in the configuration, yet signing/encryption keys "
                 + "are defined for operations. CAS will proceed to enable the webflow encryption/signing functionality.");
@@ -458,7 +458,7 @@ public class CasCoreWebflowConfiguration {
     @ConditionalOnMissingBean(name = "singleSignOnParticipationStrategy")
     @RefreshScope
     public SingleSignOnParticipationStrategy singleSignOnParticipationStrategy() {
-        final SsoProperties sso = casProperties.getSso();
+        final var sso = casProperties.getSso();
         return new DefaultSingleSignOnParticipationStrategy(servicesManager.getIfAvailable(),
             sso.isCreateSsoCookieOnRenewAuthn(),
             sso.isRenewAuthnEnabled());

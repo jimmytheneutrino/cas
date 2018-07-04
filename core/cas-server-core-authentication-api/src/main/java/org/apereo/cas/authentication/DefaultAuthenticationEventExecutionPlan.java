@@ -62,7 +62,7 @@ public class DefaultAuthenticationEventExecutionPlan implements AuthenticationEv
             LOGGER.error("Total number of authentication handlers must match the number of provided principal resolvers");
             return;
         }
-        for (int i = 0; i < handlers.size(); i++) {
+        for (var i = 0; i < handlers.size(); i++) {
             registerAuthenticationHandlerWithPrincipalResolver(handlers.get(i), principalResolver.get(i));
         }
     }
@@ -88,7 +88,7 @@ public class DefaultAuthenticationEventExecutionPlan implements AuthenticationEv
 
     @Override
     public Set<AuthenticationHandler> getAuthenticationHandlersForTransaction(final AuthenticationTransaction transaction) {
-        final AuthenticationHandler[] handlers = authenticationHandlerPrincipalResolverMap.keySet().toArray(new AuthenticationHandler[]{});
+        final var handlers = authenticationHandlerPrincipalResolverMap.keySet().toArray(new AuthenticationHandler[]{});
         OrderComparator.sortIfNecessary(handlers);
         return new LinkedHashSet<>(CollectionUtils.wrapList(handlers));
     }

@@ -4,7 +4,6 @@ import org.apereo.cas.adaptors.yubikey.AcceptAllYubiKeyAccountValidator;
 import org.apereo.cas.adaptors.yubikey.DenyAllYubiKeyAccountValidator;
 import org.apereo.cas.adaptors.yubikey.registry.ClosedYubiKeyAccountRegistry;
 import org.apereo.cas.adaptors.yubikey.registry.OpenYubiKeyAccountRegistry;
-import org.apereo.cas.authentication.Authentication;
 import org.apereo.cas.authentication.CoreAuthenticationTestUtils;
 import org.apereo.cas.web.flow.CasWebflowConstants;
 import org.apereo.cas.web.support.WebUtils;
@@ -26,25 +25,25 @@ import static org.junit.Assert.*;
 public class YubiKeyAccountCheckRegistrationActionTests {
     @Test
     public void verifyActionSuccess() throws Exception {
-        final MockRequestContext context = new MockRequestContext();
-        final MockHttpServletRequest request = new MockHttpServletRequest();
+        final var context = new MockRequestContext();
+        final var request = new MockHttpServletRequest();
         context.setExternalContext(new ServletExternalContext(new MockServletContext(), request, new MockHttpServletResponse()));
         WebUtils.putAuthentication(CoreAuthenticationTestUtils.getAuthentication(), context);
-        final YubiKeyAccountCheckRegistrationAction action =
+        final var action =
             new YubiKeyAccountCheckRegistrationAction(new OpenYubiKeyAccountRegistry(new AcceptAllYubiKeyAccountValidator()));
         assertEquals(CasWebflowConstants.TRANSITION_ID_SUCCESS, action.execute(context).getId());
     }
 
     @Test
     public void verifyActionRegister() throws Exception {
-        final MockRequestContext context = new MockRequestContext();
-        final MockHttpServletRequest request = new MockHttpServletRequest();
+        final var context = new MockRequestContext();
+        final var request = new MockHttpServletRequest();
         context.setExternalContext(new ServletExternalContext(new MockServletContext(), request, new MockHttpServletResponse()));
 
-        final Authentication authentication = CoreAuthenticationTestUtils.getAuthentication();
+        final var authentication = CoreAuthenticationTestUtils.getAuthentication();
         WebUtils.putAuthentication(authentication, context);
-        final ClosedYubiKeyAccountRegistry registry = new ClosedYubiKeyAccountRegistry(new DenyAllYubiKeyAccountValidator());
-        final YubiKeyAccountCheckRegistrationAction action = new YubiKeyAccountCheckRegistrationAction(registry);
+        final var registry = new ClosedYubiKeyAccountRegistry(new DenyAllYubiKeyAccountValidator());
+        final var action = new YubiKeyAccountCheckRegistrationAction(registry);
         assertEquals("register", action.execute(context).getId());
 
     }

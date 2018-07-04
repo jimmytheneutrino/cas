@@ -9,8 +9,6 @@ import org.springframework.webflow.action.AbstractAction;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
-import javax.servlet.http.HttpServletRequest;
-
 /**
  * This is {@link YubiKeyAccountSaveRegistrationAction}.
  *
@@ -24,9 +22,9 @@ public class YubiKeyAccountSaveRegistrationAction extends AbstractAction {
 
     @Override
     protected Event doExecute(final RequestContext requestContext) {
-        final String uid = WebUtils.getAuthentication(requestContext).getPrincipal().getId();
-        final HttpServletRequest request = WebUtils.getHttpServletRequestFromExternalWebflowContext(requestContext);
-        final String token = request.getParameter("token");
+        final var uid = WebUtils.getAuthentication(requestContext).getPrincipal().getId();
+        final var request = WebUtils.getHttpServletRequestFromExternalWebflowContext(requestContext);
+        final var token = request.getParameter("token");
         if (StringUtils.isNotBlank(token) && registry.registerAccountFor(uid, token)) {
             return success();
         }

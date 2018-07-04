@@ -1,9 +1,7 @@
 package org.apereo.cas.audit.spi;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import lombok.extern.slf4j.Slf4j;
-import org.apereo.cas.authentication.Authentication;
 import org.apereo.cas.util.AopUtils;
 import org.apereo.cas.validation.Assertion;
 import org.aspectj.lang.JoinPoint;
@@ -30,18 +28,18 @@ public class TicketValidationResourceResolver extends TicketAsFirstParameterReso
     public String[] resolveFrom(final JoinPoint joinPoint, final Object object) {
         final List<String> auditResourceResults = new ArrayList<>();
 
-        final Object[] args = AopUtils.unWrapJoinPoint(joinPoint).getArgs();
+        final var args = AopUtils.unWrapJoinPoint(joinPoint).getArgs();
         if (args != null && args.length > 0) {
-            final String ticketId = args[0].toString();
+            final var ticketId = args[0].toString();
             auditResourceResults.add(ticketId);
         }
 
         if (object instanceof Assertion) {
-            final Assertion assertion = Assertion.class.cast(object);
-            final Authentication authn = assertion.getPrimaryAuthentication();
+            final var assertion = Assertion.class.cast(object);
+            final var authn = assertion.getPrimaryAuthentication();
 
-            try (StringWriter writer = new StringWriter()) {
-                final ObjectWriter objectWriter = mapper.writer();
+            try (var writer = new StringWriter()) {
+                final var objectWriter = mapper.writer();
 
                 final Map<String, Object> results = new LinkedHashMap<>();
                 results.put("principal", authn.getPrincipal().getId());

@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -59,7 +60,7 @@ public class RegisteredServiceTestUtils {
     }
 
     public static UsernamePasswordCredential getCredentialsWithSameUsernameAndPassword(final String username) {
-        final UsernamePasswordCredential usernamePasswordCredentials = new UsernamePasswordCredential();
+        final var usernamePasswordCredentials = new UsernamePasswordCredential();
         usernamePasswordCredentials.setUsername(username);
         usernamePasswordCredentials.setPassword(username);
 
@@ -67,7 +68,7 @@ public class RegisteredServiceTestUtils {
     }
 
     public static UsernamePasswordCredential getCredentialsWithDifferentUsernameAndPassword(final String username, final String password) {
-        final UsernamePasswordCredential usernamePasswordCredentials = new UsernamePasswordCredential();
+        final var usernamePasswordCredentials = new UsernamePasswordCredential();
         usernamePasswordCredentials.setUsername(username);
         usernamePasswordCredentials.setPassword(password);
 
@@ -79,7 +80,7 @@ public class RegisteredServiceTestUtils {
     }
 
     public static AbstractWebApplicationService getService(final String name) {
-        final MockHttpServletRequest request = new MockHttpServletRequest();
+        final var request = new MockHttpServletRequest();
         request.addParameter("service", name);
         return (AbstractWebApplicationService) new WebApplicationServiceFactory().createService(request);
     }
@@ -114,17 +115,17 @@ public class RegisteredServiceTestUtils {
     }
 
     @SneakyThrows
-    public static AbstractRegisteredService getRegisteredService(final String id) {
-        final RegexRegisteredService s = new RegexRegisteredService();
+    public static AbstractRegisteredService getRegisteredService(final String id, final Class<? extends RegisteredService> clazz) {
+        final var s = (AbstractRegisteredService) clazz.getDeclaredConstructor().newInstance();
         s.setServiceId(id);
         s.setEvaluationOrder(1);
-        s.setName("Test registered service " + id);
+        s.setName("TestService" + UUID.randomUUID().toString());
         s.setDescription("Registered service description");
         s.setProxyPolicy(new RegexMatchingRegisteredServiceProxyPolicy("^https?://.+"));
         s.setId(RandomUtils.getNativeInstance().nextInt(Math.abs(s.hashCode())));
         s.setTheme("exampleTheme");
         s.setUsernameAttributeProvider(new PrincipalAttributeRegisteredServiceUsernameProvider("uid"));
-        final DefaultRegisteredServiceAccessStrategy accessStrategy =
+        final var accessStrategy =
             new DefaultRegisteredServiceAccessStrategy(true, true);
         accessStrategy.setRequireAllAttributes(true);
         accessStrategy.setRequiredAttributes(getTestAttributes());
@@ -136,11 +137,11 @@ public class RegisteredServiceTestUtils {
 
         s.setPublicKey(new RegisteredServicePublicKeyImpl("classpath:RSA1024Public.key", "RSA"));
 
-        final ReturnAllowedAttributeReleasePolicy policy = new ReturnAllowedAttributeReleasePolicy();
+        final var policy = new ReturnAllowedAttributeReleasePolicy();
         policy.setAuthorizedToReleaseCredentialPassword(true);
         policy.setAuthorizedToReleaseProxyGrantingTicket(true);
 
-        final CachingPrincipalAttributesRepository repo =
+        final var repo =
             new CachingPrincipalAttributesRepository(TimeUnit.SECONDS.name(), 10);
         repo.setMergingStrategy(AbstractPrincipalAttributesRepository.MergingStrategy.ADD);
         policy.setPrincipalAttributesRepository(repo);
@@ -149,6 +150,11 @@ public class RegisteredServiceTestUtils {
         s.setAttributeReleasePolicy(policy);
 
         return s;
+    }
+
+    @SneakyThrows
+    public static AbstractRegisteredService getRegisteredService(final String id) {
+        return getRegisteredService(id, RegexRegisteredService.class);
     }
 
     public static Principal getPrincipal() {

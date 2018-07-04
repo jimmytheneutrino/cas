@@ -1,6 +1,5 @@
 package org.apereo.cas.adaptors.gauth.repository.credentials;
 
-import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
 import com.warrenstrange.googleauth.IGoogleAuthenticator;
 import lombok.extern.slf4j.Slf4j;
 import org.apereo.cas.CipherExecutor;
@@ -26,7 +25,7 @@ public class JsonGoogleAuthenticatorTokenCredentialRepository extends BaseJsonOn
 
     @Override
     public OneTimeTokenAccount create(final String username) {
-        final GoogleAuthenticatorKey key = this.googleAuthenticator.createCredentials();
+        final var key = this.googleAuthenticator.createCredentials();
         return new GoogleAuthenticatorAccount(username, key.getKey(), key.getVerificationCode(), key.getScratchCodes());
     }
 

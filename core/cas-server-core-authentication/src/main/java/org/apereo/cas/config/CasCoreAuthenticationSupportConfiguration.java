@@ -11,7 +11,6 @@ import org.apereo.cas.authentication.DefaultAuthenticationSystemSupport;
 import org.apereo.cas.authentication.PrincipalElectionStrategy;
 import org.apereo.cas.authentication.RegisteredServiceAuthenticationHandlerResolver;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.support.mfa.MultifactorAuthenticationProperties;
 import org.apereo.cas.services.ServicesManager;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,10 +56,10 @@ public class CasCoreAuthenticationSupportConfiguration {
     @Bean
     @ConditionalOnMissingBean(name = "authenticationContextValidator")
     public AuthenticationContextValidator authenticationContextValidator() {
-        final MultifactorAuthenticationProperties mfa = casProperties.getAuthn().getMfa();
-        final String contextAttribute = mfa.getAuthenticationContextAttribute();
-        final String failureMode = mfa.getGlobalFailureMode();
-        final String authnAttributeName = mfa.getTrusted().getAuthenticationContextAttribute();
+        final var mfa = casProperties.getAuthn().getMfa();
+        final var contextAttribute = mfa.getAuthenticationContextAttribute();
+        final var failureMode = mfa.getGlobalFailureMode();
+        final var authnAttributeName = mfa.getTrusted().getAuthenticationContextAttribute();
         return new DefaultMultifactorAuthenticationContextValidator(contextAttribute, failureMode, authnAttributeName, applicationContext);
     }
 

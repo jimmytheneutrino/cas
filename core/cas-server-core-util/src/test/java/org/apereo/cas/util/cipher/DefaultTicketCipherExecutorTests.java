@@ -15,9 +15,9 @@ import static org.junit.Assert.*;
 public class DefaultTicketCipherExecutorTests {
     @Test
     public void verifyAction() {
-        final DefaultTicketCipherExecutor cipher = new DefaultTicketCipherExecutor(null, null,
+        final var cipher = new DefaultTicketCipherExecutor(null, null,
             "AES", 512, 16, "webflow");
-        final byte[] encoded = cipher.encode("ST-1234567890".getBytes(StandardCharsets.UTF_8));
+        final var encoded = cipher.encode("ST-1234567890".getBytes(StandardCharsets.UTF_8));
         assertEquals("ST-1234567890", new String(cipher.decode(encoded), StandardCharsets.UTF_8));
         assertNotNull(cipher.getName());
         assertNotNull(cipher.getSigningKeySetting());

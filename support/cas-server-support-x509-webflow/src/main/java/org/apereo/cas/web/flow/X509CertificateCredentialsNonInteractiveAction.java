@@ -10,7 +10,6 @@ import org.apereo.cas.web.flow.resolver.CasWebflowEventResolver;
 import org.apereo.cas.web.support.WebUtils;
 import org.springframework.webflow.execution.RequestContext;
 
-import javax.servlet.http.HttpServletRequest;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 
@@ -38,8 +37,8 @@ public class X509CertificateCredentialsNonInteractiveAction extends AbstractNonI
 
     @Override
     protected Credential constructCredentialsFromRequest(final RequestContext context) {
-        final HttpServletRequest request = WebUtils.getHttpServletRequestFromExternalWebflowContext(context);
-        final X509Certificate[] certificates = (X509Certificate[]) request.getAttribute(REQUEST_ATTRIBUTE_X509_CERTIFICATE);
+        final var request = WebUtils.getHttpServletRequestFromExternalWebflowContext(context);
+        final var certificates = (X509Certificate[]) request.getAttribute(REQUEST_ATTRIBUTE_X509_CERTIFICATE);
 
         if (certificates == null || certificates.length == 0) {
             LOGGER.debug("Certificates not found in request attribute: {}", REQUEST_ATTRIBUTE_X509_CERTIFICATE);

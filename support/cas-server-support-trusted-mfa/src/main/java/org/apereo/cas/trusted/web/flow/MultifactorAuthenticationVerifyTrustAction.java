@@ -2,9 +2,7 @@ package org.apereo.cas.trusted.web.flow;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apereo.cas.authentication.Authentication;
 import org.apereo.cas.configuration.model.support.mfa.TrustedDevicesMultifactorProperties;
-import org.apereo.cas.trusted.authentication.api.MultifactorAuthenticationTrustRecord;
 import org.apereo.cas.trusted.authentication.api.MultifactorAuthenticationTrustStorage;
 import org.apereo.cas.trusted.util.MultifactorAuthenticationTrustUtils;
 import org.apereo.cas.trusted.web.flow.fingerprint.DeviceFingerprintStrategy;
@@ -15,8 +13,6 @@ import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.Set;
 
 /**
  * This is {@link MultifactorAuthenticationVerifyTrustAction}.
@@ -34,21 +30,21 @@ public class MultifactorAuthenticationVerifyTrustAction extends AbstractAction {
 
     @Override
     protected Event doExecute(final RequestContext requestContext) {
-        final Authentication c = WebUtils.getAuthentication(requestContext);
+        final var c = WebUtils.getAuthentication(requestContext);
         if (c == null) {
             LOGGER.warn("Could not determine authentication from the request context");
             return no();
         }
-        final String principal = c.getPrincipal().getId();
-        final ChronoUnit unit = DateTimeUtils.toChronoUnit(trustedProperties.getTimeUnit());
-        final LocalDateTime onOrAfter = LocalDateTime.now().minus(trustedProperties.getExpiration(), unit);
+        final var principal = c.getPrincipal().getId();
+        final var unit = DateTimeUtils.toChronoUnit(trustedProperties.getTimeUnit());
+        final var onOrAfter = LocalDateTime.now().minus(trustedProperties.getExpiration(), unit);
         LOGGER.debug("Retrieving trusted authentication records for [{}] that are on/after [{}]", principal, onOrAfter);
-        final Set<MultifactorAuthenticationTrustRecord> results = storage.get(principal, onOrAfter);
+        final var results = storage.get(principal, onOrAfter);
         if (results.isEmpty()) {
             LOGGER.debug("No valid trusted authentication records could be found for [{}]", principal);
             return no();
         }
-        final String fingerprint = deviceFingerprintStrategy.determineFingerprint(principal, requestContext, false);
+        final var fingerprint = deviceFingerprintStrategy.determineFingerprint(principal, requestContext, false);
         LOGGER.debug("Retrieving authentication records for [{}] that matches [{}]", principal, fingerprint);
         if (results.stream().noneMatch(entry -> entry.getDeviceFingerprint().equals(fingerprint))) {
             LOGGER.debug("No trusted authentication records could be found for [{}] to match the current device fingerprint", principal);

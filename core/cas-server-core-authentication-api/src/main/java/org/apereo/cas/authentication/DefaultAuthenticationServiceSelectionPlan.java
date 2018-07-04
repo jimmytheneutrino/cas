@@ -7,7 +7,6 @@ import org.springframework.core.OrderComparator;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -34,13 +33,13 @@ public class DefaultAuthenticationServiceSelectionPlan implements Authentication
 
     @Override
     public Service resolveService(final Service service) {
-        final Optional<AuthenticationServiceSelectionStrategy> strategy = this.strategies
+        final var strategy = this.strategies
             .stream()
             .filter(s -> s.supports(service))
             .findFirst();
 
         if (strategy.isPresent()) {
-            final AuthenticationServiceSelectionStrategy result = strategy.get();
+            final var result = strategy.get();
             return result.resolveServiceFrom(service);
         }
         return null;
@@ -48,7 +47,7 @@ public class DefaultAuthenticationServiceSelectionPlan implements Authentication
 
     @Override
     public <T extends Service> T resolveService(final Service service, final Class<T> clazz) {
-        final Service result = resolveService(service);
+        final var result = resolveService(service);
         if (result == null) {
             return null;
         }

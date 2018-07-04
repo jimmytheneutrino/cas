@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apereo.cas.audit.AuditableContext;
 import org.apereo.cas.audit.AuditableExecution;
-import org.apereo.cas.audit.AuditableExecutionResult;
 import org.apereo.cas.authentication.principal.ServiceFactory;
 import org.apereo.cas.authentication.principal.WebApplicationService;
 import org.apereo.cas.services.ServicesManager;
@@ -14,8 +13,6 @@ import org.apereo.cas.support.oauth.services.OAuthRegisteredService;
 import org.apereo.cas.support.oauth.util.OAuth20Utils;
 import org.apereo.cas.util.HttpRequestUtils;
 import org.pac4j.core.context.J2EContext;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * This is {@link OAuth20AuthorizationCodeResponseTypeAuthorizationRequestValidator}.
@@ -32,8 +29,8 @@ public class OAuth20AuthorizationCodeResponseTypeAuthorizationRequestValidator i
 
     @Override
     public boolean validate(final J2EContext context) {
-        final HttpServletRequest request = context.getRequest();
-        final boolean checkParameterExist = HttpRequestUtils.doesParameterExist(request, OAuth20Constants.CLIENT_ID)
+        final var request = context.getRequest();
+        final var checkParameterExist = HttpRequestUtils.doesParameterExist(request, OAuth20Constants.CLIENT_ID)
             && HttpRequestUtils.doesParameterExist(request, OAuth20Constants.REDIRECT_URI)
             && HttpRequestUtils.doesParameterExist(request, OAuth20Constants.RESPONSE_TYPE);
 
@@ -42,28 +39,28 @@ public class OAuth20AuthorizationCodeResponseTypeAuthorizationRequestValidator i
             return false;
         }
 
-        final String responseType = request.getParameter(OAuth20Constants.RESPONSE_TYPE);
+        final var responseType = request.getParameter(OAuth20Constants.RESPONSE_TYPE);
         if (!OAuth20Utils.checkResponseTypes(responseType, OAuth20ResponseTypes.values())) {
             LOGGER.warn("Response type [{}] is not supported.", responseType);
             return false;
         }
 
-        final String clientId = request.getParameter(OAuth20Constants.CLIENT_ID);
-        final OAuthRegisteredService registeredService = getRegisteredServiceByClientId(clientId);
+        final var clientId = request.getParameter(OAuth20Constants.CLIENT_ID);
+        final var registeredService = getRegisteredServiceByClientId(clientId);
 
-        final WebApplicationService service = webApplicationServiceServiceFactory.createService(registeredService.getServiceId());
-        final AuditableContext audit = AuditableContext.builder()
+        final var service = webApplicationServiceServiceFactory.createService(registeredService.getServiceId());
+        final var audit = AuditableContext.builder()
             .service(service)
             .registeredService(registeredService)
             .build();
-        final AuditableExecutionResult accessResult = this.registeredServiceAccessStrategyEnforcer.execute(audit);
+        final var accessResult = this.registeredServiceAccessStrategyEnforcer.execute(audit);
 
         if (accessResult.isExecutionFailure()) {
             LOGGER.warn("Registered service [{}] is not found or is not authorized for access.", registeredService);
             return false;
         }
 
-        final String redirectUri = request.getParameter(OAuth20Constants.REDIRECT_URI);
+        final var redirectUri = request.getParameter(OAuth20Constants.REDIRECT_URI);
         if (!OAuth20Utils.checkCallbackValid(registeredService, redirectUri)) {
             LOGGER.warn("Callback URL [{}] is not authorized for registered service [{}].", redirectUri, registeredService);
             return false;
@@ -84,7 +81,7 @@ public class OAuth20AuthorizationCodeResponseTypeAuthorizationRequestValidator i
 
     @Override
     public boolean supports(final J2EContext context) {
-        final String grantType = context.getRequestParameter(OAuth20Constants.RESPONSE_TYPE);
+        final var grantType = context.getRequestParameter(OAuth20Constants.RESPONSE_TYPE);
         return OAuth20Utils.isResponseType(grantType, getResponseType());
     }
 

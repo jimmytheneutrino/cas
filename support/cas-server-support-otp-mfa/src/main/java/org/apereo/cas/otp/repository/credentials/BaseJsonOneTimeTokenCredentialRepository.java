@@ -1,5 +1,6 @@
 package org.apereo.cas.otp.repository.credentials;
 
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apereo.cas.CipherExecutor;
@@ -44,7 +45,7 @@ public abstract class BaseJsonOneTimeTokenCredentialRepository extends BaseOneTi
             }
 
             final Collection<OneTimeTokenAccount> c = this.serializer.from(this.location.getFile());
-            final OneTimeTokenAccount account = c.stream()
+            final var account = c.stream()
                 .filter(a -> StringUtils.isNotBlank(a.getUsername()) && a.getUsername().equals(username))
                 .findAny()
                 .orElse(null);
@@ -62,7 +63,7 @@ public abstract class BaseJsonOneTimeTokenCredentialRepository extends BaseOneTi
                      final int validationCode, final List<Integer> scratchCodes) {
         try {
             LOGGER.debug("Storing google authenticator account for [{}]", userName);
-            final OneTimeTokenAccount account = new OneTimeTokenAccount(userName, secretKey, validationCode, scratchCodes);
+            final var account = new OneTimeTokenAccount(userName, secretKey, validationCode, scratchCodes);
             update(account);
         } catch (final Exception e) {
             LOGGER.error(e.getMessage(), e);
@@ -72,14 +73,13 @@ public abstract class BaseJsonOneTimeTokenCredentialRepository extends BaseOneTi
     @Override
     public OneTimeTokenAccount update(final OneTimeTokenAccount account) {
         try {
-            final TreeSet<OneTimeTokenAccount> accounts = readAccountsFromJsonRepository();
-            
+            final var accounts = readAccountsFromJsonRepository();
+
             LOGGER.debug("Found [{}] account(s) and added google authenticator account for [{}]", accounts.size(), account.getUsername());
-            final OneTimeTokenAccount encoded = encode(account);
+            final var encoded = encode(account);
             accounts.add(encoded);
 
-            LOGGER.debug("Saving google authenticator accounts back to the JSON file at [{}]", this.location.getFile());
-            this.serializer.to(this.location.getFile(), accounts);
+            writeAccountsToJsonRepository(accounts);
             return encoded;
         } catch (final Exception e) {
             LOGGER.error(e.getMessage(), e);
@@ -87,9 +87,20 @@ public abstract class BaseJsonOneTimeTokenCredentialRepository extends BaseOneTi
         return null;
     }
 
+    @Override
+    public void deleteAll() {
+        writeAccountsToJsonRepository(new TreeSet<>());
+    }
+
+    @SneakyThrows
+    private void writeAccountsToJsonRepository(final TreeSet<OneTimeTokenAccount> accounts) {
+        LOGGER.debug("Saving google authenticator accounts back to the JSON file at [{}]", this.location.getFile());
+        this.serializer.to(this.location.getFile(), accounts);
+    }
+
     private TreeSet<OneTimeTokenAccount> readAccountsFromJsonRepository() throws IOException {
         LOGGER.debug("Ensuring JSON repository file exists at [{}]", this.location.getFile());
-        final boolean result = this.location.getFile().createNewFile();
+        final var result = this.location.getFile().createNewFile();
         if (result) {
             LOGGER.debug("Created JSON repository file at [{}]", this.location.getFile());
         }

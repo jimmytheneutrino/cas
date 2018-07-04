@@ -98,7 +98,7 @@ public class AuditableExecutionResult {
      */
     public static AuditableExecutionResult of(final RuntimeException e, final Authentication authentication,
                                               final Service service, final RegisteredService registeredService) {
-        final AuditableExecutionResult result = new AuditableExecutionResult();
+        final var result = new AuditableExecutionResult();
         result.setAuthentication(authentication);
         result.setException(e);
         result.setRegisteredService(registeredService);
@@ -129,7 +129,7 @@ public class AuditableExecutionResult {
      */
     public static AuditableExecutionResult of(final ServiceTicket serviceTicket, final AuthenticationResult authenticationResult,
                                               final RegisteredService registeredService) {
-        final AuditableExecutionResult result = new AuditableExecutionResult();
+        final var result = new AuditableExecutionResult();
         result.setServiceTicket(serviceTicket);
         result.setAuthenticationResult(authenticationResult);
         result.setRegisteredService(registeredService);
@@ -145,7 +145,7 @@ public class AuditableExecutionResult {
      * @return the auditable execution result
      */
     public static AuditableExecutionResult of(final Service service, final RegisteredService registeredService, final TicketGrantingTicket ticketGrantingTicket) {
-        final AuditableExecutionResult result = new AuditableExecutionResult();
+        final var result = new AuditableExecutionResult();
         result.setTicketGrantingTicket(ticketGrantingTicket);
         result.setRegisteredService(registeredService);
         result.setService(service);
@@ -160,7 +160,7 @@ public class AuditableExecutionResult {
      * @return the auditable execution result
      */
     public static AuditableExecutionResult of(final Service service, final RegisteredService registeredService) {
-        final AuditableExecutionResult result = new AuditableExecutionResult();
+        final var result = new AuditableExecutionResult();
         result.setRegisteredService(registeredService);
         result.setService(service);
         return result;
@@ -173,7 +173,7 @@ public class AuditableExecutionResult {
      * @return the auditable execution result
      */
     public static AuditableExecutionResult of(final RegisteredService registeredService) {
-        final AuditableExecutionResult result = new AuditableExecutionResult();
+        final var result = new AuditableExecutionResult();
         result.setRegisteredService(registeredService);
         return result;
     }
@@ -185,7 +185,7 @@ public class AuditableExecutionResult {
      * @return the auditable execution result
      */
     public static AuditableExecutionResult of(final AuditableContext context) {
-        final AuditableExecutionResult result = new AuditableExecutionResult();
+        final var result = new AuditableExecutionResult();
         context.getTicketGrantingTicket().ifPresent(result::setTicketGrantingTicket);
         context.getAuthentication().ifPresent(result::setAuthentication);
         context.getAuthenticationResult().ifPresent(result::setAuthenticationResult);

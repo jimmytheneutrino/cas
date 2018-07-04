@@ -7,7 +7,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.impl.auth.DigestScheme;
 import org.apereo.cas.util.RandomUtils;
 
-import java.security.SecureRandom;
 import java.time.ZonedDateTime;
 
 /**
@@ -26,8 +25,8 @@ public class DigestAuthenticationUtils {
      * @return the nonce
      */
     public static String createNonce() {
-        final String fmtDate = ZonedDateTime.now().toString();
-        final SecureRandom rand = RandomUtils.getNativeInstance();
+        final var fmtDate = ZonedDateTime.now().toString();
+        final var rand = RandomUtils.getNativeInstance();
         final Integer randomInt = rand.nextInt();
         return DigestUtils.md5Hex(fmtDate + randomInt);
     }
@@ -61,7 +60,7 @@ public class DigestAuthenticationUtils {
      * @return the header string
      */
     public static String createAuthenticateHeader(final String realm, final String authMethod, final String nonce) {
-        final StringBuilder stringBuilder = new StringBuilder("Digest realm=\"")
+        final var stringBuilder = new StringBuilder("Digest realm=\"")
             .append(realm).append("\",");
         if (StringUtils.isNotBlank(authMethod)) {
             stringBuilder.append("qop=").append(authMethod).append(',');

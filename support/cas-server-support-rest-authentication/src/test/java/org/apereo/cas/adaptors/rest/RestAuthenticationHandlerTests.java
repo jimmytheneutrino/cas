@@ -5,9 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apereo.cas.authentication.exceptions.AccountDisabledException;
 import org.apereo.cas.authentication.AuthenticationHandler;
 import org.apereo.cas.authentication.CoreAuthenticationTestUtils;
-import org.apereo.cas.authentication.AuthenticationHandlerExecutionResult;
 import org.apereo.cas.authentication.principal.DefaultPrincipalFactory;
-import org.apereo.cas.authentication.principal.Principal;
 import org.apereo.cas.config.CasCoreAuthenticationConfiguration;
 import org.apereo.cas.config.CasCoreAuthenticationHandlersConfiguration;
 import org.apereo.cas.config.CasCoreAuthenticationMetadataConfiguration;
@@ -24,9 +22,9 @@ import org.apereo.cas.config.CasCoreWebConfiguration;
 import org.apereo.cas.config.CasPersonDirectoryConfiguration;
 import org.apereo.cas.config.CasRestAuthenticationConfiguration;
 import org.apereo.cas.config.support.CasWebApplicationServiceFactoryConfiguration;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.Before;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,7 +99,7 @@ public class RestAuthenticationHandlerTests {
     private ResponseActions server;
 
     @Before
-    public void setUp() {
+    public void initialize() {
         server = MockRestServiceServer.bindTo(restAuthenticationTemplate).build()
             .expect(manyTimes(), requestTo("http://localhost:8081/authn"))
             .andExpect(method(HttpMethod.POST));
@@ -109,15 +107,15 @@ public class RestAuthenticationHandlerTests {
 
     @Test
     public void verifySuccess() throws Exception {
-        final Principal principalWritten = new DefaultPrincipalFactory().createPrincipal("casuser");
+        final var principalWritten = new DefaultPrincipalFactory().createPrincipal("casuser");
 
-        final ObjectMapper mapper = new ObjectMapper().findAndRegisterModules();
-        final StringWriter writer = new StringWriter();
+        final var mapper = new ObjectMapper().findAndRegisterModules();
+        final var writer = new StringWriter();
         mapper.writeValue(writer, principalWritten);
 
         server.andRespond(withSuccess(writer.toString(), MediaType.APPLICATION_JSON));
 
-        final AuthenticationHandlerExecutionResult res =
+        final var res =
             authenticationHandler.authenticate(CoreAuthenticationTestUtils.getCredentialsWithSameUsernameAndPassword());
         assertEquals("casuser", res.getPrincipal().getId());
     }

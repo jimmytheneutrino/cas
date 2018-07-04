@@ -1,6 +1,7 @@
 package org.apereo.cas.adaptors.gauth;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apereo.cas.category.MongoDbCategory;
 import org.apereo.cas.config.CasCoreAuthenticationConfiguration;
 import org.apereo.cas.config.CasCoreAuthenticationHandlersConfiguration;
 import org.apereo.cas.config.CasCoreAuthenticationMetadataConfiguration;
@@ -22,12 +23,14 @@ import org.apereo.cas.config.support.CasWebApplicationServiceFactoryConfiguratio
 import org.apereo.cas.config.support.EnvironmentConversionServiceInitializer;
 import org.apereo.cas.config.support.authentication.GoogleAuthenticatorAuthenticationEventExecutionPlanConfiguration;
 import org.apereo.cas.logout.config.CasCoreLogoutConfiguration;
-import org.apereo.cas.authentication.OneTimeTokenAccount;
 import org.apereo.cas.otp.repository.credentials.OneTimeTokenCredentialRepository;
 import org.apereo.cas.util.CollectionUtils;
 import org.apereo.cas.util.SchedulingUtils;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.aop.AopAutoConfiguration;
@@ -42,8 +45,6 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import javax.annotation.PostConstruct;
-
 import static org.junit.Assert.*;
 
 /**
@@ -53,36 +54,36 @@ import static org.junit.Assert.*;
  * @since 5.0.0
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(
-        classes = {
-                MongoDbGoogleAuthenticatorTokenCredentialRepositoryTests.MongoTestConfiguration.class,
-                GoogleAuthenticatorMongoDbConfiguration.class,
-                CasCoreTicketsConfiguration.class,
-                CasCoreTicketCatalogConfiguration.class,
-                CasCoreLogoutConfiguration.class,
-                CasCoreHttpConfiguration.class,
-                CasCoreServicesConfiguration.class,
-                CasWebApplicationServiceFactoryConfiguration.class,
-                CasCoreAuthenticationConfiguration.class,
-                CasCoreServicesAuthenticationConfiguration.class,
-                CasCoreAuthenticationMetadataConfiguration.class,
-                CasCoreAuthenticationPolicyConfiguration.class,
-                CasCoreAuthenticationPrincipalConfiguration.class,
-                CasCoreAuthenticationHandlersConfiguration.class,
-                CasCoreAuthenticationSupportConfiguration.class,
-                CasPersonDirectoryConfiguration.class,
-                GoogleAuthenticatorAuthenticationEventExecutionPlanConfiguration.class,
-                AopAutoConfiguration.class,
-                CasCoreConfiguration.class,
-                CasCoreAuthenticationServiceSelectionStrategyConfiguration.class,
-                CasCoreUtilConfiguration.class,
-                RefreshAutoConfiguration.class,
-                CasCoreWebConfiguration.class})
+@SpringBootTest(classes = {
+    MongoDbGoogleAuthenticatorTokenCredentialRepositoryTests.MongoTestConfiguration.class,
+    GoogleAuthenticatorMongoDbConfiguration.class,
+    CasCoreTicketsConfiguration.class,
+    CasCoreTicketCatalogConfiguration.class,
+    CasCoreLogoutConfiguration.class,
+    CasCoreHttpConfiguration.class,
+    CasCoreServicesConfiguration.class,
+    CasWebApplicationServiceFactoryConfiguration.class,
+    CasCoreAuthenticationConfiguration.class,
+    CasCoreServicesAuthenticationConfiguration.class,
+    CasCoreAuthenticationMetadataConfiguration.class,
+    CasCoreAuthenticationPolicyConfiguration.class,
+    CasCoreAuthenticationPrincipalConfiguration.class,
+    CasCoreAuthenticationHandlersConfiguration.class,
+    CasCoreAuthenticationSupportConfiguration.class,
+    CasPersonDirectoryConfiguration.class,
+    GoogleAuthenticatorAuthenticationEventExecutionPlanConfiguration.class,
+    AopAutoConfiguration.class,
+    CasCoreConfiguration.class,
+    CasCoreAuthenticationServiceSelectionStrategyConfiguration.class,
+    CasCoreUtilConfiguration.class,
+    RefreshAutoConfiguration.class,
+    CasCoreWebConfiguration.class})
 @EnableTransactionManagement(proxyTargetClass = true)
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @TestPropertySource(locations = {"classpath:/mongogauth.properties"})
 @EnableScheduling
 @ContextConfiguration(initializers = EnvironmentConversionServiceInitializer.class)
+@Category(MongoDbCategory.class)
 @Slf4j
 public class MongoDbGoogleAuthenticatorTokenCredentialRepositoryTests {
 
@@ -90,17 +91,22 @@ public class MongoDbGoogleAuthenticatorTokenCredentialRepositoryTests {
     @Qualifier("googleAuthenticatorAccountRegistry")
     private OneTimeTokenCredentialRepository registry;
 
+    @Before
+    public void cleanUp() {
+        registry.deleteAll();
+    }
+
     @Test
     public void verifySave() {
         registry.save("uid", "secret", 143211, CollectionUtils.wrapList(1, 2, 3, 4, 5, 6));
-        final OneTimeTokenAccount s = registry.get("uid");
+        final var s = registry.get("uid");
         assertEquals("secret", s.getSecretKey());
     }
 
     @Test
     public void verifySaveAndUpdate() {
         registry.save("casuser", "secret", 222222, CollectionUtils.wrapList(1, 2, 3, 4, 5, 6));
-        OneTimeTokenAccount s = registry.get("casuser");
+        var s = registry.get("casuser");
         assertNotNull(s.getRegistrationDate());
         assertEquals(222222, s.getValidationCode());
         s.setSecretKey("newSecret");
@@ -110,14 +116,14 @@ public class MongoDbGoogleAuthenticatorTokenCredentialRepositoryTests {
         assertEquals(999666, s.getValidationCode());
         assertEquals("newSecret", s.getSecretKey());
     }
-    
+
     @TestConfiguration
-    public static class MongoTestConfiguration {
+    public static class MongoTestConfiguration implements InitializingBean {
         @Autowired
         protected ApplicationContext applicationContext;
 
-        @PostConstruct
-        public void init() {
+        @Override
+        public void afterPropertiesSet() {
             SchedulingUtils.prepScheduledAnnotationBeanPostProcessor(applicationContext);
         }
     }

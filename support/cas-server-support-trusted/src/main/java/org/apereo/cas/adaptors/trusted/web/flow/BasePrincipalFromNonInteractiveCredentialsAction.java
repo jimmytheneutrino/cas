@@ -15,7 +15,7 @@ import org.apereo.cas.web.support.WebUtils;
 import org.springframework.core.Ordered;
 import org.springframework.webflow.execution.RequestContext;
 import javax.servlet.http.HttpServletRequest;
-import java.util.Map;
+
 import lombok.Setter;
 
 /**
@@ -49,11 +49,11 @@ public abstract class BasePrincipalFromNonInteractiveCredentialsAction extends A
 
     @Override
     protected Credential constructCredentialsFromRequest(final RequestContext context) {
-        final HttpServletRequest request = WebUtils.getHttpServletRequestFromExternalWebflowContext(context);
-        final String remoteUser = getRemotePrincipalId(request);
+        final var request = WebUtils.getHttpServletRequestFromExternalWebflowContext(context);
+        final var remoteUser = getRemotePrincipalId(request);
         if (StringUtils.isNotBlank(remoteUser)) {
             LOGGER.debug("User [{}] found in HttpServletRequest", remoteUser);
-            final Map<String, Object> attributes = principalAttributesExtractor.getAttributes(request);
+            final var attributes = principalAttributesExtractor.getAttributes(request);
             LOGGER.debug("Attributes [{}] found in HttpServletRequest", attributes);
             return new PrincipalBearingCredential(this.principalFactory.createPrincipal(remoteUser, attributes));
         }

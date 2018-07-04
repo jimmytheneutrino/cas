@@ -22,17 +22,17 @@ public class ClientIpDeviceFingerprintComponentExtractorTests {
     @Test
     public void verifyClientIpFingerprintNotFound() {
         ClientInfoHolder.setClientInfo(null);
-        final ClientIpDeviceFingerprintComponentExtractor ex = new ClientIpDeviceFingerprintComponentExtractor();
+        final var ex = new ClientIpDeviceFingerprintComponentExtractor();
         assertFalse(ex.extractComponent("casuser", new MockRequestContext(), false).isPresent());
     }
 
     @Test
     public void verifyClientIpFingerprintFound() {
-        final MockHttpServletRequest request = new MockHttpServletRequest();
+        final var request = new MockHttpServletRequest();
         request.setRemoteAddr("1.2.3.4");
-        final ClientInfo clientInfo = new ClientInfo(request);
+        final var clientInfo = new ClientInfo(request);
         ClientInfoHolder.setClientInfo(clientInfo);
-        final ClientIpDeviceFingerprintComponentExtractor ex = new ClientIpDeviceFingerprintComponentExtractor();
+        final var ex = new ClientIpDeviceFingerprintComponentExtractor();
         assertTrue(ex.extractComponent("casuser", new MockRequestContext(), false).isPresent());
     }
 }

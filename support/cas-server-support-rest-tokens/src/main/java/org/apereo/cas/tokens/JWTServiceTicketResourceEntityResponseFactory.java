@@ -6,7 +6,6 @@ import org.apereo.cas.CentralAuthenticationService;
 import org.apereo.cas.authentication.AuthenticationResult;
 import org.apereo.cas.authentication.principal.Service;
 import org.apereo.cas.rest.factory.CasProtocolServiceTicketResourceEntityResponseFactory;
-import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceAccessStrategyUtils;
 import org.apereo.cas.services.RegisteredServiceProperty.RegisteredServiceProperties;
 import org.apereo.cas.services.ServicesManager;
@@ -43,12 +42,11 @@ public class JWTServiceTicketResourceEntityResponseFactory extends CasProtocolSe
     @Override
     protected String grantServiceTicket(final String ticketGrantingTicket, final Service service,
                                         final AuthenticationResult authenticationResult) {
-        final RegisteredService registeredService = this.servicesManager.findServiceBy(service);
+        final var registeredService = this.servicesManager.findServiceBy(service);
 
         LOGGER.debug("Located registered service [{}] for [{}]", registeredService, service);
         RegisteredServiceAccessStrategyUtils.ensureServiceAccessIsAllowed(service, registeredService);
-
-        boolean tokenAsResponse = RegisteredServiceProperties.TOKEN_AS_RESPONSE.isAssignedTo(registeredService, BooleanUtils::toBoolean);
+        var tokenAsResponse = RegisteredServiceProperties.TOKEN_AS_RESPONSE.isAssignedTo(registeredService, BooleanUtils::toBoolean);
         if (tokenAsResponse) {
             LOGGER.warn("Service [{}] is configured to generate JWTs as tickets using a deprecated property [{}]. Consider switching to [{}] instead.",
                 service, RegisteredServiceProperties.TOKEN_AS_RESPONSE.getPropertyName(),
@@ -62,8 +60,8 @@ public class JWTServiceTicketResourceEntityResponseFactory extends CasProtocolSe
             return super.grantServiceTicket(ticketGrantingTicket, service, authenticationResult);
         }
 
-        final String serviceTicket = super.grantServiceTicket(ticketGrantingTicket, service, authenticationResult);
-        final String jwt = this.tokenTicketBuilder.build(serviceTicket, service);
+        final var serviceTicket = super.grantServiceTicket(ticketGrantingTicket, service, authenticationResult);
+        final var jwt = this.tokenTicketBuilder.build(serviceTicket, service);
         LOGGER.debug("Generated JWT [{}] for service [{}]", jwt, service);
         return jwt;
     }

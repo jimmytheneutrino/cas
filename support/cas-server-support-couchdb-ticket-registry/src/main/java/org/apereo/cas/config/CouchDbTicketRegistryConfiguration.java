@@ -1,7 +1,6 @@
 package org.apereo.cas.config;
 
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.support.couchdb.CouchDbTicketRegistryProperties;
 import org.apereo.cas.couchdb.core.CouchDbConnectorFactory;
 import org.apereo.cas.couchdb.tickets.TicketRepository;
 import org.apereo.cas.ticket.TicketCatalog;
@@ -41,9 +40,9 @@ public class CouchDbTicketRegistryConfiguration {
     @Bean
     @RefreshScope
     public TicketRepository ticketRegistryCouchDbRepository() {
-        final CouchDbTicketRegistryProperties couchDbProperties = casProperties.getTicket().getRegistry().getCouchDb();
+        final var couchDbProperties = casProperties.getTicket().getRegistry().getCouchDb();
 
-        final TicketRepository ticketRepository = new TicketRepository(ticketRegistryCouchDbFactory().create(), couchDbProperties.isCreateIfNotExists());
+        final var ticketRepository = new TicketRepository(ticketRegistryCouchDbFactory().create(), couchDbProperties.isCreateIfNotExists());
         ticketRepository.initStandardDesignDocument();
         return ticketRepository;
     }
@@ -52,8 +51,8 @@ public class CouchDbTicketRegistryConfiguration {
     @Bean
     @Autowired
     public TicketRegistry ticketRegistry(@Qualifier("ticketCatalog") final TicketCatalog ticketCatalog) {
-        final CouchDbTicketRegistryProperties couchDb = casProperties.getTicket().getRegistry().getCouchDb();
-        final CouchDbTicketRegistry c = new CouchDbTicketRegistry(ticketCatalog, ticketRegistryCouchDbRepository(), couchDb.getRetries());
+        final var couchDb = casProperties.getTicket().getRegistry().getCouchDb();
+        final var c = new CouchDbTicketRegistry(ticketCatalog, ticketRegistryCouchDbRepository(), couchDb.getRetries());
         c.setCipherExecutor(CoreTicketUtils.newTicketRegistryCipherExecutor(couchDb.getCrypto(), "couchdb"));
         return c;
     }

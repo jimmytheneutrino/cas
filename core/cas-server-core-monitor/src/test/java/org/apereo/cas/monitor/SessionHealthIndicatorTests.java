@@ -12,9 +12,8 @@ import org.apereo.cas.ticket.registry.DefaultTicketRegistry;
 import org.apereo.cas.ticket.registry.TicketRegistry;
 import org.apereo.cas.ticket.support.HardTimeoutExpirationPolicy;
 import org.apereo.cas.util.DefaultUniqueTicketIdGenerator;
-import org.junit.Before;
 import org.junit.Test;
-import org.springframework.boot.actuate.health.Health;
+import org.junit.Before;
 import org.springframework.boot.actuate.health.Status;
 import org.springframework.mock.web.MockHttpServletRequest;
 
@@ -37,31 +36,31 @@ public class SessionHealthIndicatorTests {
     private DefaultTicketRegistry defaultRegistry;
 
     @Before
-    public void setUp() {
+    public void initialize() {
         this.defaultRegistry = new DefaultTicketRegistry();
     }
 
     @Test
     public void verifyObserveOk() {
         addTicketsToRegistry(this.defaultRegistry, 5, 10);
-        final SessionMonitor monitor = new SessionMonitor(defaultRegistry, -1, -1);
-        final Health status = monitor.health();
+        final var monitor = new SessionMonitor(defaultRegistry, -1, -1);
+        final var status = monitor.health();
         assertEquals(Status.UP, status.getStatus());
     }
 
     @Test
     public void verifyObserveWarnSessionsExceeded() {
         addTicketsToRegistry(this.defaultRegistry, 10, 1);
-        final SessionMonitor monitor = new SessionMonitor(defaultRegistry, 0, 5);
-        final Health status = monitor.health();
+        final var monitor = new SessionMonitor(defaultRegistry, 0, 5);
+        final var status = monitor.health();
         assertEquals("WARN", status.getStatus().getCode());
     }
 
     @Test
     public void verifyObserveWarnServiceTicketsExceeded() {
         addTicketsToRegistry(this.defaultRegistry, 1, 10);
-        final SessionMonitor monitor = new SessionMonitor(defaultRegistry, 5, 0);
-        final Health status = monitor.health();
+        final var monitor = new SessionMonitor(defaultRegistry, 5, 0);
+        final var status = monitor.health();
         assertEquals("WARN", status.getStatus().getCode());
     }
 
@@ -80,7 +79,7 @@ public class SessionHealthIndicatorTests {
     }
 
     public static AbstractWebApplicationService getService(final String name) {
-        final MockHttpServletRequest request = new MockHttpServletRequest();
+        final var request = new MockHttpServletRequest();
         request.addParameter("service", name);
         return (AbstractWebApplicationService) new WebApplicationServiceFactory().createService(request);
     }

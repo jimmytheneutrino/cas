@@ -60,15 +60,15 @@ public class WsFederationNavigationController {
      */
     @GetMapping(ENDPOINT_REDIRECT)
     public View redirectToProvider(final HttpServletRequest request, final HttpServletResponse response) {
-        final String wsfedId = request.getParameter(PARAMETER_NAME);
+        final var wsfedId = request.getParameter(PARAMETER_NAME);
         try {
-            final WsFederationConfiguration cfg = configurations.stream().filter(c -> c.getId().equals(wsfedId)).findFirst().orElse(null);
+            final var cfg = configurations.stream().filter(c -> c.getId().equals(wsfedId)).findFirst().orElse(null);
             if (cfg == null) {
                 throw new IllegalArgumentException("Could not locate WsFederation configuration for " + wsfedId);
             }
-            final Service service = determineService(request);
-            final String id = wsFederationHelper.getRelyingPartyIdentifier(service, cfg);
-            final String url = cfg.getAuthorizationUrl(id, cfg.getId());
+            final var service = determineService(request);
+            final var id = wsFederationHelper.getRelyingPartyIdentifier(service, cfg);
+            final var url = cfg.getAuthorizationUrl(id, cfg.getId());
             wsFederationCookieManager.store(request, response, cfg.getId(), service, cfg);
             return new RedirectView(url);
         } catch (final Exception e) {
@@ -78,7 +78,7 @@ public class WsFederationNavigationController {
     }
 
     private Service determineService(final HttpServletRequest request) {
-        final String serviceParameter = StringUtils.defaultIfBlank(request.getParameter(CasProtocolConstants.PARAMETER_SERVICE), casLoginEndpoint);
+        final var serviceParameter = StringUtils.defaultIfBlank(request.getParameter(CasProtocolConstants.PARAMETER_SERVICE), casLoginEndpoint);
         return this.authenticationRequestServiceSelectionStrategies.resolveService(webApplicationServiceFactory.createService(serviceParameter));
     }
 }

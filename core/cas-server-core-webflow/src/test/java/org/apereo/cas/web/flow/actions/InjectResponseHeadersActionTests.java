@@ -21,11 +21,9 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.webflow.context.servlet.ServletExternalContext;
-import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.test.MockRequestContext;
 
 import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -47,19 +45,19 @@ public class InjectResponseHeadersActionTests {
 
     @Test
     public void verifyAction() throws Exception {
-        final MockRequestContext context = new MockRequestContext();
-        final MockHttpServletRequest request = new MockHttpServletRequest();
-        final MockHttpServletResponse response = new MockHttpServletResponse();
+        final var context = new MockRequestContext();
+        final var request = new MockHttpServletRequest();
+        final var response = new MockHttpServletResponse();
         context.setExternalContext(new ServletExternalContext(new MockServletContext(), request, response));
 
         WebUtils.putAuthentication(CoreAuthenticationTestUtils.getAuthentication(), context);
         WebUtils.putService(context, CoreAuthenticationTestUtils.getWebApplicationService());
 
-        final ResponseBuilderLocator locator = mock(ResponseBuilderLocator.class);
+        final var locator = mock(ResponseBuilderLocator.class);
         when(locator.locate(any(WebApplicationService.class))).thenReturn(new WebApplicationServiceResponseBuilder(this.servicesManager));
 
-        final InjectResponseHeadersAction redirectToServiceAction = new InjectResponseHeadersAction(locator);
-        final Event event = redirectToServiceAction.execute(context);
+        final var redirectToServiceAction = new InjectResponseHeadersAction(locator);
+        final var event = redirectToServiceAction.execute(context);
         assertEquals(CasWebflowConstants.STATE_ID_SUCCESS, event.getId());
         assertNotNull(response.getHeader(CasProtocolConstants.PARAMETER_SERVICE));
     }

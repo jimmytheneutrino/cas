@@ -17,7 +17,6 @@ import org.apereo.cas.authentication.AuthenticationPolicy;
 @AllArgsConstructor
 public class RequiredHandlerAuthenticationPolicy implements AuthenticationPolicy {
 
-
     /**
      * Authentication handler name that is required to satisfy policy.
      */
@@ -39,8 +38,8 @@ public class RequiredHandlerAuthenticationPolicy implements AuthenticationPolicy
 
     @Override
     public boolean isSatisfiedBy(final Authentication authn) {
-        boolean credsOk = true;
-        final int sum = authn.getSuccesses().size() + authn.getFailures().size();
+        var credsOk = true;
+        final var sum = authn.getSuccesses().size() + authn.getFailures().size();
         if (this.tryAll) {
             credsOk = authn.getCredentials().size() == sum;
         }

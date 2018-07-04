@@ -28,11 +28,11 @@ public class OidcServiceJsonWebKeystoreCacheLoader implements CacheLoader<OidcRe
 
     @Override
     public Optional<RsaJsonWebKey> load(final OidcRegisteredService svc) {
-        final Optional<JsonWebKeySet> jwks = buildJsonWebKeySet(svc);
+        final var jwks = buildJsonWebKeySet(svc);
         if (!jwks.isPresent() || jwks.get().getJsonWebKeys().isEmpty()) {
             return Optional.empty();
         }
-        final RsaJsonWebKey key = getJsonWebKeyFromJwks(jwks.get());
+        final var key = getJsonWebKeyFromJwks(jwks.get());
         if (key == null) {
             return Optional.empty();
         }
@@ -45,7 +45,7 @@ public class OidcServiceJsonWebKeystoreCacheLoader implements CacheLoader<OidcRe
             return null;
         }
 
-        final RsaJsonWebKey key = (RsaJsonWebKey) jwks.getJsonWebKeys().get(0);
+        final var key = (RsaJsonWebKey) jwks.getJsonWebKeys().get(0);
         if (StringUtils.isBlank(key.getAlgorithm())) {
             LOGGER.warn("Located JSON web key [{}] has no algorithm defined", key);
         }
@@ -63,15 +63,15 @@ public class OidcServiceJsonWebKeystoreCacheLoader implements CacheLoader<OidcRe
     private Optional<JsonWebKeySet> buildJsonWebKeySet(final OidcRegisteredService service) {
         try {
             LOGGER.debug("Loading JSON web key from [{}]", service.getJwks());
-            final Resource resource = this.resourceLoader.getResource(service.getJwks());
-            final JsonWebKeySet jsonWebKeySet = buildJsonWebKeySet(resource);
+            final var resource = this.resourceLoader.getResource(service.getJwks());
+            final var jsonWebKeySet = buildJsonWebKeySet(resource);
 
             if (jsonWebKeySet == null || jsonWebKeySet.getJsonWebKeys().isEmpty()) {
                 LOGGER.warn("No JSON web keys could be found for [{}]", service);
                 return Optional.empty();
             }
 
-            final long badKeysCount = jsonWebKeySet.getJsonWebKeys().stream().filter(k ->
+            final var badKeysCount = jsonWebKeySet.getJsonWebKeys().stream().filter(k ->
                 StringUtils.isBlank(k.getAlgorithm())
                     && StringUtils.isBlank(k.getKeyId())
                     && StringUtils.isBlank(k.getKeyType())).count();
@@ -81,7 +81,7 @@ public class OidcServiceJsonWebKeystoreCacheLoader implements CacheLoader<OidcRe
                 return Optional.empty();
             }
 
-            final RsaJsonWebKey webKey = getJsonWebKeyFromJwks(jsonWebKeySet);
+            final var webKey = getJsonWebKeyFromJwks(jsonWebKeySet);
             if (webKey.getPublicKey() == null) {
                 LOGGER.warn("JSON web key retrieved [{}] has no associated public key", webKey.getKeyId());
                 return Optional.empty();
@@ -97,14 +97,14 @@ public class OidcServiceJsonWebKeystoreCacheLoader implements CacheLoader<OidcRe
 
     private static JsonWebKeySet buildJsonWebKeySet(final Resource resource) throws Exception {
         LOGGER.debug("Loading JSON web key from [{}]", resource);
-        final String json = IOUtils.toString(resource.getInputStream(), StandardCharsets.UTF_8);
+        final var json = IOUtils.toString(resource.getInputStream(), StandardCharsets.UTF_8);
         LOGGER.debug("Retrieved JSON web key from [{}] as [{}]", resource, json);
         return buildJsonWebKeySet(json);
     }
 
     private static JsonWebKeySet buildJsonWebKeySet(final String json) throws Exception {
-        final JsonWebKeySet jsonWebKeySet = new JsonWebKeySet(json);
-        final RsaJsonWebKey webKey = getJsonWebKeyFromJwks(jsonWebKeySet);
+        final var jsonWebKeySet = new JsonWebKeySet(json);
+        final var webKey = getJsonWebKeyFromJwks(jsonWebKeySet);
         if (webKey == null || webKey.getPublicKey() == null) {
             LOGGER.warn("JSON web key retrieved [{}] is not found or has no associated public key", webKey);
             return null;

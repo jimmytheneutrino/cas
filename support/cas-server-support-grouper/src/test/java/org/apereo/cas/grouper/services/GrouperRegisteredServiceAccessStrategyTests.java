@@ -2,13 +2,12 @@ package org.apereo.cas.grouper.services;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.apereo.cas.services.AbstractRegisteredService;
 import org.apereo.cas.services.JsonServiceRegistry;
 import org.apereo.cas.services.RegisteredServiceTestUtils;
 import org.apereo.cas.services.replication.NoOpRegisteredServiceReplicationStrategy;
 import org.apereo.cas.services.resource.DefaultRegisteredServiceResourceNamingStrategy;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.BeforeClass;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.ClassPathResource;
 
@@ -45,11 +44,11 @@ public class GrouperRegisteredServiceAccessStrategyTests {
         v1.add("admin");
         attributes.put("memberOf", v1);
 
-        final AbstractRegisteredService service = RegisteredServiceTestUtils.getRegisteredService("test");
-        final GrouperRegisteredServiceAccessStrategy grouper = new GrouperRegisteredServiceAccessStrategy();
+        final var service = RegisteredServiceTestUtils.getRegisteredService("test");
+        final var grouper = new GrouperRegisteredServiceAccessStrategy();
         grouper.setRequiredAttributes(attributes);
         service.setAccessStrategy(grouper);
-        final JsonServiceRegistry dao = new JsonServiceRegistry(RESOURCE, false,
+        final var dao = new JsonServiceRegistry(RESOURCE, false,
             mock(ApplicationEventPublisher.class),
             new NoOpRegisteredServiceReplicationStrategy(),
             new DefaultRegisteredServiceResourceNamingStrategy());
@@ -59,9 +58,9 @@ public class GrouperRegisteredServiceAccessStrategyTests {
 
     @Test
     public void checkGrouperAttributes() {
-        final ClassPathResource resource = new ClassPathResource("grouper.client.properties");
+        final var resource = new ClassPathResource("grouper.client.properties");
         if (resource.exists()) {
-            final GrouperRegisteredServiceAccessStrategy strategy = new GrouperRegisteredServiceAccessStrategy();
+            final var strategy = new GrouperRegisteredServiceAccessStrategy();
             final Map<String, Set<String>> requiredAttributes = new HashMap<>();
             requiredAttributes.put("memberOf", Collections.singleton("admin"));
             strategy.setRequiredAttributes(requiredAttributes);

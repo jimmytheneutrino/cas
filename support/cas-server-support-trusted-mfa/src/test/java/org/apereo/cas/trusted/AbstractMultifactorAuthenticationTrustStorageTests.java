@@ -65,7 +65,7 @@ public abstract class AbstractMultifactorAuthenticationTrustStorageTests {
 
     @Test
     public void verifyTrustEngine() {
-        final MultifactorAuthenticationTrustRecord record = getMultifactorAuthenticationTrustRecord();
+        final var record = getMultifactorAuthenticationTrustRecord();
         mfaTrustEngine.set(record);
         assertFalse(mfaTrustEngine.get(record.getPrincipal()).isEmpty());
         assertFalse(mfaTrustEngine.get(LocalDateTime.MAX.now()).isEmpty());
@@ -73,7 +73,7 @@ public abstract class AbstractMultifactorAuthenticationTrustStorageTests {
     }
 
     protected static MultifactorAuthenticationTrustRecord getMultifactorAuthenticationTrustRecord() {
-        final MultifactorAuthenticationTrustRecord record = new MultifactorAuthenticationTrustRecord();
+        final var record = new MultifactorAuthenticationTrustRecord();
         record.setDeviceFingerprint("Fingerprint");
         record.setName("DeviceName");
         record.setPrincipal("casuser");

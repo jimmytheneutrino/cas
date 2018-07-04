@@ -18,7 +18,6 @@ import org.reflections.util.FilterBuilder;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Capture SAML authentication metadata.
@@ -52,14 +51,14 @@ public class SamlAuthenticationMetaDataPopulator extends BaseAuthenticationMetaD
      * Instantiates a new SAML authentication meta data populator.
      */
     public SamlAuthenticationMetaDataPopulator() {
-        final String packageName = CentralAuthenticationService.NAMESPACE;
-        final Reflections reflections =
+        final var packageName = CentralAuthenticationService.NAMESPACE;
+        final var reflections =
             new Reflections(new ConfigurationBuilder()
                 .filterInputsBy(new FilterBuilder().includePackage(packageName))
                 .setUrls(ClasspathHelper.forPackage(packageName))
                 .setScanners(new SubTypesScanner(true)));
 
-        final Set<Class<? extends Credential>> subTypes = reflections.getSubTypesOf(Credential.class);
+        final var subTypes = reflections.getSubTypesOf(Credential.class);
         subTypes.forEach(t -> this.authenticationMethods.put(t.getName(), AUTHN_METHOD_UNSPECIFIED));
         this.authenticationMethods.put(HttpBasedServiceCredential.class.getName(), AUTHN_METHOD_SSL_TLS_CLIENT);
         this.authenticationMethods.put(UsernamePasswordCredential.class.getName(), AUTHN_METHOD_PASSWORD);
@@ -69,8 +68,8 @@ public class SamlAuthenticationMetaDataPopulator extends BaseAuthenticationMetaD
     @Override
     public void populateAttributes(final AuthenticationBuilder builder, final AuthenticationTransaction transaction) {
         transaction.getPrimaryCredential().ifPresent(c -> {
-            final String credentialsClass = c.getClass().getName();
-            final String authenticationMethod = this.authenticationMethods.get(credentialsClass);
+            final var credentialsClass = c.getClass().getName();
+            final var authenticationMethod = this.authenticationMethods.get(credentialsClass);
             builder.addAttribute(ATTRIBUTE_AUTHENTICATION_METHOD, authenticationMethod);
         });
 

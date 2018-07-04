@@ -24,7 +24,7 @@ public final class LoggingUtils {
      * @return the log event
      */
     public static LogEvent prepareLogEvent(final LogEvent logEvent) {
-        final String messageModified = TicketIdSanitizationUtils.sanitize(logEvent.getMessage().getFormattedMessage());
+        final var messageModified = TicketIdSanitizationUtils.sanitize(logEvent.getMessage().getFormattedMessage());
         final Message message = new SimpleMessage(messageModified);
         final LogEvent newLogEvent = Log4jLogEvent.newBuilder()
             .setLevel(logEvent.getLevel())

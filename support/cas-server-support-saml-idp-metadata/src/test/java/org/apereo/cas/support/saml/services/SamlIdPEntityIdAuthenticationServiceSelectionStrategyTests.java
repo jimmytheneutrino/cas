@@ -15,8 +15,8 @@ import static org.junit.Assert.*;
 public class SamlIdPEntityIdAuthenticationServiceSelectionStrategyTests {
     @Test
     public void verifyAction() {
-        final WebApplicationServiceFactory factory = new WebApplicationServiceFactory();
-        final SamlIdPEntityIdAuthenticationServiceSelectionStrategy strategy =
+        final var factory = new WebApplicationServiceFactory();
+        final var strategy =
             new SamlIdPEntityIdAuthenticationServiceSelectionStrategy(factory,
                 "http://localhost:8080/cas");
 
@@ -32,7 +32,7 @@ public class SamlIdPEntityIdAuthenticationServiceSelectionStrategyTests {
             + "YW1laWQtZm9ybWF0OmVudGl0eSIgTmFtZVF1YWxpZmllcj0iaHR0cDovL2xvY2FsaG9zdDo4MDgxL2NhbGxiYWNrP2NsaWVudF9uYW1lPVNBTU"
             + "wyQ2xpZW50Ij5odHRwOi8vbG9jYWxob3N0OjgwODEvY2FsbGJhY2s%2FY2xpZW50X25hbWU9U0FNTDJDbGllbnQ8L3NhbWwyOklzc3Vlcj48L"
             + "3NhbWwycDpBdXRoblJlcXVlc3Q%2B&RelayState=http%3A%2F%2Flocalhost%3A8081%2Fcallback%3Fclient_name%3DSAML2Client");
-        final Service result = strategy.resolveServiceFrom(service);
+        final var result = strategy.resolveServiceFrom(service);
         assertTrue(strategy.supports(service));
         assertEquals("http://localhost:8081/callback?client_name=SAML2Client", result.getId());
     }

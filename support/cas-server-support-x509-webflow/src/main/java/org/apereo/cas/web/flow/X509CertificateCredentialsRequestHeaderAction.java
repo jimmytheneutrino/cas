@@ -10,9 +10,6 @@ import org.apereo.cas.web.flow.resolver.CasWebflowEventResolver;
 import org.apereo.cas.web.support.WebUtils;
 import org.springframework.webflow.execution.RequestContext;
 
-import javax.servlet.http.HttpServletRequest;
-import java.security.cert.X509Certificate;
-
 /**
  * Concrete implementation of AbstractNonInteractiveCredentialsAction that
  * obtains the X509 Certificates from the HttpServletRequest and places them in
@@ -36,12 +33,12 @@ public class X509CertificateCredentialsRequestHeaderAction extends X509Certifica
 
     @Override
     protected Credential constructCredentialsFromRequest(final RequestContext context) {
-        final Credential x509Credential = super.constructCredentialsFromRequest(context);
+        final var x509Credential = super.constructCredentialsFromRequest(context);
         if (x509Credential != null) {
             return x509Credential;
         }
-        final HttpServletRequest request = WebUtils.getHttpServletRequestFromExternalWebflowContext(context);
-        final X509Certificate[] certFromHeader = x509CertificateExtractor.extract(request);
+        final var request = WebUtils.getHttpServletRequestFromExternalWebflowContext(context);
+        final var certFromHeader = x509CertificateExtractor.extract(request);
         if (certFromHeader != null) {
             LOGGER.debug("Certificate found in HTTP request via {}", x509CertificateExtractor.getClass().getName());
             return new X509CertificateCredential(certFromHeader);

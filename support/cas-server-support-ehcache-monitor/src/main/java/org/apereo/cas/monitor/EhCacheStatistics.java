@@ -2,8 +2,6 @@ package org.apereo.cas.monitor;
 
 import lombok.extern.slf4j.Slf4j;
 import net.sf.ehcache.Cache;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.statistics.StatisticsGateway;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Formatter;
@@ -48,7 +46,7 @@ public class EhCacheStatistics implements CacheStatistics {
      */
     @Override
     public long getSize() {
-        final StatisticsGateway statistics = this.cache.getStatistics();
+        final var statistics = this.cache.getStatistics();
         if (this.useBytes) {
             this.diskSize = statistics.getLocalDiskSizeInBytes();
             this.heapSize = statistics.getLocalHeapSizeInBytes();
@@ -67,7 +65,7 @@ public class EhCacheStatistics implements CacheStatistics {
      */
     @Override
     public long getCapacity() {
-        final CacheConfiguration config = this.cache.getCacheConfiguration();
+        final var config = this.cache.getCacheConfiguration();
         if (this.useBytes) {
             return config.getMaxBytesLocalDisk();
         }
@@ -81,7 +79,7 @@ public class EhCacheStatistics implements CacheStatistics {
 
     @Override
     public long getPercentFree() {
-        final long capacity = getCapacity();
+        final var capacity = getCapacity();
         if (capacity == 0) {
             return 0;
         }
@@ -95,11 +93,12 @@ public class EhCacheStatistics implements CacheStatistics {
 
     @Override
     public String toString(final StringBuilder builder) {
-        final String name = this.getName();
+        final var name = this.getName();
         if (StringUtils.isNotBlank(name)) {
             builder.append(name).append(':');
         }
-        try (Formatter formatter = new Formatter(builder)) {
+        final var free = getPercentFree();
+        try (var formatter = new Formatter(builder)) {
             if (this.useBytes) {
                 formatter.format("%.2f MB heap, ", this.heapSize / TOTAL_NUMBER_BYTES_IN_ONE_MEGABYTE);
                 formatter.format("%.2f MB disk, ", this.diskSize / TOTAL_NUMBER_BYTES_IN_ONE_MEGABYTE);

@@ -49,34 +49,34 @@ public class TokenAuthenticationHandler extends AbstractTokenWrapperAuthenticati
 
     @Override
     public AuthenticationHandlerExecutionResult postAuthenticate(final Credential credential, final AuthenticationHandlerExecutionResult result) {
-        final TokenCredential tokenCredential = (TokenCredential) credential;
+        final var tokenCredential = (TokenCredential) credential;
         tokenCredential.setId(result.getPrincipal().getId());
         return super.postAuthenticate(credential, result);
     }
 
     @Override
     protected Authenticator<TokenCredentials> getAuthenticator(final Credential credential) {
-        final TokenCredential tokenCredential = (TokenCredential) credential;
+        final var tokenCredential = (TokenCredential) credential;
         LOGGER.debug("Locating token secret for service [{}]", tokenCredential.getService());
 
-        final RegisteredService service = this.servicesManager.findServiceBy(tokenCredential.getService());
-        final String signingSecret = getRegisteredServiceJwtSigningSecret(service);
-        final String encryptionSecret = getRegisteredServiceJwtEncryptionSecret(service);
+        final var service = this.servicesManager.findServiceBy(tokenCredential.getService());
+        final var signingSecret = getRegisteredServiceJwtSigningSecret(service);
+        final var encryptionSecret = getRegisteredServiceJwtEncryptionSecret(service);
 
-        final String serviceSigningAlg = getRegisteredServiceJwtProperty(service,
+        final var serviceSigningAlg = getRegisteredServiceJwtProperty(service,
             RegisteredServiceProperties.TOKEN_SECRET_SIGNING_ALG);
-        final String signingSecretAlg = StringUtils.defaultString(serviceSigningAlg, JWSAlgorithm.HS256.getName());
+        final var signingSecretAlg = StringUtils.defaultString(serviceSigningAlg, JWSAlgorithm.HS256.getName());
 
-        final String encryptionAlg = getRegisteredServiceJwtProperty(service,
+        final var encryptionAlg = getRegisteredServiceJwtProperty(service,
             RegisteredServiceProperties.TOKEN_SECRET_ENCRYPTION_ALG);
-        final String encryptionSecretAlg = StringUtils.defaultString(encryptionAlg, JWEAlgorithm.DIR.getName());
+        final var encryptionSecretAlg = StringUtils.defaultString(encryptionAlg, JWEAlgorithm.DIR.getName());
 
-        final String encryptionMethod = getRegisteredServiceJwtProperty(service,
+        final var encryptionMethod = getRegisteredServiceJwtProperty(service,
             RegisteredServiceProperties.TOKEN_SECRET_ENCRYPTION_METHOD);
-        final String encryptionSecretMethod = StringUtils.defaultString(encryptionMethod, EncryptionMethod.A192CBC_HS384.getName());
-        final String secretIsBase64String = getRegisteredServiceJwtProperty(service,
+        final var encryptionSecretMethod = StringUtils.defaultString(encryptionMethod, EncryptionMethod.A192CBC_HS384.getName());
+        final var secretIsBase64String = getRegisteredServiceJwtProperty(service,
             RegisteredServiceProperties.TOKEN_SECRETS_ARE_BASE64_ENCODED);
-        final boolean secretsAreBase64Encoded = BooleanUtils.toBoolean(secretIsBase64String);
+        final var secretsAreBase64Encoded = BooleanUtils.toBoolean(secretIsBase64String);
 
         if (StringUtils.isNotBlank(signingSecret)) {
             Set<Algorithm> sets = new HashSet<>();
@@ -85,10 +85,10 @@ public class TokenAuthenticationHandler extends AbstractTokenWrapperAuthenticati
             sets.addAll(JWSAlgorithm.Family.RSA);
             sets.addAll(JWSAlgorithm.Family.SIGNATURE);
 
-            final JWSAlgorithm signingAlg = findAlgorithmFamily(sets, signingSecretAlg, JWSAlgorithm.class);
+            final var signingAlg = findAlgorithmFamily(sets, signingSecretAlg, JWSAlgorithm.class);
 
-            final JwtAuthenticator jwtAuthenticator = new JwtAuthenticator();
-            final byte[] secretBytes = getSecretBytes(signingSecret, secretsAreBase64Encoded);
+            final var jwtAuthenticator = new JwtAuthenticator();
+            final var secretBytes = getSecretBytes(signingSecret, secretsAreBase64Encoded);
             jwtAuthenticator.setSignatureConfiguration(new SecretSignatureConfiguration(secretBytes, signingAlg));
 
             if (StringUtils.isNotBlank(encryptionSecret)) {
@@ -101,14 +101,14 @@ public class TokenAuthenticationHandler extends AbstractTokenWrapperAuthenticati
                 sets.addAll(JWEAlgorithm.Family.RSA);
                 sets.addAll(JWEAlgorithm.Family.SYMMETRIC);
 
-                final JWEAlgorithm encAlg = findAlgorithmFamily(sets, encryptionSecretAlg, JWEAlgorithm.class);
+                final var encAlg = findAlgorithmFamily(sets, encryptionSecretAlg, JWEAlgorithm.class);
 
                 sets = new HashSet<>();
                 sets.addAll(EncryptionMethod.Family.AES_CBC_HMAC_SHA);
                 sets.addAll(EncryptionMethod.Family.AES_GCM);
 
-                final EncryptionMethod encMethod = findAlgorithmFamily(sets, encryptionSecretMethod, EncryptionMethod.class);
-                final byte[] encSecretBytes = getSecretBytes(encryptionSecret, secretsAreBase64Encoded);
+                final var encMethod = findAlgorithmFamily(sets, encryptionSecretMethod, EncryptionMethod.class);
+                final var encSecretBytes = getSecretBytes(encryptionSecret, secretsAreBase64Encoded);
                 jwtAuthenticator.setEncryptionConfiguration(new SecretEncryptionConfiguration(encSecretBytes, encAlg, encMethod));
             } else {
                 LOGGER.warn("JWT authentication is configured to share jwtAuthenticator single key for both signing/encryption");
@@ -123,7 +123,7 @@ public class TokenAuthenticationHandler extends AbstractTokenWrapperAuthenticati
 
     private static <T extends Algorithm> T findAlgorithmFamily(final Set<Algorithm> family,
                                                                final String alg, final Class<T> clazz) {
-        final Algorithm result = family
+        final var result = family
             .stream()
             .filter(l -> l.getName().equalsIgnoreCase(alg))
             .findFirst()

@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
-import java.util.stream.Stream;
 
 /**
  * Class designed to read data from a file in the format of USERNAME SEPARATOR
@@ -66,8 +65,8 @@ public class FileAuthenticationHandler extends AbstractUsernamePasswordAuthentic
             if (this.fileName == null) {
                 throw new FileNotFoundException("Filename does not exist");
             }
-            final String username = transformedCredential.getUsername();
-            final String passwordOnRecord = getPasswordOnRecord(username);
+            final var username = transformedCredential.getUsername();
+            final var passwordOnRecord = getPasswordOnRecord(username);
             if (StringUtils.isBlank(passwordOnRecord)) {
                 throw new AccountNotFoundException(username + " not found in backing file.");
             }
@@ -88,10 +87,10 @@ public class FileAuthenticationHandler extends AbstractUsernamePasswordAuthentic
      * @throws IOException Signals that an I/O exception has occurred.
      */
     private String getPasswordOnRecord(final String username) throws IOException {
-        try (Stream<String> stream = Files.lines(fileName.getFile().toPath())) {
+        try (var stream = Files.lines(fileName.getFile().toPath())) {
             return stream.map(line -> line.split(this.separator))
                 .filter(lineFields -> {
-                    final String userOnRecord = lineFields[0];
+                    final var userOnRecord = lineFields[0];
                     return username.equals(userOnRecord);
                 })
                 .map(lineFields -> lineFields[1])

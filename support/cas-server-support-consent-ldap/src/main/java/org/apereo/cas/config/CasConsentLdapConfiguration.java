@@ -2,7 +2,6 @@ package org.apereo.cas.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.support.consent.ConsentProperties.Ldap;
 import org.apereo.cas.consent.ConsentRepository;
 import org.apereo.cas.consent.LdapConsentRepository;
 import org.apereo.cas.util.LdapUtils;
@@ -28,7 +27,7 @@ public class CasConsentLdapConfiguration {
 
     @Bean
     public ConsentRepository consentRepository() {
-        final Ldap ldap = casProperties.getConsent().getLdap();
+        final var ldap = casProperties.getConsent().getLdap();
         final ConnectionFactory connectionFactory = LdapUtils.newLdaptivePooledConnectionFactory(ldap);
         return new LdapConsentRepository(connectionFactory, ldap);
     }

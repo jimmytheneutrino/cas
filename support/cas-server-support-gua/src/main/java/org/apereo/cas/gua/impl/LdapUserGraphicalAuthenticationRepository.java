@@ -3,17 +3,13 @@ package org.apereo.cas.gua.impl;
 import com.google.common.io.ByteSource;
 import lombok.extern.slf4j.Slf4j;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.support.gua.GraphicalUserAuthenticationProperties;
 
 import org.apereo.cas.gua.api.UserGraphicalAuthenticationRepository;
 import org.apereo.cas.util.CollectionUtils;
 import org.apereo.cas.util.LdapUtils;
-import org.ldaptive.LdapAttribute;
-import org.ldaptive.LdapEntry;
 import org.ldaptive.LdapException;
 import org.ldaptive.Response;
 import org.ldaptive.ReturnAttributes;
-import org.ldaptive.SearchFilter;
 import org.ldaptive.SearchResult;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -34,11 +30,11 @@ public class LdapUserGraphicalAuthenticationRepository implements UserGraphicalA
     @Override
     public ByteSource getGraphics(final String username) {
         try {
-            final GraphicalUserAuthenticationProperties gua = casProperties.getAuthn().getGua();
-            final Response<SearchResult> response = searchForId(username);
+            final var gua = casProperties.getAuthn().getGua();
+            final var response = searchForId(username);
             if (LdapUtils.containsResultEntry(response)) {
-                final LdapEntry entry = response.getResult().getEntry();
-                final LdapAttribute attribute = entry.getAttribute(gua.getLdap().getImageAttribute());
+                final var entry = response.getResult().getEntry();
+                final var attribute = entry.getAttribute(gua.getLdap().getImageAttribute());
                 if (attribute != null && attribute.isBinary()) {
                     return ByteSource.wrap(attribute.getBinaryValue());
                 }
@@ -50,8 +46,8 @@ public class LdapUserGraphicalAuthenticationRepository implements UserGraphicalA
     }
 
     private Response<SearchResult> searchForId(final String id) throws LdapException {
-        final GraphicalUserAuthenticationProperties gua = casProperties.getAuthn().getGua();
-        final SearchFilter filter = LdapUtils.newLdaptiveSearchFilter(gua.getLdap().getSearchFilter(),
+        final var gua = casProperties.getAuthn().getGua();
+        final var filter = LdapUtils.newLdaptiveSearchFilter(gua.getLdap().getSearchFilter(),
                 LdapUtils.LDAP_SEARCH_FILTER_DEFAULT_PARAM_NAME,
                 CollectionUtils.wrap(id));
         return LdapUtils.executeSearchOperation(

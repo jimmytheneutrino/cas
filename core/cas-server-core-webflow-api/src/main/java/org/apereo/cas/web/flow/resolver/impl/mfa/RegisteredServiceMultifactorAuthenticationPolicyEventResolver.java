@@ -4,14 +4,11 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apereo.cas.CentralAuthenticationService;
-import org.apereo.cas.authentication.Authentication;
 import org.apereo.cas.authentication.AuthenticationServiceSelectionPlan;
 import org.apereo.cas.authentication.AuthenticationSystemSupport;
 import org.apereo.cas.authentication.principal.Principal;
-import org.apereo.cas.services.MultifactorAuthenticationProvider;
 import org.apereo.cas.services.MultifactorAuthenticationProviderSelector;
 import org.apereo.cas.services.RegisteredService;
-import org.apereo.cas.services.RegisteredServiceMultifactorPolicy;
 import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.ticket.registry.TicketRegistrySupport;
 import org.apereo.cas.util.CollectionUtils;
@@ -22,7 +19,6 @@ import org.springframework.web.util.CookieGenerator;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
-import java.util.Collection;
 import java.util.Set;
 
 /**
@@ -49,15 +45,15 @@ public class RegisteredServiceMultifactorAuthenticationPolicyEventResolver exten
 
     @Override
     public Set<Event> resolveInternal(final RequestContext context) {
-        final RegisteredService service = resolveRegisteredServiceInRequestContext(context);
-        final Authentication authentication = WebUtils.getAuthentication(context);
+        final var service = resolveRegisteredServiceInRequestContext(context);
+        final var authentication = WebUtils.getAuthentication(context);
 
         if (service == null || authentication == null) {
             LOGGER.debug("No service or authentication is available to determine event for principal");
             return null;
         }
 
-        final RegisteredServiceMultifactorPolicy policy = service.getMultifactorPolicy();
+        final var policy = service.getMultifactorPolicy();
         if (policy == null || policy.getMultifactorAuthenticationProviders().isEmpty()) {
             LOGGER.debug("Authentication policy does not contain any multifactor authentication providers");
             return null;
@@ -84,19 +80,19 @@ public class RegisteredServiceMultifactorAuthenticationPolicyEventResolver exten
     protected Set<Event> resolveEventPerAuthenticationProvider(final Principal principal,
                                                                final RequestContext context,
                                                                final RegisteredService service) {
-        final Collection<MultifactorAuthenticationProvider> providers = flattenProviders(getAuthenticationProviderForService(service));
+        final var providers = flattenProviders(getAuthenticationProviderForService(service));
         if (providers != null && !providers.isEmpty()) {
-            final MultifactorAuthenticationProvider provider = this.multifactorAuthenticationProviderSelector.resolve(providers, service, principal);
+            final var provider = this.multifactorAuthenticationProviderSelector.resolve(providers, service, principal);
             LOGGER.debug("Selected multifactor authentication provider for this transaction is [{}]", provider);
 
             if (!provider.isAvailable(service)) {
                 LOGGER.warn("Multifactor authentication provider [{}] could not be verified/reached.", provider);
                 return null;
             }
-            final String identifier = provider.getId();
+            final var identifier = provider.getId();
             LOGGER.debug("Attempting to build an event based on the authentication provider [{}] and service [{}]", provider, service.getName());
 
-            final Event event = validateEventIdForMatchingTransitionInContext(identifier, context, buildEventAttributeMap(principal, service, provider));
+            final var event = validateEventIdForMatchingTransitionInContext(identifier, context, buildEventAttributeMap(principal, service, provider));
             return CollectionUtils.wrapSet(event);
         }
 

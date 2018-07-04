@@ -1,12 +1,11 @@
 package org.apereo.cas.util;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
@@ -44,6 +43,14 @@ public class MockWebServer implements AutoCloseable {
     public MockWebServer(final int port, final Resource resource, final String contentType) {
         try {
             this.worker = new Worker(new ServerSocket(port), resource, contentType);
+        } catch (final IOException e) {
+            throw new IllegalArgumentException("Cannot create Web server", e);
+        }
+    }
+
+    public MockWebServer(final int port, final String data) {
+        try {
+            this.worker = new Worker(new ServerSocket(port), new ByteArrayResource(data.getBytes(StandardCharsets.UTF_8)), MediaType.APPLICATION_JSON_VALUE);
         } catch (final IOException e) {
             throw new IllegalArgumentException("Cannot create Web server", e);
         }
@@ -148,7 +155,7 @@ public class MockWebServer implements AutoCloseable {
         public synchronized void run() {
             while (this.running) {
                 try {
-                    final Socket socket = this.serverSocket.accept();
+                    final var socket = this.serverSocket.accept();
                     if (this.functionToExecute != null) {
                         LOGGER.trace("Executed function with result [{}]", functionToExecute.apply(socket));
                     } else {
@@ -176,14 +183,14 @@ public class MockWebServer implements AutoCloseable {
         private void writeResponse(final Socket socket) throws IOException {
             if (resource != null) {
                 LOGGER.debug("Socket response for resource [{}]", resource.getFilename());
-                final OutputStream out = socket.getOutputStream();
+                final var out = socket.getOutputStream();
                 out.write(STATUS_LINE.getBytes(StandardCharsets.UTF_8));
                 out.write(header("Content-Length", this.resource.contentLength()));
                 out.write(header("Content-Type", this.contentType));
                 out.write(SEPARATOR.getBytes(StandardCharsets.UTF_8));
 
-                final byte[] buffer = new byte[BUFFER_SIZE];
-                try (InputStream in = this.resource.getInputStream()) {
+                final var buffer = new byte[BUFFER_SIZE];
+                try (var in = this.resource.getInputStream()) {
                     int count;
                     while ((count = in.read(buffer)) > -1) {
                         out.write(buffer, 0, count);

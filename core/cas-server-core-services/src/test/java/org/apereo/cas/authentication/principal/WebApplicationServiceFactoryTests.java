@@ -20,60 +20,60 @@ public class WebApplicationServiceFactoryTests {
 
     @Test
     public void verifyServiceCreationSuccessfullyById() {
-        final MockHttpServletRequest request = new MockHttpServletRequest();
+        final var request = new MockHttpServletRequest();
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
-        final WebApplicationServiceFactory factory = new WebApplicationServiceFactory();
-        final WebApplicationService service = factory.createService("testservice");
+        final var factory = new WebApplicationServiceFactory();
+        final var service = factory.createService("testservice");
         assertNotNull(service);
     }
 
     @Test
     public void verifyServiceCreationSuccessfullyByService() {
-        final MockHttpServletRequest request = new MockHttpServletRequest();
+        final var request = new MockHttpServletRequest();
         request.addParameter(CasProtocolConstants.PARAMETER_SERVICE, "test");
-        final WebApplicationServiceFactory factory = new WebApplicationServiceFactory();
-        final WebApplicationService service = factory.createService(request);
+        final var factory = new WebApplicationServiceFactory();
+        final var service = factory.createService(request);
         assertNotNull(service);
         assertEquals(CasProtocolConstants.PARAMETER_SERVICE, service.getSource());
     }
 
     @Test
     public void verifyServiceCreationSuccessfullyByTargetService() {
-        final MockHttpServletRequest request = new MockHttpServletRequest();
+        final var request = new MockHttpServletRequest();
         request.addParameter(CasProtocolConstants.PARAMETER_TARGET_SERVICE, "test");
-        final WebApplicationServiceFactory factory = new WebApplicationServiceFactory();
-        final WebApplicationService service = factory.createService(request);
+        final var factory = new WebApplicationServiceFactory();
+        final var service = factory.createService(request);
         assertNotNull(service);
         assertEquals(CasProtocolConstants.PARAMETER_TARGET_SERVICE, service.getSource());
     }
 
     @Test
     public void verifyServiceCreationSuccessfullyByTargetServiceAndTicket() {
-        final MockHttpServletRequest request = new MockHttpServletRequest();
+        final var request = new MockHttpServletRequest();
         request.addParameter(CasProtocolConstants.PARAMETER_TARGET_SERVICE, "test");
         request.addParameter(CasProtocolConstants.PARAMETER_TICKET, "ticket");
         request.addParameter(CasProtocolConstants.PARAMETER_METHOD, "post");
-        final WebApplicationServiceFactory factory = new WebApplicationServiceFactory();
-        final WebApplicationService service = factory.createService(request);
+        final var factory = new WebApplicationServiceFactory();
+        final var service = factory.createService(request);
         assertNotNull(service);
         assertEquals("ticket", service.getArtifactId());
     }
 
     @Test
     public void verifyServiceCreationNoService() {
-        final MockHttpServletRequest request = new MockHttpServletRequest();
+        final var request = new MockHttpServletRequest();
         request.addParameter(CasProtocolConstants.PARAMETER_TICKET, "ticket");
-        final WebApplicationServiceFactory factory = new WebApplicationServiceFactory();
+        final var factory = new WebApplicationServiceFactory();
 
-        final WebApplicationService service = factory.createService(request);
+        final var service = factory.createService(request);
         assertNull(service);
     }
 
     @Test
     public void verifyServiceCreationNoRequest() {
-        final WebApplicationServiceFactory factory = new WebApplicationServiceFactory();
+        final var factory = new WebApplicationServiceFactory();
 
-        final WebApplicationService service = factory.createService("testservice");
+        final var service = factory.createService("testservice");
         assertNotNull(service);
     }
 }

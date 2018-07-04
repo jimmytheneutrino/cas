@@ -27,7 +27,7 @@ public class RemoteEndpointServiceAccessStrategyTests {
 
     @Test
     public void verifySerializeAX509CertificateCredentialToJson() throws IOException {
-        final RemoteEndpointServiceAccessStrategy strategyWritten = new RemoteEndpointServiceAccessStrategy();
+        final var strategyWritten = new RemoteEndpointServiceAccessStrategy();
         MAPPER.writeValue(JSON_FILE, strategyWritten);
         final RegisteredServiceAccessStrategy credentialRead = MAPPER.readValue(JSON_FILE, RemoteEndpointServiceAccessStrategy.class);
         assertEquals(strategyWritten, credentialRead);
@@ -35,10 +35,10 @@ public class RemoteEndpointServiceAccessStrategyTests {
 
     @Test
     public void verifyOperation() {
-        final RemoteEndpointServiceAccessStrategy strategy = new RemoteEndpointServiceAccessStrategy();
+        final var strategy = new RemoteEndpointServiceAccessStrategy();
         strategy.setEndpointUrl("http://localhost:8755");
         strategy.setAcceptableResponseCodes("200,201");
-        try (MockWebServer webServer = new MockWebServer(8755,
+        try (var webServer = new MockWebServer(8755,
             new ByteArrayResource("OK".getBytes(StandardCharsets.UTF_8), "REST Output"), MediaType.APPLICATION_JSON_VALUE)) {
             webServer.start();
             assertTrue(strategy.doPrincipalAttributesAllowServiceAccess("casuser", CoreAuthenticationTestUtils.getAttributes()));

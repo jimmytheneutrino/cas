@@ -1,7 +1,6 @@
 package org.apereo.cas.aup;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.HttpResponse;
 import org.apereo.cas.authentication.Credential;
 import org.apereo.cas.configuration.model.support.aup.AcceptableUsagePolicyProperties;
 import org.apereo.cas.ticket.registry.TicketRegistrySupport;
@@ -38,10 +37,10 @@ public class RestAcceptableUsagePolicyRepository extends AbstractPrincipalAttrib
     @Override
     public boolean submit(final RequestContext requestContext, final Credential credential) {
         try {
-            final HttpResponse response = HttpUtils.execute(properties.getUrl(), properties.getMethod(),
+            final var response = HttpUtils.execute(properties.getUrl(), properties.getMethod(),
                 properties.getBasicAuthUsername(), properties.getBasicAuthPassword(),
                 CollectionUtils.wrap("username", credential.getId()), new HashMap<>());
-            final int statusCode = response.getStatusLine().getStatusCode();
+            final var statusCode = response.getStatusLine().getStatusCode();
             return HttpStatus.valueOf(statusCode).is2xxSuccessful();
         } catch (final Exception e) {
             LOGGER.error(e.getMessage(), e);

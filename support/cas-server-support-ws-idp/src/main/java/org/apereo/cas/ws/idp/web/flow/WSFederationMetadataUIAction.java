@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apereo.cas.authentication.AuthenticationServiceSelectionStrategy;
 import org.apereo.cas.authentication.principal.Service;
-import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceAccessStrategyUtils;
 import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.web.flow.services.DefaultRegisteredServiceUserInterfaceInfo;
@@ -31,11 +30,11 @@ public class WSFederationMetadataUIAction extends AbstractAction {
         Service service = WebUtils.getService(requestContext);
         if (service != null) {
             service = serviceSelectionStrategy.resolveServiceFrom(service);
-            final RegisteredService registeredService = this.servicesManager.findServiceBy(service);
+            final var registeredService = this.servicesManager.findServiceBy(service);
             RegisteredServiceAccessStrategyUtils.ensureServiceAccessIsAllowed(service, registeredService);
 
             if (registeredService instanceof WSFederationRegisteredService) {
-                final WSFederationRegisteredService wsfed = WSFederationRegisteredService.class.cast(registeredService);
+                final var wsfed = WSFederationRegisteredService.class.cast(registeredService);
                 WebUtils.putServiceUserInterfaceMetadata(requestContext, new DefaultRegisteredServiceUserInterfaceInfo(wsfed));
             }
         }

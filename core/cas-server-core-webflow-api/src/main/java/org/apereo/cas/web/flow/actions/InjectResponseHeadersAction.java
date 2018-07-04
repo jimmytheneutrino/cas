@@ -9,8 +9,6 @@ import org.apereo.cas.web.flow.CasWebflowConstants;
 import org.apereo.cas.web.support.WebUtils;
 import org.springframework.webflow.execution.RequestContext;
 
-import javax.servlet.http.HttpServletResponse;
-
 /**
  * This is {@link InjectResponseHeadersAction}.
  *
@@ -25,7 +23,7 @@ public class InjectResponseHeadersAction extends RedirectToServiceAction {
 
     @Override
     protected String getFinalResponseEventId(final WebApplicationService service, final Response response, final RequestContext requestContext) {
-        final HttpServletResponse httpResponse = WebUtils.getHttpServletResponseFromExternalWebflowContext(requestContext);
+        final var httpResponse = WebUtils.getHttpServletResponseFromExternalWebflowContext(requestContext);
         httpResponse.addHeader(CasProtocolConstants.PARAMETER_SERVICE, response.getUrl());
         response.getAttributes().forEach(httpResponse::addHeader);
         if (response.getAttributes().containsKey(Response.ResponseType.REDIRECT.name().toLowerCase())) {

@@ -18,7 +18,6 @@ import javax.security.auth.spi.LoginModule;
 import java.security.Principal;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * This is {@link AccountsPreDefinedLoginModule}.
@@ -47,9 +46,9 @@ public class AccountsPreDefinedLoginModule implements LoginModule {
 
         this.accounts = new LinkedHashMap();
 
-        final String providedAccounts = options.containsKey("accounts") ? options.get("accounts").toString() : null;
+        final var providedAccounts = options.containsKey("accounts") ? options.get("accounts").toString() : null;
         if (StringUtils.isNotBlank(providedAccounts)) {
-            final Set<String> eachAccount = org.springframework.util.StringUtils.commaDelimitedListToSet(providedAccounts);
+            final var eachAccount = org.springframework.util.StringUtils.commaDelimitedListToSet(providedAccounts);
             eachAccount.stream()
                 .map(account -> Splitter.on("::").splitToList(account))
                 .filter(results -> results.size() == 2)
@@ -59,8 +58,8 @@ public class AccountsPreDefinedLoginModule implements LoginModule {
 
     @Override
     public boolean login() throws LoginException {
-        final NameCallback nameCallback = new NameCallback("username");
-        final PasswordCallback passwordCallback = new PasswordCallback("password", false);
+        final var nameCallback = new NameCallback("username");
+        final var passwordCallback = new PasswordCallback("password", false);
 
         try {
             callbackHandler.handle(new Callback[]{nameCallback, passwordCallback});
@@ -69,8 +68,8 @@ public class AccountsPreDefinedLoginModule implements LoginModule {
             throw new FailedLoginException(e.getMessage());
         }
 
-        final String username = nameCallback.getName();
-        final String password = new String(passwordCallback.getPassword());
+        final var username = nameCallback.getName();
+        final var password = new String(passwordCallback.getPassword());
         if (accounts.containsKey(username)) {
             this.succeeded = accounts.get(username).equals(password);
             subject.getPrincipals().add(new StaticPrincipal(username));

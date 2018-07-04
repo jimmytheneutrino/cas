@@ -5,9 +5,6 @@ import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.web.flow.configurer.AbstractCasWebflowConfigurer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.webflow.definition.registry.FlowDefinitionRegistry;
-import org.springframework.webflow.engine.ActionState;
-import org.springframework.webflow.engine.DecisionState;
-import org.springframework.webflow.engine.Flow;
 import org.springframework.webflow.engine.builder.support.FlowBuilderServices;
 
 /**
@@ -30,16 +27,16 @@ public class OpenIdWebflowConfigurer extends AbstractCasWebflowConfigurer {
 
     @Override
     protected void doInitialize() {
-        final Flow flow = getLoginFlow();
+        final var flow = getLoginFlow();
 
         if (flow != null) {
-            final String condition = getOpenIdModeCondition();
+            final var condition = getOpenIdModeCondition();
 
-            final DecisionState decisionState = createDecisionState(flow, "selectFirstAction",
+            final var decisionState = createDecisionState(flow, "selectFirstAction",
                     condition, OPEN_ID_SINGLE_SIGN_ON_ACTION,
                     getStartState(flow).getId());
 
-            final ActionState actionState = createActionState(flow, OPEN_ID_SINGLE_SIGN_ON_ACTION,
+            final var actionState = createActionState(flow, OPEN_ID_SINGLE_SIGN_ON_ACTION,
                     createEvaluateAction(OPEN_ID_SINGLE_SIGN_ON_ACTION));
 
             actionState.getTransitionSet().add(createTransition(CasWebflowConstants.TRANSITION_ID_SUCCESS,

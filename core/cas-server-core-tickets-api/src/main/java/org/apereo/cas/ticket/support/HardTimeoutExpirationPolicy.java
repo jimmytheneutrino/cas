@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
  * @author Andrew Feller
  * @since 3.1.2
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 @Slf4j
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -47,8 +47,8 @@ public class HardTimeoutExpirationPolicy extends AbstractCasExpirationPolicy {
 
     @Override
     public boolean isExpired(final TicketState ticketState) {
-        final ZonedDateTime expiringTime = ticketState.getCreationTime().plus(this.timeToKillInSeconds, ChronoUnit.SECONDS);
-        final boolean expired = ticketState == null || expiringTime.isBefore(ZonedDateTime.now(ZoneOffset.UTC));
+        final var expiringTime = ticketState.getCreationTime().plus(this.timeToKillInSeconds, ChronoUnit.SECONDS);
+        final var expired = ticketState == null || expiringTime.isBefore(ZonedDateTime.now(ZoneOffset.UTC));
         if (!expired) {
             return super.isExpired(ticketState);
         }

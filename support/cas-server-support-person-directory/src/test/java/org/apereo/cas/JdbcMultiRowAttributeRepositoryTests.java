@@ -1,7 +1,6 @@
 package org.apereo.cas;
 
 import lombok.SneakyThrows;
-import org.apereo.services.persondir.IPersonAttributes;
 import org.junit.Test;
 import org.springframework.test.context.TestPropertySource;
 
@@ -21,7 +20,7 @@ public class JdbcMultiRowAttributeRepositoryTests extends BaseJdbcAttributeRepos
     @Test
     public void verifyMultiRowAttributeRepository() {
         assertNotNull(attributeRepository);
-        final IPersonAttributes person = attributeRepository.getPerson("casuser");
+        final var person = attributeRepository.getPerson("casuser");
         assertNotNull(person);
         assertNotNull(person.getAttributes());
         assertFalse(person.getAttributes().isEmpty());

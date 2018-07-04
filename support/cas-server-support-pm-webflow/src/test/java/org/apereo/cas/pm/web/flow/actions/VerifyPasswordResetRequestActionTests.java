@@ -1,11 +1,13 @@
 package org.apereo.cas.pm.web.flow.actions;
 
+import org.apereo.cas.category.MailCategory;
 import org.apereo.cas.util.HttpRequestUtils;
 import org.apereo.cas.util.junit.ConditionalIgnore;
 import org.apereo.cas.util.junit.RunningContinuousIntegrationCondition;
 import org.apereo.inspektr.common.web.ClientInfo;
 import org.apereo.inspektr.common.web.ClientInfoHolder;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletContext;
@@ -21,12 +23,13 @@ import static org.junit.Assert.*;
  * @since 5.3.0
  */
 @ConditionalIgnore(condition = RunningContinuousIntegrationCondition.class, port = 25000)
+@Category(MailCategory.class)
 public class VerifyPasswordResetRequestActionTests extends BasePasswordManagementActionTests {
     @Test
     public void verifyAction() {
         try {
-            final MockRequestContext context = new MockRequestContext();
-            final MockHttpServletRequest request = new MockHttpServletRequest();
+            final var context = new MockRequestContext();
+            final var request = new MockHttpServletRequest();
             context.setExternalContext(new ServletExternalContext(new MockServletContext(), request, new MockHttpServletResponse()));
             assertEquals("error", verifyPasswordResetRequestAction.execute(context).getId());
 
@@ -35,7 +38,7 @@ public class VerifyPasswordResetRequestActionTests extends BasePasswordManagemen
             request.addHeader(HttpRequestUtils.USER_AGENT_HEADER, "test");
             ClientInfoHolder.setClientInfo(new ClientInfo(request));
 
-            final String token = passwordManagementService.createToken("casuser");
+            final var token = passwordManagementService.createToken("casuser");
             request.addParameter(SendPasswordResetInstructionsAction.PARAMETER_NAME_TOKEN, token);
             context.setExternalContext(new ServletExternalContext(new MockServletContext(), request, new MockHttpServletResponse()));
             assertEquals("success", verifyPasswordResetRequestAction.execute(context).getId());

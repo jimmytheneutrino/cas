@@ -15,8 +15,8 @@ public class DelegatedSessionCookieCipherExecutorTests {
 
     @Test
     public void verifyCipheredToken() {
-        final DelegatedSessionCookieCipherExecutor c = new DelegatedSessionCookieCipherExecutor(null, null);
-        final String token = c.encode(ST);
+        final var c = new DelegatedSessionCookieCipherExecutor(null, null);
+        final var token = c.encode(ST);
         assertEquals(ST, c.decode(token));
         assertNotNull(c.getName());
         assertNotNull(c.getEncryptionKeySetting());

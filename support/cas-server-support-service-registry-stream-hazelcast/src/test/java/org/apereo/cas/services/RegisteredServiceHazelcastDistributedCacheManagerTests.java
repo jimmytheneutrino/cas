@@ -1,6 +1,5 @@
 package org.apereo.cas.services;
 
-import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import org.apereo.cas.DistributedCacheObject;
@@ -11,9 +10,9 @@ import org.apereo.cas.services.publisher.CasRegisteredServiceHazelcastStreamPubl
 import org.apereo.cas.support.events.service.CasRegisteredServiceDeletedEvent;
 import org.apereo.cas.support.events.service.CasRegisteredServiceLoadedEvent;
 import org.apereo.cas.support.events.service.CasRegisteredServiceSavedEvent;
+import org.junit.Test;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
 
 import java.util.Collection;
 
@@ -30,11 +29,11 @@ public class RegisteredServiceHazelcastDistributedCacheManagerTests {
     private RegisteredServiceHazelcastDistributedCacheManager mgr;
 
     @Before
-    public void setup() {
-        final HazelcastConfigurationFactory factory = new HazelcastConfigurationFactory();
-        final BaseHazelcastProperties properties = new BaseHazelcastProperties();
+    public void initialize() {
+        final var factory = new HazelcastConfigurationFactory();
+        final var properties = new BaseHazelcastProperties();
         properties.getCluster().setInstanceName(getClass().getSimpleName());
-        final Config config = factory.build(properties, factory.buildMapConfig(properties, "cache", 10));
+        final var config = factory.build(properties, factory.buildMapConfig(properties, "cache", 10));
         this.hz = Hazelcast.newHazelcastInstance(config);
         mgr = new RegisteredServiceHazelcastDistributedCacheManager(this.hz);
     }
@@ -52,7 +51,7 @@ public class RegisteredServiceHazelcastDistributedCacheManagerTests {
         assertNull(obj);
         assertFalse(mgr.contains(registeredService));
 
-        final DistributedCacheObject cache = new DistributedCacheObject(registeredService);
+        final var cache = new DistributedCacheObject(registeredService);
         mgr.set(registeredService, cache);
         assertFalse(mgr.getAll().isEmpty());
         obj = mgr.get(registeredService);
@@ -66,7 +65,7 @@ public class RegisteredServiceHazelcastDistributedCacheManagerTests {
     @Test
     public void verifyPublisher() {
         final RegisteredService registeredService = RegisteredServiceTestUtils.getRegisteredService();
-        final CasRegisteredServiceHazelcastStreamPublisher publisher = new CasRegisteredServiceHazelcastStreamPublisher(mgr, new StringBean("123456"));
+        final var publisher = new CasRegisteredServiceHazelcastStreamPublisher(mgr, new StringBean("123456"));
         publisher.publish(registeredService, new CasRegisteredServiceDeletedEvent(this, registeredService));
         publisher.publish(registeredService, new CasRegisteredServiceSavedEvent(this, registeredService));
         publisher.publish(registeredService, new CasRegisteredServiceLoadedEvent(this, registeredService));

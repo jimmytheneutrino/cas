@@ -34,33 +34,34 @@ public class JpaConsentRepositoryTests {
     private static final DefaultConsentDecisionBuilder BUILDER = new DefaultConsentDecisionBuilder(CipherExecutor.noOpOfSerializableToString());
     private static final Service SVC = RegisteredServiceTestUtils.getService();
     private static final AbstractRegisteredService REG_SVC = RegisteredServiceTestUtils.getRegisteredService(SVC.getId());
-    private static final Map<String, Object> ATTR = CollectionUtils.wrap("attribute", "value");
     
+    private static final Map<String, Object> ATTR = CollectionUtils.wrap("attribute", "value");
+
     @Autowired
     @Qualifier("consentRepository")
     private ConsentRepository repository;
-    
+
     @Test
     public void verifyConsentDecisionIsNotFound() {
-        final ConsentDecision d = this.repository.findConsentDecision(SVC, REG_SVC, CoreAuthenticationTestUtils.getAuthentication());
+        final var d = this.repository.findConsentDecision(SVC, REG_SVC, CoreAuthenticationTestUtils.getAuthentication());
         assertNull(d);
     }
 
     @Test
     public void verifyConsentDecisionIsSaved() {
-        final ConsentDecision decision = BUILDER.build(SVC, REG_SVC, "casuser", ATTR);
+        final var decision = BUILDER.build(SVC, REG_SVC, "casuser", ATTR);
         decision.setId(100);
         repository.storeConsentDecision(decision);
 
-        ConsentDecision d = this.repository.findConsentDecision(SVC, REG_SVC, CoreAuthenticationTestUtils.getAuthentication("casuser"));
+        var d = this.repository.findConsentDecision(SVC, REG_SVC, CoreAuthenticationTestUtils.getAuthentication("casuser"));
         assertNotNull(d);
         assertEquals("casuser", d.getPrincipal());
-        
-        final boolean res = this.repository.deleteConsentDecision(d.getId(), d.getPrincipal());
+
+        final var res = this.repository.deleteConsentDecision(d.getId(), d.getPrincipal());
         assertTrue(res);
         assertTrue(this.repository.findConsentDecisions().isEmpty());
         d = this.repository.findConsentDecision(SVC, REG_SVC, CoreAuthenticationTestUtils.getAuthentication("casuser"));
         assertNull(d);
     }
-    
+
 }

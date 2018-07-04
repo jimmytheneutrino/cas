@@ -4,7 +4,6 @@ import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Map;
 import java.util.stream.Stream;
 
 /**
@@ -47,11 +46,11 @@ public abstract class AbstractServiceFactory<T extends Service> implements Servi
         if (url == null) {
             return null;
         }
-        final int jsessionPosition = url.indexOf(";jsession");
+        final var jsessionPosition = url.indexOf(";jsession");
         if (jsessionPosition == -1) {
             return url;
         }
-        final int questionMarkPosition = url.indexOf('?');
+        final var questionMarkPosition = url.indexOf('?');
         if (questionMarkPosition < jsessionPosition) {
             return url.substring(0, url.indexOf(";jsession"));
         }
@@ -67,8 +66,8 @@ public abstract class AbstractServiceFactory<T extends Service> implements Servi
      */
     protected static String getSourceParameter(final HttpServletRequest request, final String... paramNames) {
         if (request != null) {
-            final Map<String, String[]> parameterMap = request.getParameterMap();
-            final String param = Stream.of(paramNames)
+            final var parameterMap = request.getParameterMap();
+            final var param = Stream.of(paramNames)
                 .filter(p -> parameterMap.containsKey(p) || request.getAttribute(p) != null)
                 .findFirst()
                 .orElse(null);

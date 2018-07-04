@@ -27,12 +27,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.actuate.health.Status;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.autoconfigure.RefreshAutoConfiguration;
 import org.springframework.test.context.TestPropertySource;
+
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -77,14 +78,17 @@ public class HazelcastHealthIndicatorTests {
 
     @Test
     public void verifyMonitor() {
-        final Health health = hazelcastHealthIndicator.health();
+        final var health = hazelcastHealthIndicator.health();
         assertEquals(Status.UP, health.getStatus());
-        assertTrue(health.getDetails().containsKey("size"));
-        assertTrue(health.getDetails().containsKey("capacity"));
-        assertTrue(health.getDetails().containsKey("evictions"));
-        assertTrue(health.getDetails().containsKey("percentFree"));
-        assertTrue(health.getDetails().containsKey("name"));
+        final var details = health.getDetails();
+        details.values().stream()
+            .map(Map.class::cast)
+            .forEach(map -> {
+                assertTrue(map.containsKey("size"));
+                assertTrue(map.containsKey("capacity"));
+                assertTrue(map.containsKey("evictions"));
+                assertTrue(map.containsKey("percentFree"));
+            });
         assertNotNull(hazelcastHealthIndicator.toString());
-
     }
 }

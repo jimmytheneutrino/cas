@@ -24,8 +24,8 @@ import org.apereo.cas.ticket.TicketGrantingTicket;
 import org.apereo.cas.ticket.registry.TicketRegistry;
 import org.apereo.cas.util.CollectionUtils;
 import org.apereo.cas.web.support.WebUtils;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -40,8 +40,6 @@ import org.springframework.webflow.context.servlet.ServletExternalContext;
 import org.springframework.webflow.test.MockRequestContext;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.Statement;
 
 import static org.junit.Assert.*;
 
@@ -87,9 +85,9 @@ public class JdbcAcceptableUsagePolicyRepositoryTests {
     private TicketRegistry ticketRegistry;
 
     @Before
-    public void setUp() throws Exception {
-        final Connection c = this.acceptableUsagePolicyDataSource.getConnection();
-        final Statement s = c.createStatement();
+    public void initialize() throws Exception {
+        final var c = this.acceptableUsagePolicyDataSource.getConnection();
+        final var s = c.createStatement();
         c.setAutoCommit(true);
         s.execute("CREATE TABLE aup_table (id int primary key, username varchar(255), accepted boolean)");
         s.execute("INSERT INTO aup_table (id, username, accepted) values (100, 'casuser', false);");
@@ -98,8 +96,8 @@ public class JdbcAcceptableUsagePolicyRepositoryTests {
 
     @Test
     public void verifyAction() {
-        final MockRequestContext context = new MockRequestContext();
-        final MockHttpServletRequest request = new MockHttpServletRequest();
+        final var context = new MockRequestContext();
+        final var request = new MockHttpServletRequest();
         context.setExternalContext(new ServletExternalContext(new MockServletContext(), request, new MockHttpServletResponse()));
         final Credential c = CoreAuthenticationTestUtils.getCredentialsWithSameUsernameAndPassword("casuser");
         final TicketGrantingTicket tgt = new MockTicketGrantingTicket("casuser", c, CollectionUtils.wrap("accepted", "false"));

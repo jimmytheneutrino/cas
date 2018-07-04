@@ -1,8 +1,8 @@
 package org.apereo.cas.validation;
 
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.Before;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 import static org.junit.Assert.*;
@@ -17,7 +17,7 @@ public class Cas20WithoutProxyingValidationSpecificationTests {
     private Cas20WithoutProxyingValidationSpecification validationSpecification;
 
     @Before
-    public void setUp() {
+    public void initialize() {
         this.validationSpecification = new Cas20WithoutProxyingValidationSpecification();
     }
 
@@ -45,7 +45,7 @@ public class Cas20WithoutProxyingValidationSpecificationTests {
 
     @Test
     public void verifySettingRenew() {
-        final Cas20WithoutProxyingValidationSpecification validation = new Cas20WithoutProxyingValidationSpecification(
+        final var validation = new Cas20WithoutProxyingValidationSpecification(
                 true);
         assertTrue(validation.isRenew());
     }

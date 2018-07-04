@@ -13,7 +13,7 @@ import static org.junit.Assert.*;
 public class DenyAllYubiKeyAccountValidatorTests {
     @Test
     public void verifyAction() {
-        final DenyAllYubiKeyAccountValidator v = new DenyAllYubiKeyAccountValidator();
+        final var v = new DenyAllYubiKeyAccountValidator();
         assertFalse(v.isValid("anything", "anything"));
     }
 }

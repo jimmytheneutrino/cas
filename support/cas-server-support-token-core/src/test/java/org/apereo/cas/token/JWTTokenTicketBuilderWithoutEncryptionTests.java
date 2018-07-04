@@ -19,18 +19,18 @@ public class JWTTokenTicketBuilderWithoutEncryptionTests extends BaseJWTTokenTic
 
     @Test
     public void verifyJwtForServiceTicket() throws Exception {
-        final String jwt = tokenTicketBuilder.build("ST-123456", CoreAuthenticationTestUtils.getService());
+        final var jwt = tokenTicketBuilder.build("ST-123456", CoreAuthenticationTestUtils.getService());
         assertNotNull(jwt);
-        final Object result = tokenCipherExecutor.decode(jwt);
-        final JWTClaimsSet claims = JWTClaimsSet.parse(result.toString());
+        final var result = tokenCipherExecutor.decode(jwt);
+        final var claims = JWTClaimsSet.parse(result.toString());
         assertEquals("casuser", claims.getSubject());
     }
 
     @Test
     public void verifyJwtForServiceTicketEncoding() throws Exception {
-        final String jwt = tokenTicketBuilder.build("ST-123456", CoreAuthenticationTestUtils.getService());
+        final var jwt = tokenTicketBuilder.build("ST-123456", CoreAuthenticationTestUtils.getService());
         assertNotNull(jwt);
-        final String jwtDec = EncodingUtils.decodeBase64ToString(jwt);
+        final var jwtDec = EncodingUtils.decodeBase64ToString(jwt);
         assertNotNull(jwtDec);
     }
 

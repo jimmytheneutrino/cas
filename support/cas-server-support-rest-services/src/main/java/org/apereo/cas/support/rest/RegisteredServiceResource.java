@@ -5,11 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apereo.cas.authentication.Authentication;
 import org.apereo.cas.authentication.AuthenticationException;
-import org.apereo.cas.authentication.AuthenticationResult;
 import org.apereo.cas.authentication.AuthenticationSystemSupport;
 import org.apereo.cas.authentication.Credential;
 import org.apereo.cas.authentication.UsernamePasswordCredential;
-import org.apereo.cas.authentication.principal.Service;
 import org.apereo.cas.authentication.principal.ServiceFactory;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.rest.BadRestRequestException;
@@ -19,7 +17,6 @@ import org.apereo.cas.util.CollectionUtils;
 import org.apereo.cas.util.RegexUtils;
 import org.pac4j.core.context.J2EContext;
 import org.pac4j.core.context.WebContext;
-import org.pac4j.core.credentials.UsernamePasswordCredentials;
 import org.pac4j.core.credentials.extractor.BasicAuthExtractor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.HttpStatus;
@@ -32,8 +29,6 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
-import java.util.Map;
-import java.util.regex.Pattern;
 
 /**
  * {@link RestController} implementation of a REST API
@@ -65,7 +60,7 @@ public class RegisteredServiceResource {
     public ResponseEntity<String> createService(@RequestBody final RegisteredService service,
                                                 final HttpServletRequest request, final HttpServletResponse response) {
         try {
-            final Authentication auth = authenticateRequest(request, response);
+            final var auth = authenticateRequest(request, response);
             if (isAuthenticatedPrincipalAuthorized(auth)) {
                 this.servicesManager.save(service);
                 return new ResponseEntity<>(HttpStatus.OK);
@@ -80,13 +75,13 @@ public class RegisteredServiceResource {
     }
 
     private boolean isAuthenticatedPrincipalAuthorized(final Authentication auth) {
-        final Map<String, Object> attributes = auth.getPrincipal().getAttributes();
+        final var attributes = auth.getPrincipal().getAttributes();
         LOGGER.debug("Evaluating principal attributes [{}]", attributes.keySet());
         if (StringUtils.isBlank(this.attributeName) || StringUtils.isBlank(this.attributeValue)) {
             LOGGER.error("No attribute name or value is defined to authorize this request");
             return false;
         }
-        final Pattern pattern = RegexUtils.createPattern(this.attributeValue);
+        final var pattern = RegexUtils.createPattern(this.attributeValue);
         if (attributes.containsKey(this.attributeName)) {
             final Collection<Object> values = CollectionUtils.toCollection(attributes.get(this.attributeName));
             return values.stream().anyMatch(t -> RegexUtils.matches(pattern, t.toString()));
@@ -95,14 +90,14 @@ public class RegisteredServiceResource {
     }
 
     private Authentication authenticateRequest(final HttpServletRequest request, final HttpServletResponse response) {
-        final BasicAuthExtractor extractor = new BasicAuthExtractor();
+        final var extractor = new BasicAuthExtractor();
         final WebContext webContext = new J2EContext(request, response);
-        final UsernamePasswordCredentials credentials = extractor.extract(webContext);
+        final var credentials = extractor.extract(webContext);
         if (credentials != null) {
             LOGGER.debug("Received basic authentication request from credentials [{}]", credentials);
             final Credential c = new UsernamePasswordCredential(credentials.getUsername(), credentials.getPassword());
-            final Service serviceRequest = this.serviceFactory.createService(request);
-            final AuthenticationResult result = authenticationSystemSupport.handleAndFinalizeSingleAuthenticationTransaction(serviceRequest, c);
+            final var serviceRequest = this.serviceFactory.createService(request);
+            final var result = authenticationSystemSupport.handleAndFinalizeSingleAuthenticationTransaction(serviceRequest, c);
             return result.getAuthentication();
         }
         throw new BadRestRequestException("Could not authenticate request");

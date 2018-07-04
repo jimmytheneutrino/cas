@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apereo.cas.authentication.principal.DefaultPrincipalAttributesRepository;
-import org.apereo.cas.authentication.principal.Principal;
 import org.apereo.cas.authentication.principal.PrincipalAttributesRepository;
 import org.apereo.cas.authentication.principal.PrincipalFactory;
 import org.apereo.cas.config.CasAuthenticationEventExecutionPlanTestConfiguration;
@@ -82,7 +81,7 @@ public class DefaultPrincipalAttributesRepositoryTests {
 
     @Test
     public void checkInitialAttributes() {
-        final Principal p = this.principalFactory.getIfAvailable().createPrincipal("uid", Collections.singletonMap("mail", "final@example.com"));
+        final var p = this.principalFactory.getIfAvailable().createPrincipal("uid", Collections.singletonMap("mail", "final@example.com"));
         final PrincipalAttributesRepository rep = new DefaultPrincipalAttributesRepository();
         assertEquals(1, rep.getAttributes(p).size());
         assertTrue(rep.getAttributes(p).containsKey("mail"));

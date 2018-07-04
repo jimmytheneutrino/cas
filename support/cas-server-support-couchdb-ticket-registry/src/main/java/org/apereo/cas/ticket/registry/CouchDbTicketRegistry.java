@@ -31,18 +31,18 @@ public class CouchDbTicketRegistry extends AbstractTicketRegistry {
 
     @Override
     public boolean deleteSingleTicket(final String ticketIdToDelete) {
-        final String ticketId = encodeTicketId(ticketIdToDelete);
+        final var ticketId = encodeTicketId(ticketIdToDelete);
         LOGGER.debug("Deleting ticket [{}]", ticketIdToDelete);
         DbAccessException exception = null;
-        boolean success = false;
-        final TicketDocument ticketDocument = new TicketDocument();
+        var success = false;
+        final var ticketDocument = new TicketDocument();
         try {
             ticketDocument.setRevision(couchDb.getCurrentRevision(ticketId));
         } catch (final DocumentNotFoundException e) {
             exception = e;
         }
         ticketDocument.setId(ticketId);
-        for (int retries = 0; retries < conflictRetries && exception == null && !success; retries++) {
+        for (var retries = 0; retries < conflictRetries && exception == null && !success; retries++) {
             try {
                 couchDb.remove(ticketDocument);
                 success = true;
@@ -71,7 +71,7 @@ public class CouchDbTicketRegistry extends AbstractTicketRegistry {
 
     @Override
     public void addTicket(final Ticket ticketToAdd) {
-        final Ticket encodedTicket = encodeTicket(ticketToAdd);
+        final var encodedTicket = encodeTicket(ticketToAdd);
         LOGGER.debug("Adding ticket [{}]", encodedTicket.getId());
 
         couchDb.add(new TicketDocument(encodedTicket));
@@ -80,7 +80,7 @@ public class CouchDbTicketRegistry extends AbstractTicketRegistry {
     @Override
     public Ticket getTicket(final String ticketId) {
         LOGGER.debug("Locating ticket id [{}]", ticketId);
-        final String encTicketId = encodeTicketId(ticketId);
+        final var encTicketId = encodeTicketId(ticketId);
         if (StringUtils.isBlank(encTicketId)) {
             LOGGER.debug("Ticket id [{}] could not be found", encTicketId);
             return null;
@@ -95,10 +95,10 @@ public class CouchDbTicketRegistry extends AbstractTicketRegistry {
         }
 
         if (document != null) {
-            final Ticket t = document.getTicket();
+            final var t = document.getTicket();
             LOGGER.debug("Got ticket [{}] from the registry.", t);
 
-            final Ticket decoded = decodeTicket(t);
+            final var decoded = decodeTicket(t);
             if (decoded == null || decoded.isExpired()) {
                 LOGGER.warn("The expiration policy for ticket id [{}] has expired the ticket", encTicketId);
                 return null;
@@ -122,13 +122,13 @@ public class CouchDbTicketRegistry extends AbstractTicketRegistry {
 
     @Override
     public Ticket updateTicket(final Ticket ticket) {
-        final Ticket encodedTicket = encodeTicket(ticket);
+        final var encodedTicket = encodeTicket(ticket);
         LOGGER.debug("Updating [{}]", encodedTicket.getId());
         DbAccessException exception = null;
-        boolean success = false;
-        final TicketDocument doc = new TicketDocument(encodedTicket);
+        var success = false;
+        final var doc = new TicketDocument(encodedTicket);
         doc.setRevision(couchDb.getCurrentRevision(encodedTicket.getId()));
-        for (int retries = 0; retries < conflictRetries; retries++) {
+        for (var retries = 0; retries < conflictRetries; retries++) {
             try {
                 exception = null;
                 couchDb.update(doc);

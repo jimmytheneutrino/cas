@@ -6,7 +6,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apereo.cas.authentication.Authentication;
 import org.apereo.cas.authentication.AuthenticationResult;
 import org.apereo.cas.authentication.PrincipalException;
-import org.apereo.cas.authentication.principal.Principal;
 import org.apereo.cas.authentication.principal.Service;
 import org.apereo.cas.ticket.ServiceTicket;
 import org.apereo.cas.ticket.TicketGrantingTicket;
@@ -46,12 +45,12 @@ public class RegisteredServiceAccessStrategyUtils {
      */
     public static void ensureServiceAccessIsAllowed(final String service, final RegisteredService registeredService) {
         if (registeredService == null) {
-            final String msg = String.format("Unauthorized Service Access. Service [%s] is not found in service registry.", service);
+            final var msg = String.format("Unauthorized Service Access. Service [%s] is not found in service registry.", service);
             LOGGER.warn(msg);
             throw new UnauthorizedServiceException(UnauthorizedServiceException.CODE_UNAUTHZ_SERVICE, msg);
         }
         if (!registeredService.getAccessStrategy().isServiceAccessAllowed()) {
-            final String msg = String.format("Unauthorized Service Access. Service [%s] is not enabled in service registry.", service);
+            final var msg = String.format("Unauthorized Service Access. Service [%s] is not enabled in service registry.", service);
             LOGGER.warn(msg);
             throw new UnauthorizedServiceException(UnauthorizedServiceException.CODE_UNAUTHZ_SERVICE, msg);
         }
@@ -83,8 +82,8 @@ public class RegisteredServiceAccessStrategyUtils {
         if (!registeredService.getAccessStrategy().doPrincipalAttributesAllowServiceAccess(principalId, attributes)) {
             LOGGER.warn("Cannot grant access to service [{}] because it is not authorized for use by [{}].", service.getId(), principalId);
             final Map<String, Throwable> handlerErrors = new HashMap<>();
-            final String message = String.format("Cannot grant service access to %s", principalId);
-            final UnauthorizedServiceForPrincipalException exception = new UnauthorizedServiceForPrincipalException(message, registeredService, principalId, attributes);
+            final var message = String.format("Cannot grant service access to %s", principalId);
+            final var exception = new UnauthorizedServiceForPrincipalException(message, registeredService, principalId, attributes);
             handlerErrors.put(UnauthorizedServiceForPrincipalException.class.getSimpleName(), exception);
 
             throw new PrincipalException(UnauthorizedServiceForPrincipalException.CODE_UNAUTHZ_SERVICE, handlerErrors, new HashMap<>());
@@ -123,7 +122,7 @@ public class RegisteredServiceAccessStrategyUtils {
         throws UnauthorizedServiceException, PrincipalException {
         ensureServiceAccessIsAllowed(service, registeredService);
 
-        final Principal principal = authentication.getPrincipal();
+        final var principal = authentication.getPrincipal();
         final Map<String, Object> principalAttrs;
         if (retrievePrincipalAttributesFromReleasePolicy && registeredService != null && registeredService.getAttributeReleasePolicy() != null) {
             principalAttrs = registeredService.getAttributeReleasePolicy().getAttributes(principal, service, registeredService);

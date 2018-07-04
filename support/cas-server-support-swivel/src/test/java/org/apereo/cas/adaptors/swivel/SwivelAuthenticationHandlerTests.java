@@ -28,10 +28,10 @@ import org.apereo.cas.web.config.CasCookieConfiguration;
 import org.apereo.cas.web.flow.config.CasCoreWebflowConfiguration;
 import org.apereo.cas.web.flow.config.CasWebflowContextConfiguration;
 import org.apereo.cas.web.support.WebUtils;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,7 +60,8 @@ import static org.junit.Assert.*;
  * @since 5.3.0
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {RefreshAutoConfiguration.class,
+@SpringBootTest(classes = {
+    RefreshAutoConfiguration.class,
     CasCoreAuthenticationPrincipalConfiguration.class,
     CasCoreAuthenticationPolicyConfiguration.class,
     CasCoreAuthenticationMetadataConfiguration.class,
@@ -98,8 +99,8 @@ public class SwivelAuthenticationHandlerTests {
     private MockWebServer webServer;
 
     @Before
-    public void setup() {
-        final String data = "<?xml version=\"1.0\" ?>"
+    public void initialize() {
+        final var data = "<?xml version=\"1.0\" ?>"
             + "<SASResponse secret=\"MyAdminAgent\" version=\"3.4\">"
             + "<Version>3.6</Version>\n"
             + "<Result>PASS</Result>\n"
@@ -124,8 +125,8 @@ public class SwivelAuthenticationHandlerTests {
 
     @Test
     public void verifyAuthn() throws Exception {
-        final SwivelTokenCredential c = new SwivelTokenCredential("123456");
-        final MockRequestContext context = new MockRequestContext();
+        final var c = new SwivelTokenCredential("123456");
+        final var context = new MockRequestContext();
         WebUtils.putAuthentication(CoreAuthenticationTestUtils.getAuthentication(), context);
         context.setExternalContext(new ServletExternalContext(new MockServletContext(), new MockHttpServletRequest(), new MockHttpServletResponse()));
         RequestContextHolder.setRequestContext(context);

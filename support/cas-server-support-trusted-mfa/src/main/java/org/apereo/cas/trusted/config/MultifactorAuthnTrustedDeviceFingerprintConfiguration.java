@@ -4,11 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apereo.cas.CipherExecutor;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.core.util.EncryptionJwtSigningJwtCryptographyProperties;
-import org.apereo.cas.configuration.model.support.mfa.trusteddevice.DeviceFingerprintProperties;
-import org.apereo.cas.configuration.model.support.mfa.trusteddevice.DeviceFingerprintProperties.ClientIp;
-import org.apereo.cas.configuration.model.support.mfa.trusteddevice.DeviceFingerprintProperties.Cookie;
-import org.apereo.cas.configuration.model.support.mfa.trusteddevice.DeviceFingerprintProperties.UserAgent;
 import org.apereo.cas.trusted.util.cipher.CookieDeviceFingerprintComponentCipherExecutor;
 import org.apereo.cas.trusted.web.flow.fingerprint.ClientIpDeviceFingerprintComponentExtractor;
 import org.apereo.cas.trusted.web.flow.fingerprint.CookieDeviceFingerprintComponentExtractor;
@@ -52,9 +47,9 @@ public class MultifactorAuthnTrustedDeviceFingerprintConfiguration {
     @Bean
     @RefreshScope
     public DeviceFingerprintComponentExtractor deviceFingerprintClientIpComponent() {
-        final ClientIp properties = casProperties.getAuthn().getMfa().getTrusted().getDeviceFingerprint().getClientIp();
+        final var properties = casProperties.getAuthn().getMfa().getTrusted().getDeviceFingerprint().getClientIp();
         if (properties.isEnabled()) {
-            final ClientIpDeviceFingerprintComponentExtractor component = new ClientIpDeviceFingerprintComponentExtractor();
+            final var component = new ClientIpDeviceFingerprintComponentExtractor();
             component.setOrder(properties.getOrder());
             return component;
         }
@@ -66,9 +61,9 @@ public class MultifactorAuthnTrustedDeviceFingerprintConfiguration {
     @Bean
     @RefreshScope
     public DeviceFingerprintComponentExtractor deviceFingerprintCookieComponent() {
-        final Cookie properties = casProperties.getAuthn().getMfa().getTrusted().getDeviceFingerprint().getCookie();
+        final var properties = casProperties.getAuthn().getMfa().getTrusted().getDeviceFingerprint().getCookie();
         if (properties.isEnabled()) {
-            final CookieDeviceFingerprintComponentExtractor component = new CookieDeviceFingerprintComponentExtractor(
+            final var component = new CookieDeviceFingerprintComponentExtractor(
                 deviceFingerprintCookieGenerator(), deviceFingerprintCookieRandomStringGenerator());
             component.setOrder(properties.getOrder());
             return component;
@@ -81,9 +76,9 @@ public class MultifactorAuthnTrustedDeviceFingerprintConfiguration {
     @Bean
     @RefreshScope
     public DeviceFingerprintComponentExtractor deviceFingerprintUserAgentComponent() {
-        final UserAgent properties = casProperties.getAuthn().getMfa().getTrusted().getDeviceFingerprint().getUserAgent();
+        final var properties = casProperties.getAuthn().getMfa().getTrusted().getDeviceFingerprint().getUserAgent();
         if (properties.isEnabled()) {
-            final UserAgentDeviceFingerprintComponentExtractor component = new UserAgentDeviceFingerprintComponentExtractor();
+            final var component = new UserAgentDeviceFingerprintComponentExtractor();
             component.setOrder(properties.getOrder());
             return component;
         }
@@ -96,7 +91,7 @@ public class MultifactorAuthnTrustedDeviceFingerprintConfiguration {
     @Bean(BEAN_DEVICE_FINGERPRINT_STRATEGY)
     @RefreshScope
     public DeviceFingerprintStrategy deviceFingerprintStrategy(final List<DeviceFingerprintComponentExtractor> extractors) {
-        final DeviceFingerprintProperties properties = casProperties.getAuthn().getMfa().getTrusted().getDeviceFingerprint();
+        final var properties = casProperties.getAuthn().getMfa().getTrusted().getDeviceFingerprint();
         return new DefaultDeviceFingerprintStrategy(extractors, properties.getComponentSeparator());
     }
 
@@ -104,7 +99,7 @@ public class MultifactorAuthnTrustedDeviceFingerprintConfiguration {
     @Bean(BEAN_DEVICE_FINGERPRINT_COOKIE_GENERATOR)
     @RefreshScope
     public CookieRetrievingCookieGenerator deviceFingerprintCookieGenerator() {
-        final Cookie cookie = casProperties.getAuthn().getMfa().getTrusted().getDeviceFingerprint().getCookie();
+        final var cookie = casProperties.getAuthn().getMfa().getTrusted().getDeviceFingerprint().getCookie();
         return new TrustedDeviceCookieRetrievingCookieGenerator(
             cookie.getName(),
             cookie.getPath(),
@@ -131,10 +126,10 @@ public class MultifactorAuthnTrustedDeviceFingerprintConfiguration {
     @Bean(BEAN_DEVICE_FINGERPRINT_COOKIE_CIPHER_EXECUTOR)
     @RefreshScope
     public CipherExecutor deviceFingerprintCookieCipherExecutor() {
-        final EncryptionJwtSigningJwtCryptographyProperties crypto =
+        final var crypto =
             casProperties.getAuthn().getMfa().getTrusted().getDeviceFingerprint().getCookie().getCrypto();
 
-        boolean enabled = crypto.isEnabled();
+        var enabled = crypto.isEnabled();
         if (!enabled && (StringUtils.isNotBlank(crypto.getEncryption().getKey())) && StringUtils.isNotBlank(crypto.getSigning().getKey())) {
             LOGGER.warn("Token encryption/signing is not enabled explicitly in the configuration, yet "
                 + "signing/encryption keys are defined for operations. CAS will proceed to enable the cookie "

@@ -4,7 +4,6 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.opensaml.saml.metadata.resolver.impl.DOMMetadataResolver;
 import org.springframework.core.io.Resource;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import java.io.File;
@@ -35,7 +34,7 @@ public class InMemoryResourceMetadataResolver extends DOMMetadataResolver {
 
     @SneakyThrows
     private static Element getMetadataRootElement(final InputStream metadataResource, final OpenSamlConfigBean configBean) {
-        final Document document = configBean.getParserPool().parse(metadataResource);
+        final var document = configBean.getParserPool().parse(metadataResource);
         return document.getDocumentElement();
     }
 }

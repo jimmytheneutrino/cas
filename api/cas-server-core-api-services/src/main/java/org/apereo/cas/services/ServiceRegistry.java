@@ -57,7 +57,11 @@ public interface ServiceRegistry {
      * @return the registered service
      */
     default RegisteredService findServiceByExactServiceId(final String id) {
-        return load().stream().filter(r -> r.getServiceId().equals(id)).findFirst().orElse(null);
+        return load()
+            .stream()
+            .filter(r -> r.getServiceId().equals(id))
+            .findFirst()
+            .orElse(null);
     }
 
     /**
@@ -67,11 +71,15 @@ public interface ServiceRegistry {
      * @return the registered service
      */
     default RegisteredService findServiceByExactServiceName(final String name) {
-        return load().stream().filter(r -> r.getName().equals(name)).findFirst().orElse(null);
+        return load()
+            .stream()
+            .filter(r -> r.getName().equals(name))
+            .findFirst()
+            .orElse(null);
     }
 
     /**
-     * Return number of records held in this service registry. Provides Java 8 supported default implementation so that implementations
+     * Return number of records held in this service registry. Provides default implementation so that implementations
      * needed this new functionality could override it and other implementations not caring for it could be left alone.
      *
      * @return number of registered services held by any particular implementation

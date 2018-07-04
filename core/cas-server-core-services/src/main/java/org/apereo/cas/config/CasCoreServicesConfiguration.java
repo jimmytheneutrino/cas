@@ -49,7 +49,6 @@ import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -93,8 +92,8 @@ public class CasCoreServicesConfiguration {
     @ConditionalOnMissingBean(name = "webApplicationResponseBuilderLocator")
     @Bean
     public ResponseBuilderLocator webApplicationResponseBuilderLocator() {
-        final Map<String, ResponseBuilder> beans = applicationContext.getBeansOfType(ResponseBuilder.class, false, true);
-        final List<ResponseBuilder> builders = beans.values().stream().collect(Collectors.toList());
+        final var beans = applicationContext.getBeansOfType(ResponseBuilder.class, false, true);
+        final var builders = beans.values().stream().collect(Collectors.toList());
         AnnotationAwareOrderComparator.sortIfNecessary(builders);
         return new DefaultWebApplicationResponseBuilderLocator(builders);
     }
@@ -159,9 +158,9 @@ public class CasCoreServicesConfiguration {
     @RefreshScope
     public ServiceRegistry serviceRegistry() {
         final List<ServiceRegistryExecutionPlanConfigurer> configurers = ObjectUtils.defaultIfNull(serviceRegistryDaoConfigurers.getIfAvailable(), new ArrayList<>(0));
-        final DefaultServiceRegistryExecutionPlan plan = new DefaultServiceRegistryExecutionPlan();
+        final var plan = new DefaultServiceRegistryExecutionPlan();
         configurers.forEach(c -> {
-            final String name = StringUtils.removePattern(c.getClass().getSimpleName(), "\\$.+");
+            final var name = StringUtils.removePattern(c.getClass().getSimpleName(), "\\$.+");
             LOGGER.debug("Configuring service registry [{}]", name);
             c.configureServiceRegistry(plan);
         });

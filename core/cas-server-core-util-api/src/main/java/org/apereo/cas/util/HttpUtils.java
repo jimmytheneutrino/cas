@@ -24,6 +24,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -116,14 +117,14 @@ public class HttpUtils {
                                        final Map<String, Object> headers,
                                        final String entity) {
         try {
-            final HttpClient client = buildHttpClient(basicAuthUsername, basicAuthPassword);
-            final URI uri = buildHttpUri(url, parameters);
+            final var client = buildHttpClient(basicAuthUsername, basicAuthPassword);
+            final var uri = buildHttpUri(url, parameters);
             final HttpUriRequest request;
             switch (method.toLowerCase()) {
                 case "post":
                     request = new HttpPost(uri);
                     if (StringUtils.isNotBlank(entity)) {
-                        final StringEntity stringEntity = new StringEntity(entity);
+                        final var stringEntity = new StringEntity(entity);
                         ((HttpPost) request).setEntity(stringEntity);
                     }
                     break;
@@ -199,6 +200,21 @@ public class HttpUtils {
                                           final Map<String, Object> parameters) {
         try {
             return executeGet(url, null, null, parameters);
+        } catch (final Exception e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+        return null;
+    }
+
+    /**
+     * Execute get http response.
+     *
+     * @param url the url
+     * @return the http response
+     */
+    public static HttpResponse executeGet(final String url) {
+        try {
+            return executeGet(url, null, null, new LinkedHashMap<>());
         } catch (final Exception e) {
             LOGGER.error(e.getMessage(), e);
         }
@@ -289,7 +305,7 @@ public class HttpUtils {
                                                                 final String basicAuthPassword) {
         if (StringUtils.isNotBlank(basicAuthUsername) && StringUtils.isNotBlank(basicAuthPassword)) {
             final CredentialsProvider provider = new BasicCredentialsProvider();
-            final UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(basicAuthUsername, basicAuthPassword);
+            final var credentials = new UsernamePasswordCredentials(basicAuthUsername, basicAuthPassword);
             provider.setCredentials(AuthScope.ANY, credentials);
             return builder.setDefaultCredentialsProvider(provider);
         }
@@ -309,19 +325,19 @@ public class HttpUtils {
     private static void prepareHttpRequest(final HttpUriRequest request, final String basicAuthUsername,
                                            final String basicAuthPassword, final Map<String, Object> parameters) {
         if (StringUtils.isNotBlank(basicAuthUsername) && StringUtils.isNotBlank(basicAuthPassword)) {
-            final String auth = EncodingUtils.encodeBase64(basicAuthUsername + ":" + basicAuthPassword);
+            final var auth = EncodingUtils.encodeBase64(basicAuthUsername + ':' + basicAuthPassword);
             request.setHeader(HttpHeaders.AUTHORIZATION, "Basic " + auth);
         }
     }
 
     private static URI buildHttpUri(final String url, final Map<String, Object> parameters) throws URISyntaxException {
-        final URIBuilder uriBuilder = new URIBuilder(url);
+        final var uriBuilder = new URIBuilder(url);
         parameters.forEach((k, v) -> uriBuilder.addParameter(k, v.toString()));
         return uriBuilder.build();
     }
 
     private static HttpClient buildHttpClient(final String basicAuthUsername, final String basicAuthPassword) {
-        final HttpClientBuilder builder = HttpClientBuilder.create();
+        final var builder = HttpClientBuilder.create();
         return prepareCredentialsIfNeeded(builder, basicAuthUsername, basicAuthPassword).build();
     }
 
@@ -334,11 +350,11 @@ public class HttpUtils {
      * @return the org . springframework . http . http headers
      */
     public static org.springframework.http.HttpHeaders createBasicAuthHeaders(final String basicAuthUser, final String basicAuthPassword) {
-        final org.springframework.http.HttpHeaders acceptHeaders = new org.springframework.http.HttpHeaders();
+        final var acceptHeaders = new org.springframework.http.HttpHeaders();
         acceptHeaders.setAccept(CollectionUtils.wrap(MediaType.APPLICATION_JSON));
         if (StringUtils.isNotBlank(basicAuthUser) && StringUtils.isNotBlank(basicAuthPassword)) {
-            final String authorization = basicAuthUser + ':' + basicAuthPassword;
-            final String basic = EncodingUtils.encodeBase64(authorization.getBytes(Charset.forName("US-ASCII")));
+            final var authorization = basicAuthUser + ':' + basicAuthPassword;
+            final var basic = EncodingUtils.encodeBase64(authorization.getBytes(Charset.forName("US-ASCII")));
             acceptHeaders.set("Authorization", "Basic " + basic);
         }
         return acceptHeaders;

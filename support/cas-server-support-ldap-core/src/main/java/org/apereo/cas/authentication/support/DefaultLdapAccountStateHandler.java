@@ -13,7 +13,6 @@ import org.apereo.cas.authentication.exceptions.InvalidLoginTimeException;
 import org.apereo.cas.authentication.support.password.PasswordExpiringWarningMessageDescriptor;
 import org.apereo.cas.authentication.support.password.PasswordPolicyConfiguration;
 import org.apereo.cas.util.DateTimeUtils;
-import org.ldaptive.LdapAttribute;
 import org.ldaptive.auth.AccountState;
 import org.ldaptive.auth.AuthenticationResponse;
 import org.ldaptive.auth.ext.ActiveDirectoryAccountState;
@@ -34,7 +33,6 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -97,7 +95,7 @@ public class DefaultLdapAccountStateHandler implements AuthenticationAccountStat
             handlePolicyAttributes(response);
         }
 
-        final AccountState state = response.getAccountState();
+        final var state = response.getAccountState();
         if (state == null) {
             LOGGER.debug("Account state not defined. Returning empty list of messages.");
             return new ArrayList<>(0);
@@ -124,7 +122,7 @@ public class DefaultLdapAccountStateHandler implements AuthenticationAccountStat
                                final PasswordPolicyConfiguration configuration, final List<MessageDescriptor> messages) throws LoginException {
 
         LOGGER.debug("Handling LDAP account state error [{}]", error);
-        final LoginException ex = this.errorMap.get(error);
+        final var ex = this.errorMap.get(error);
         if (ex != null) {
             throw ex;
         }
@@ -153,8 +151,8 @@ public class DefaultLdapAccountStateHandler implements AuthenticationAccountStat
         }
 
         if (warning.getExpiration() != null) {
-            final ZonedDateTime expDate = DateTimeUtils.zonedDateTimeOf(warning.getExpiration());
-            final long ttl = ZonedDateTime.now(ZoneOffset.UTC).until(expDate, ChronoUnit.DAYS);
+            final var expDate = DateTimeUtils.zonedDateTimeOf(warning.getExpiration());
+            final var ttl = ZonedDateTime.now(ZoneOffset.UTC).until(expDate, ChronoUnit.DAYS);
             LOGGER.debug(
                 "Password expires in [{}] days. Expiration warning threshold is [{}] days.",
                 ttl,
@@ -183,10 +181,10 @@ public class DefaultLdapAccountStateHandler implements AuthenticationAccountStat
      */
     @SneakyThrows
     protected void handlePolicyAttributes(final AuthenticationResponse response) {
-        final Collection<LdapAttribute> attributes = response.getLdapEntry().getAttributes();
-        for (final LdapAttribute attr : attributes) {
+        final var attributes = response.getLdapEntry().getAttributes();
+        for (final var attr : attributes) {
             if (this.attributesToErrorMap.containsKey(attr.getName()) && Boolean.parseBoolean(attr.getStringValue())) {
-                final Class<LoginException> clazz = this.attributesToErrorMap.get(attr.getName());
+                final var clazz = this.attributesToErrorMap.get(attr.getName());
                 throw clazz.getDeclaredConstructor().newInstance();
             }
         }

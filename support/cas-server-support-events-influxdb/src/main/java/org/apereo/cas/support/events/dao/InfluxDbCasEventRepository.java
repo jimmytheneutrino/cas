@@ -7,13 +7,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apereo.cas.influxdb.InfluxDbConnectionFactory;
 import org.influxdb.dto.Point;
 import org.influxdb.dto.QueryResult;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.util.ReflectionUtils;
 
-import javax.annotation.PreDestroy;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -26,14 +25,14 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 @RequiredArgsConstructor
-public class InfluxDbCasEventRepository extends AbstractCasEventRepository {
+public class InfluxDbCasEventRepository extends AbstractCasEventRepository implements DisposableBean {
     private static final String MEASUREMENT = "InfluxDbCasEventRepositoryCasEvents";
 
     private final InfluxDbConnectionFactory influxDbConnectionFactory;
 
     @Override
     public void save(final CasEvent event) {
-        final Point.Builder builder = Point.measurement(MEASUREMENT);
+        final var builder = Point.measurement(MEASUREMENT);
         ReflectionUtils.doWithFields(CasEvent.class, field -> {
             if (!Modifier.isStatic(field.getModifiers())) {
                 field.setAccessible(true);
@@ -45,28 +44,27 @@ public class InfluxDbCasEventRepository extends AbstractCasEventRepository {
             }
         });
 
-
-        final Point point = builder.time(System.currentTimeMillis(), TimeUnit.MILLISECONDS).build();
+        final var point = builder.time(System.currentTimeMillis(), TimeUnit.MILLISECONDS).build();
         influxDbConnectionFactory.writeBatch(point);
     }
 
     @Override
     public Collection<? extends CasEvent> load() {
         final List<CasEvent> events = new ArrayList<>();
-        final QueryResult results = influxDbConnectionFactory.query(MEASUREMENT);
+        final var results = influxDbConnectionFactory.query(MEASUREMENT);
         results.getResults()
             .stream()
             .filter(r -> r.getSeries() != null)
             .map(QueryResult.Result::getSeries)
             .forEach(r -> r.forEach(s -> {
                 try {
-                    final Iterator<List<Object>> it = s.getValues().iterator();
+                    final var it = s.getValues().iterator();
                     while (it.hasNext()) {
-                        final CasEvent event = new CasEvent();
-                        final List<Object> row = it.next();
-                        for (int i = 0; i < s.getColumns().size(); i++) {
-                            final String colName = s.getColumns().get(i);
-                            final String value = row.get(i) != null ? row.get(i).toString() : StringUtils.EMPTY;
+                        final var event = new CasEvent();
+                        final var row = it.next();
+                        for (var i = 0; i < s.getColumns().size(); i++) {
+                            final var colName = s.getColumns().get(i);
+                            final var value = row.get(i) != null ? row.get(i).toString() : StringUtils.EMPTY;
 
                             LOGGER.debug("Handling event column name [{}] with value [{}]", colName, value);
 
@@ -103,11 +101,12 @@ public class InfluxDbCasEventRepository extends AbstractCasEventRepository {
         return events;
     }
 
+
     /**
      * Stops the database client.
      */
-    @PreDestroy
     @SneakyThrows
+    @Override
     public void destroy() {
         this.influxDbConnectionFactory.close();
     }

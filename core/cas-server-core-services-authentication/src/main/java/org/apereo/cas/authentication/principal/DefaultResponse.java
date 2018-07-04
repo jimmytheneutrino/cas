@@ -6,9 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apereo.cas.util.EncodingUtils;
 
-import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -71,12 +69,12 @@ public class DefaultResponse implements Response {
      * @return the redirect response
      */
     public static Response getRedirectResponse(final String url, final Map<String, String> parameters) {
-        final StringBuilder builder = new StringBuilder(parameters.size() * CONST_REDIRECT_RESPONSE_MULTIPLIER + CONST_REDIRECT_RESPONSE_BUFFER);
-        final String sanitizedUrl = sanitizeUrl(url);
+        final var builder = new StringBuilder(parameters.size() * CONST_REDIRECT_RESPONSE_MULTIPLIER + CONST_REDIRECT_RESPONSE_BUFFER);
+        final var sanitizedUrl = sanitizeUrl(url);
         LOGGER.debug("Sanitized URL for redirect response is [{}]", sanitizedUrl);
-        final List<String> fragmentSplit = Splitter.on("#").splitToList(sanitizedUrl);
+        final var fragmentSplit = Splitter.on("#").splitToList(sanitizedUrl);
         builder.append(fragmentSplit.get(0));
-        final String params = parameters.entrySet().stream().filter(entry -> entry.getValue() != null).map(entry -> {
+        final var params = parameters.entrySet().stream().filter(entry -> entry.getValue() != null).map(entry -> {
             String param;
             try {
                 param = String.join("=", entry.getKey(), EncodingUtils.urlEncode(entry.getValue()));
@@ -93,7 +91,7 @@ public class DefaultResponse implements Response {
             builder.append('#');
             builder.append(fragmentSplit.get(1));
         }
-        final String urlRedirect = builder.toString();
+        final var urlRedirect = builder.toString();
         LOGGER.debug("Final redirect response is [{}]", urlRedirect);
         return new DefaultResponse(ResponseType.REDIRECT, urlRedirect, parameters);
     }
@@ -108,9 +106,9 @@ public class DefaultResponse implements Response {
      * @return Sanitized URL string.
      */
     private static String sanitizeUrl(final String url) {
-        final Matcher m = NON_PRINTABLE.matcher(url);
-        final StringBuffer sb = new StringBuffer(url.length());
-        boolean hasNonPrintable = false;
+        final var m = NON_PRINTABLE.matcher(url);
+        final var sb = new StringBuffer(url.length());
+        var hasNonPrintable = false;
         while (m.find()) {
             m.appendReplacement(sb, " ");
             hasNonPrintable = true;

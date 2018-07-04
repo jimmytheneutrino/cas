@@ -1,13 +1,12 @@
 package org.apereo.cas.pm;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apereo.cas.CipherExecutor;
 import org.apereo.cas.authentication.Credential;
 import org.apereo.cas.configuration.model.support.pm.PasswordManagementProperties;
 import org.apereo.inspektr.audit.annotation.Audit;
-import org.apereo.inspektr.common.web.ClientInfo;
 import org.apereo.inspektr.common.web.ClientInfoHolder;
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.jwt.NumericDate;
@@ -25,23 +24,23 @@ import java.util.UUID;
  * @since 5.1.0
  */
 @Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class BasePasswordManagementService implements PasswordManagementService {
 
     /**
      * Password management settings.
      */
     protected final PasswordManagementProperties properties;
-    
+
     private final CipherExecutor<Serializable, String> cipherExecutor;
 
     private final String issuer;
-    
+
     @Override
     public String parseToken(final String token) {
         try {
-            final String json = this.cipherExecutor.decode(token);
-            final JwtClaims claims = JwtClaims.parse(json);
+            final var json = this.cipherExecutor.decode(token);
+            final var claims = JwtClaims.parse(json);
 
             if (!claims.getIssuer().equals(issuer)) {
                 LOGGER.error("Token issuer does not match CAS");
@@ -56,7 +55,7 @@ public class BasePasswordManagementService implements PasswordManagementService 
                 return null;
             }
 
-            final ClientInfo holder = ClientInfoHolder.getClientInfo();
+            final var holder = ClientInfoHolder.getClientInfo();
             if (!claims.getStringClaimValue("origin").equals(holder.getServerIpAddress())) {
                 LOGGER.error("Token origin server IP address does not match CAS");
                 return null;
@@ -81,21 +80,21 @@ public class BasePasswordManagementService implements PasswordManagementService 
     @Override
     public String createToken(final String to) {
         try {
-            final String token = UUID.randomUUID().toString();
-            final JwtClaims claims = new JwtClaims();
+            final var token = UUID.randomUUID().toString();
+            final var claims = new JwtClaims();
             claims.setJwtId(token);
             claims.setIssuer(issuer);
             claims.setAudience(issuer);
             claims.setExpirationTimeMinutesInTheFuture(properties.getReset().getExpirationMinutes());
             claims.setIssuedAtToNow();
 
-            final ClientInfo holder = ClientInfoHolder.getClientInfo();
+            final var holder = ClientInfoHolder.getClientInfo();
             if (holder != null) {
                 claims.setStringClaim("origin", holder.getServerIpAddress());
                 claims.setStringClaim("client", holder.getClientIpAddress());
             }
             claims.setSubject(to);
-            final String json = claims.toJson();
+            final var json = claims.toJson();
             return this.cipherExecutor.encode(json);
         } catch (final Exception e) {
             LOGGER.error(e.getMessage(), e);
@@ -104,8 +103,8 @@ public class BasePasswordManagementService implements PasswordManagementService 
     }
 
     @Audit(action = "CHANGE_PASSWORD",
-            actionResolverName = "CHANGE_PASSWORD_ACTION_RESOLVER",
-            resourceResolverName = "CHANGE_PASSWORD_RESOURCE_RESOLVER")
+        actionResolverName = "CHANGE_PASSWORD_ACTION_RESOLVER",
+        resourceResolverName = "CHANGE_PASSWORD_RESOURCE_RESOLVER")
     @Override
     public boolean change(final Credential c, final PasswordChangeBean bean) throws InvalidPasswordException {
         return changeInternal(c, bean);

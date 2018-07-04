@@ -6,13 +6,11 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apereo.cas.CipherExecutor;
-import org.apereo.cas.adaptors.yubikey.YubiKeyAccount;
 import org.apereo.cas.adaptors.yubikey.YubiKeyAccountRegistry;
 import org.apereo.cas.adaptors.yubikey.YubiKeyAccountValidator;
 
 import javax.persistence.NoResultException;
 import java.io.Serializable;
-import java.util.Optional;
 
 /**
  * This is {@link BaseYubiKeyAccountRegistry}.
@@ -46,7 +44,7 @@ public abstract class BaseYubiKeyAccountRegistry implements YubiKeyAccountRegist
     @Override
     public boolean isYubiKeyRegisteredFor(final String uid, final String yubikeyPublicId) {
         try {
-            final Optional<YubiKeyAccount> account = getAccount(uid);
+            final var account = getAccount(uid);
             if (account.isPresent()) {
                 return account.get().getPublicId().equals(yubikeyPublicId);
             }

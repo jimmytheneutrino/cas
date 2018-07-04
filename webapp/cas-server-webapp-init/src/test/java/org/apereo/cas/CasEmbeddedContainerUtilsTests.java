@@ -1,7 +1,6 @@
 package org.apereo.cas;
 
 import org.junit.Test;
-import org.springframework.boot.Banner;
 import org.springframework.mock.env.MockEnvironment;
 
 import java.io.ByteArrayOutputStream;
@@ -28,11 +27,11 @@ public class CasEmbeddedContainerUtilsTests {
 
     @Test
     public void verifyCasBanner() {
-        final Banner banner = CasEmbeddedContainerUtils.getCasBannerInstance();
+        final var banner = CasEmbeddedContainerUtils.getCasBannerInstance();
         assertNotNull(banner);
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final var out = new ByteArrayOutputStream();
         banner.printBanner(new MockEnvironment(), getClass(), new PrintStream(out));
-        final String results = new String(out.toByteArray(), StandardCharsets.UTF_8);
+        final var results = new String(out.toByteArray(), StandardCharsets.UTF_8);
         assertNotNull(results);
     }
 }

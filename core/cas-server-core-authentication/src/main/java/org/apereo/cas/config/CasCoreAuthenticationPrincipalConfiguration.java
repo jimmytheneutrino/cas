@@ -13,8 +13,6 @@ import org.apereo.cas.authentication.principal.resolvers.ChainingPrincipalResolv
 import org.apereo.cas.authentication.principal.resolvers.EchoingPrincipalResolver;
 import org.apereo.cas.authentication.principal.resolvers.PersonDirectoryPrincipalResolver;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.core.authentication.PersonDirectoryPrincipalResolverProperties;
-import org.apereo.cas.configuration.model.core.authentication.PrincipalAttributesProperties;
 import org.apereo.cas.util.CollectionUtils;
 import org.apereo.services.persondir.IPersonAttributeDao;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,20 +65,20 @@ public class CasCoreAuthenticationPrincipalConfiguration {
     @Bean
     @ConditionalOnMissingBean(name = "personDirectoryPrincipalResolver")
     public PrincipalResolver personDirectoryPrincipalResolver() {
-        final PersonDirectoryPrincipalResolverProperties personDirectory = casProperties.getPersonDirectory();
-        final PersonDirectoryPrincipalResolver bean = new PersonDirectoryPrincipalResolver(
+        final var personDirectory = casProperties.getPersonDirectory();
+        final var bean = new PersonDirectoryPrincipalResolver(
             attributeRepository,
             principalFactory(),
             personDirectory.isReturnNull(),
             personDirectory.getPrincipalAttribute()
         );
-
-        final ChainingPrincipalResolver resolver = new ChainingPrincipalResolver();
+        
+        final var resolver = new ChainingPrincipalResolver();
         if (!attributeRepositories.isEmpty()) {
             LOGGER.debug("Attribute repository sources are defined and available for the principal resolution chain. "
                 + "The principal resolver will use a combination of attributes collected from attribute repository sources "
                 + "and whatever may be collected during the authentication phase where results are eventually merged.");
-            resolver.setChain(CollectionUtils.wrapList(bean, new EchoingPrincipalResolver()));
+            resolver.setChain(CollectionUtils.wrapList(new EchoingPrincipalResolver(), bean));
         } else {
             LOGGER.debug("Attribute repository sources are not available for principal resolution so principal resolver will echo "
                 + "back the principal resolved during authentication directly.");
@@ -94,7 +92,7 @@ public class CasCoreAuthenticationPrincipalConfiguration {
     @RefreshScope
     @ConditionalOnMissingBean(name = "globalPrincipalAttributeRepository")
     public PrincipalAttributesRepository globalPrincipalAttributeRepository() {
-        final PrincipalAttributesProperties props = casProperties.getAuthn().getAttributeRepository();
+        final var props = casProperties.getAuthn().getAttributeRepository();
         final long cacheTime = props.getExpirationTime();
         if (cacheTime < 0) {
             return new DefaultPrincipalAttributesRepository();

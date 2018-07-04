@@ -8,7 +8,6 @@ import org.apereo.cas.util.LdapUtils;
 import org.ldaptive.ConnectionFactory;
 import org.ldaptive.LdapException;
 import org.ldaptive.Response;
-import org.ldaptive.SearchFilter;
 import org.ldaptive.SearchResult;
 import org.springframework.webflow.execution.RequestContext;
 
@@ -43,9 +42,9 @@ public class LdapAcceptableUsagePolicyRepository extends AbstractPrincipalAttrib
     @Override
     public boolean submit(final RequestContext requestContext, final Credential credential) {
         try {
-            final Response<SearchResult> response = searchForId(credential.getId());
+            final var response = searchForId(credential.getId());
             if (LdapUtils.containsResultEntry(response)) {
-                final String currentDn = response.getResult().getEntry().getDn();
+                final var currentDn = response.getResult().getEntry().getDn();
                 LOGGER.debug("Updating [{}]", currentDn);
                 return LdapUtils.executeModifyOperation(currentDn, this.connectionFactory,
                     CollectionUtils.wrap(this.aupAttributeName, CollectionUtils.wrapSet(Boolean.TRUE.toString())));
@@ -64,7 +63,7 @@ public class LdapAcceptableUsagePolicyRepository extends AbstractPrincipalAttrib
      * @throws LdapException the ldap exception
      */
     private Response<SearchResult> searchForId(final String id) throws LdapException {
-        final SearchFilter filter = LdapUtils.newLdaptiveSearchFilter(this.searchFilter,
+        final var filter = LdapUtils.newLdaptiveSearchFilter(this.searchFilter,
             LdapUtils.LDAP_SEARCH_FILTER_DEFAULT_PARAM_NAME,
             CollectionUtils.wrap(id));
         return LdapUtils.executeSearchOperation(this.connectionFactory, this.baseDn, filter);

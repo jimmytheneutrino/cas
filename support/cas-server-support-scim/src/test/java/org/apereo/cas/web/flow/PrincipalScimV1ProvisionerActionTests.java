@@ -67,30 +67,30 @@ public class PrincipalScimV1ProvisionerActionTests {
 
     @Test
     public void verifyAction() throws Exception {
-        final MockRequestContext context = new MockRequestContext();
-        final MockHttpServletRequest request = new MockHttpServletRequest();
+        final var context = new MockRequestContext();
+        final var request = new MockHttpServletRequest();
         context.setExternalContext(new ServletExternalContext(new MockServletContext(), request, new MockHttpServletResponse()));
         WebUtils.putAuthentication(CoreAuthenticationTestUtils.getAuthentication(), context);
         WebUtils.putCredential(context, CoreAuthenticationTestUtils.getCredentialsWithSameUsernameAndPassword());
 
-        final UserResource user = new UserResource(CoreSchema.USER_DESCRIPTOR);
+        final var user = new UserResource(CoreSchema.USER_DESCRIPTOR);
         user.setActive(true);
         user.setDisplayName("CASUser");
         user.setId("casuser");
-        final Name name = new Name("formatted", "family",
+        final var name = new Name("formatted", "family",
             "middle", "givenMame", "prefix", "prefix2");
         name.setGivenName("casuser");
         user.setName(name);
-        final Meta meta = new Meta(new Date(), new Date(), new URI("http://localhost:8215"), "1");
+        final var meta = new Meta(new Date(), new Date(), new URI("http://localhost:8215"), "1");
         meta.setCreated(new Date());
         user.setMeta(meta);
 
 
-        final Resources resources = new Resources(CollectionUtils.wrapList(user));
-        final ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        final var resources = new Resources(CollectionUtils.wrapList(user));
+        final var stream = new ByteArrayOutputStream();
         resources.marshal(new JsonMarshaller(), stream);
-        final String data = stream.toString();
-        try (MockWebServer webServer = new MockWebServer(8215,
+        final var data = stream.toString();
+        try (var webServer = new MockWebServer(8215,
             new ByteArrayResource(data.getBytes(StandardCharsets.UTF_8), "REST Output"), MediaType.APPLICATION_JSON_VALUE)) {
             webServer.start();
             assertEquals(CasWebflowConstants.TRANSITION_ID_SUCCESS, principalScimProvisionerAction.execute(context).getId());

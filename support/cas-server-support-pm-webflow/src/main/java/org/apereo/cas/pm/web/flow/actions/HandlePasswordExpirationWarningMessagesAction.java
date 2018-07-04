@@ -10,7 +10,6 @@ import org.springframework.webflow.execution.RequestContext;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
-import java.util.Optional;
 
 /**
  * This is {@link HandlePasswordExpirationWarningMessagesAction}.
@@ -27,9 +26,9 @@ public class HandlePasswordExpirationWarningMessagesAction extends AbstractActio
     @Override
     public Event doExecute(final RequestContext context) {
         final AttributeMap attributes = context.getCurrentEvent().getAttributes();
-        final Collection<MessageDescriptor> warnings = (Collection<MessageDescriptor>)
+        final var warnings = (Collection<MessageDescriptor>)
             attributes.get(CasWebflowConstants.ATTRIBUTE_ID_AUTHENTICATION_WARNINGS, Collection.class, new LinkedHashSet<>());
-        final Optional<MessageDescriptor> found = warnings
+        final var found = warnings
             .stream()
             .filter(PasswordExpiringWarningMessageDescriptor.class::isInstance)
             .findAny();

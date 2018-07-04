@@ -2,7 +2,7 @@ package org.apereo.cas;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.web.support.SpringBootServletInitializer;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 
 /**
  * This is {@link CasConfigurationServerServletInitializer}.
@@ -12,12 +12,11 @@ import org.springframework.boot.web.support.SpringBootServletInitializer;
  */
 @Slf4j
 public class CasConfigurationServerServletInitializer extends SpringBootServletInitializer {
-
     @Override
     protected SpringApplicationBuilder configure(final SpringApplicationBuilder builder) {
         return builder
-                .sources(CasConfigurationServerWebApplication.class)
-                .banner(new CasConfigurationServerBanner())
-                .logStartupInfo(true);
+            .sources(CasConfigurationServerWebApplication.class)
+            .banner(new CasConfigurationServerBanner())
+            .logStartupInfo(true);
     }
 }

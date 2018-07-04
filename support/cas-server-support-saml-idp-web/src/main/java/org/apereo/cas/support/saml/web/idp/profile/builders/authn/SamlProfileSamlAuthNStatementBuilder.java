@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.time.ZonedDateTime;
 
 /**
  * This is {@link SamlProfileSamlAuthNStatementBuilder}.
@@ -73,16 +72,16 @@ public class SamlProfileSamlAuthNStatementBuilder extends AbstractSaml20ObjectBu
                                                final SamlRegisteredServiceServiceProviderMetadataFacade adaptor,
                                                final SamlRegisteredService service, final String binding,
                                                final MessageContext messageContext) throws SamlException {
-        final Assertion assertion = Assertion.class.cast(casAssertion);
-        final String authenticationMethod = this.authnContextClassRefBuilder.build(assertion, authnRequest, adaptor, service);
-        final String id = '_' + String.valueOf(Math.abs(RandomUtils.getNativeInstance().nextLong()));
-        final AuthnStatement statement = newAuthnStatement(authenticationMethod, DateTimeUtils.zonedDateTimeOf(assertion.getAuthenticationDate()), id);
+        final var assertion = Assertion.class.cast(casAssertion);
+        final var authenticationMethod = this.authnContextClassRefBuilder.build(assertion, authnRequest, adaptor, service);
+        final var id = '_' + String.valueOf(Math.abs(RandomUtils.getNativeInstance().nextLong()));
+        final var statement = newAuthnStatement(authenticationMethod, DateTimeUtils.zonedDateTimeOf(assertion.getAuthenticationDate()), id);
         if (assertion.getValidUntilDate() != null) {
-            final ZonedDateTime dt = DateTimeUtils.zonedDateTimeOf(assertion.getValidUntilDate());
+            final var dt = DateTimeUtils.zonedDateTimeOf(assertion.getValidUntilDate());
             statement.setSessionNotOnOrAfter(
                 DateTimeUtils.dateTimeOf(dt.plusSeconds(casProperties.getAuthn().getSamlIdp().getResponse().getSkewAllowance())));
         }
-        final SubjectLocality subjectLocality = buildSubjectLocality(assertion, authnRequest, adaptor, binding);
+        final var subjectLocality = buildSubjectLocality(assertion, authnRequest, adaptor, binding);
         statement.setSubjectLocality(subjectLocality);
         return statement;
     }
@@ -100,9 +99,9 @@ public class SamlProfileSamlAuthNStatementBuilder extends AbstractSaml20ObjectBu
     protected SubjectLocality buildSubjectLocality(final Object assertion, final RequestAbstractType authnRequest,
                                                    final SamlRegisteredServiceServiceProviderMetadataFacade adaptor,
                                                    final String binding) throws SamlException {
-        final SubjectLocality subjectLocality = newSamlObject(SubjectLocality.class);
-        final String hostAddress = InetAddressUtils.getCasServerHostAddress(casProperties.getServer().getName());
-        final String issuer = SamlIdPUtils.getIssuerFromSamlRequest(authnRequest);
+        final var subjectLocality = newSamlObject(SubjectLocality.class);
+        final var hostAddress = InetAddressUtils.getCasServerHostAddress(casProperties.getServer().getName());
+        final var issuer = SamlIdPUtils.getIssuerFromSamlRequest(authnRequest);
         LOGGER.debug("Built subject locality address [{}] for the saml authentication statement prepped for [{}]", hostAddress, issuer);
         subjectLocality.setAddress(hostAddress);
         return subjectLocality;

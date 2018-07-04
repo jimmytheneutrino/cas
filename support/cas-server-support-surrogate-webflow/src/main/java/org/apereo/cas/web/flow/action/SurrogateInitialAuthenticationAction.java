@@ -33,7 +33,7 @@ public class SurrogateInitialAuthenticationAction extends InitialAuthenticationA
 
     @Override
     protected Event doPreExecute(final RequestContext context) {
-        final UsernamePasswordCredential up = WebUtils.getCredential(context, UsernamePasswordCredential.class);
+        final var up = WebUtils.getCredential(context, UsernamePasswordCredential.class);
         if (up == null || up instanceof SurrogateUsernamePasswordCredential) {
             LOGGER.debug("Provided credentials cannot be found, or are already of type [{}]", SurrogateUsernamePasswordCredential.class.getName());
             return null;
@@ -46,11 +46,11 @@ public class SurrogateInitialAuthenticationAction extends InitialAuthenticationA
     }
 
     private void convertToSurrogateCredential(final RequestContext context, final UsernamePasswordCredential up) {
-        final SurrogateUsernamePasswordCredential sc = new SurrogateUsernamePasswordCredential();
+        final var sc = new SurrogateUsernamePasswordCredential();
 
-        final String tUsername = up.getUsername();
-        final String surrogateUsername = tUsername.substring(0, tUsername.indexOf(this.separator));
-        final String realUsername = tUsername.substring(tUsername.indexOf(this.separator) + 1);
+        final var tUsername = up.getUsername();
+        final var surrogateUsername = tUsername.substring(0, tUsername.indexOf(this.separator));
+        final var realUsername = tUsername.substring(tUsername.indexOf(this.separator) + this.separator.length());
         LOGGER.debug("Converting to surrogate credential for username [{}], surrogate username [{}]", realUsername, surrogateUsername);
 
         if (StringUtils.isBlank(surrogateUsername)) {

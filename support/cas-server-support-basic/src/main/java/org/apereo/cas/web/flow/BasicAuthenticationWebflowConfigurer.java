@@ -5,8 +5,6 @@ import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.web.flow.configurer.AbstractCasWebflowConfigurer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.webflow.definition.registry.FlowDefinitionRegistry;
-import org.springframework.webflow.engine.ActionState;
-import org.springframework.webflow.engine.Flow;
 import org.springframework.webflow.engine.builder.support.FlowBuilderServices;
 
 /**
@@ -27,9 +25,9 @@ public class BasicAuthenticationWebflowConfigurer extends AbstractCasWebflowConf
 
     @Override
     protected void doInitialize() {
-        final Flow flow = getLoginFlow();
+        final var flow = getLoginFlow();
         if (flow != null) {
-            final ActionState actionState = createActionState(flow, "basicAuthenticationCheck", createEvaluateAction("basicAuthenticationAction"));
+            final var actionState = createActionState(flow, "basicAuthenticationCheck", createEvaluateAction("basicAuthenticationAction"));
             actionState.getTransitionSet().add(createTransition(CasWebflowConstants.TRANSITION_ID_SUCCESS, CasWebflowConstants.STATE_ID_CREATE_TICKET_GRANTING_TICKET));
             actionState.getTransitionSet().add(createTransition(CasWebflowConstants.TRANSITION_ID_WARN, CasWebflowConstants.TRANSITION_ID_WARN));
             actionState.getExitActionList().add(createEvaluateAction(CasWebflowConstants.ACTION_ID_CLEAR_WEBFLOW_CREDENTIALS));

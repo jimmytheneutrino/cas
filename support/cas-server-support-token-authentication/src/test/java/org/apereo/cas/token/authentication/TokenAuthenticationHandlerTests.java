@@ -5,7 +5,6 @@ import com.nimbusds.jose.JWEAlgorithm;
 import com.nimbusds.jose.JWSAlgorithm;
 import lombok.extern.slf4j.Slf4j;
 import org.apereo.cas.authentication.AuthenticationHandler;
-import org.apereo.cas.authentication.AuthenticationHandlerExecutionResult;
 import org.apereo.cas.config.CasCoreAuthenticationConfiguration;
 import org.apereo.cas.config.CasCoreAuthenticationHandlersConfiguration;
 import org.apereo.cas.config.CasCoreAuthenticationMetadataConfiguration;
@@ -22,7 +21,6 @@ import org.apereo.cas.config.CasCoreWebConfiguration;
 import org.apereo.cas.config.CasPersonDirectoryConfiguration;
 import org.apereo.cas.config.TokenAuthenticationConfiguration;
 import org.apereo.cas.config.support.CasWebApplicationServiceFactoryConfiguration;
-import org.apereo.cas.services.AbstractRegisteredService;
 import org.apereo.cas.services.DefaultRegisteredServiceProperty;
 import org.apereo.cas.services.RegisteredServiceProperty;
 import org.apereo.cas.services.RegisteredServiceTestUtils;
@@ -91,11 +89,11 @@ public class TokenAuthenticationHandlerTests {
         g.setSignatureConfiguration(new SecretSignatureConfiguration(SIGNING_SECRET, JWSAlgorithm.HS256));
         g.setEncryptionConfiguration(new SecretEncryptionConfiguration(ENCRYPTION_SECRET, JWEAlgorithm.DIR, EncryptionMethod.A192CBC_HS384));
 
-        final CommonProfile profile = new CommonProfile();
+        final var profile = new CommonProfile();
         profile.setId("casuser");
-        final String token = g.generate(profile);
-        final TokenCredential c = new TokenCredential(token, RegisteredServiceTestUtils.getService());
-        final AuthenticationHandlerExecutionResult result = this.tokenAuthenticationHandler.authenticate(c);
+        final var token = g.generate(profile);
+        final var c = new TokenCredential(token, RegisteredServiceTestUtils.getService());
+        final var result = this.tokenAuthenticationHandler.authenticate(c);
         assertNotNull(result);
         assertEquals(result.getPrincipal().getId(), profile.getId());
     }
@@ -104,10 +102,10 @@ public class TokenAuthenticationHandlerTests {
     public static class TestTokenAuthenticationConfiguration {
         @Bean
         public List inMemoryRegisteredServices() {
-            final AbstractRegisteredService svc = RegisteredServiceTestUtils.getRegisteredService(".*");
+            final var svc = RegisteredServiceTestUtils.getRegisteredService(".*");
             svc.setAttributeReleasePolicy(new ReturnAllAttributeReleasePolicy());
 
-            DefaultRegisteredServiceProperty p = new DefaultRegisteredServiceProperty();
+            var p = new DefaultRegisteredServiceProperty();
             p.addValue(SIGNING_SECRET);
             svc.getProperties().put(RegisteredServiceProperty.RegisteredServiceProperties.TOKEN_SECRET_SIGNING.getPropertyName(), p);
 

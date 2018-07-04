@@ -1,8 +1,7 @@
 package org.apereo.cas.logout;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apereo.cas.authentication.principal.Service;
 import org.apereo.cas.authentication.principal.WebApplicationService;
 import org.apereo.cas.ticket.TicketGrantingTicket;
 import org.apereo.cas.util.CompressionUtils;
@@ -23,7 +22,7 @@ import java.util.stream.Stream;
  * @since 4.0.0
  */
 @Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class DefaultLogoutManager implements LogoutManager {
     private final LogoutMessageCreator logoutMessageBuilder;
     private final SingleLogoutServiceMessageHandler singleLogoutServiceMessageHandler;
@@ -43,7 +42,7 @@ public class DefaultLogoutManager implements LogoutManager {
             LOGGER.info("Single logout callbacks are disabled");
             return new ArrayList<>(0);
         }
-        final List<LogoutRequest> logoutRequests = performLogoutForTicket(ticket);
+        final var logoutRequests = performLogoutForTicket(ticket);
         this.logoutExecutionPlan.getLogoutHandlers().forEach(h -> {
             LOGGER.debug("Invoking logout handler [{}] to process ticket [{}]", h.getClass().getSimpleName(), ticket.getId());
             h.handle(ticket);
@@ -53,14 +52,14 @@ public class DefaultLogoutManager implements LogoutManager {
     }
 
     private List<LogoutRequest> performLogoutForTicket(final TicketGrantingTicket ticketToBeLoggedOut) {
-        final Stream<Map<String, Service>> streamServices = Stream.concat(Stream.of(ticketToBeLoggedOut.getServices()),
+        final var streamServices = Stream.concat(Stream.of(ticketToBeLoggedOut.getServices()),
             Stream.of(ticketToBeLoggedOut.getProxyGrantingTickets()));
         return streamServices
             .map(Map::entrySet)
             .flatMap(Set::stream)
             .filter(entry -> entry.getValue() instanceof WebApplicationService)
             .map(entry -> {
-                final WebApplicationService service = (WebApplicationService) entry.getValue();
+                final var service = (WebApplicationService) entry.getValue();
                 LOGGER.debug("Handling single logout callback for [{}]", service);
                 return this.singleLogoutServiceMessageHandler.handle(service, entry.getKey());
             })
@@ -77,7 +76,7 @@ public class DefaultLogoutManager implements LogoutManager {
      */
     @Override
     public String createFrontChannelLogoutMessage(final LogoutRequest logoutRequest) {
-        final String logoutMessage = this.logoutMessageBuilder.create(logoutRequest);
+        final var logoutMessage = this.logoutMessageBuilder.create(logoutRequest);
         LOGGER.trace("Attempting to deflate the logout message [{}]", logoutMessage);
         return CompressionUtils.deflate(logoutMessage);
     }

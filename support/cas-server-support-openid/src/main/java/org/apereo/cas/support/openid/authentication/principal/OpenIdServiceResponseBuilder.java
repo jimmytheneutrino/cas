@@ -14,7 +14,6 @@ import org.apereo.cas.util.HttpRequestUtils;
 import org.apereo.cas.validation.Assertion;
 import org.openid4java.association.Association;
 import org.openid4java.message.AuthRequest;
-import org.openid4java.message.Message;
 import org.openid4java.message.MessageException;
 import org.openid4java.message.ParameterList;
 import org.openid4java.server.ServerManager;
@@ -63,8 +62,8 @@ public class OpenIdServiceResponseBuilder extends AbstractWebApplicationServiceR
     @Override
     public Response build(final WebApplicationService webApplicationService, final String ticketId, final Authentication authentication) {
 
-        final OpenIdService service = (OpenIdService) webApplicationService;
-        final ParameterList parameterList = new ParameterList(HttpRequestUtils.getHttpServletRequestFromRequestAttributes().getParameterMap());
+        final var service = (OpenIdService) webApplicationService;
+        final var parameterList = new ParameterList(HttpRequestUtils.getHttpServletRequestFromRequestAttributes().getParameterMap());
 
         final Map<String, String> parameters = new HashMap<>();
 
@@ -73,10 +72,10 @@ public class OpenIdServiceResponseBuilder extends AbstractWebApplicationServiceR
             return buildRedirect(service, parameters);
         }
 
-        final Association association = getAssociation(serverManager, parameterList);
-        final boolean associated = association != null;
-        final boolean associationValid = isAssociationValid(association);
-        boolean successFullAuthentication = true;
+        final var association = getAssociation(serverManager, parameterList);
+        final var associated = association != null;
+        final var associationValid = isAssociationValid(association);
+        var successFullAuthentication = true;
 
         Assertion assertion = null;
         try {
@@ -93,7 +92,7 @@ public class OpenIdServiceResponseBuilder extends AbstractWebApplicationServiceR
             LOGGER.error("Could not validate ticket : [{}]", e.getMessage(), e);
             successFullAuthentication = false;
         }
-        final String id = determineIdentity(service, assertion);
+        final var id = determineIdentity(service, assertion);
         return buildAuthenticationResponse(service, parameters, successFullAuthentication, id, parameterList);
     }
 
@@ -134,7 +133,7 @@ public class OpenIdServiceResponseBuilder extends AbstractWebApplicationServiceR
                                                    final boolean successFullAuthentication,
                                                    final String id,
                                                    final ParameterList parameterList) {
-        final Message response = serverManager.authResponse(parameterList, id, id, successFullAuthentication, true);
+        final var response = serverManager.authResponse(parameterList, id, id, successFullAuthentication, true);
         parameters.putAll(response.getParameterMap());
         LOGGER.debug("Parameters passed for the OpenID response are [{}]", parameters.keySet());
         return buildRedirect(service, parameters);
@@ -149,10 +148,10 @@ public class OpenIdServiceResponseBuilder extends AbstractWebApplicationServiceR
      */
     protected Association getAssociation(final ServerManager serverManager, final ParameterList parameterList) {
         try {
-            final AuthRequest authReq = AuthRequest.createAuthRequest(parameterList, serverManager.getRealmVerifier());
-            final Map parameterMap = authReq.getParameterMap();
+            final var authReq = AuthRequest.createAuthRequest(parameterList, serverManager.getRealmVerifier());
+            final var parameterMap = authReq.getParameterMap();
             if (parameterMap != null && !parameterMap.isEmpty()) {
-                final String assocHandle = (String) parameterMap.get(OpenIdProtocolConstants.OPENID_ASSOCHANDLE);
+                final var assocHandle = (String) parameterMap.get(OpenIdProtocolConstants.OPENID_ASSOCHANDLE);
                 if (assocHandle != null) {
                     return serverManager.getSharedAssociations().load(assocHandle);
                 }

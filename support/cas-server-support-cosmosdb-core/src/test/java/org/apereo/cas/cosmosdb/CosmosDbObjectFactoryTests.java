@@ -4,8 +4,6 @@ import org.apereo.cas.configuration.model.support.cosmosdb.CosmosDbServiceRegist
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cloud.autoconfigure.RefreshAutoConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -18,7 +16,6 @@ import static org.junit.Assert.*;
  * @since 5.3.0
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = RefreshAutoConfiguration.class)
 public class CosmosDbObjectFactoryTests {
     @Autowired
     private ApplicationContext applicationContext;
@@ -32,8 +29,8 @@ public class CosmosDbObjectFactoryTests {
 
     @Test
     public void verifyClient() {
-        final CosmosDbObjectFactory factory = new CosmosDbObjectFactory(applicationContext);
-        final CosmosDbServiceRegistryProperties properties = new CosmosDbServiceRegistryProperties();
+        final var factory = new CosmosDbObjectFactory(applicationContext);
+        final var properties = new CosmosDbServiceRegistryProperties();
         properties.setUri("http://localhost:1234");
         properties.setKey("123456");
         assertNotNull(factory.createDocumentClient(properties));
@@ -41,8 +38,8 @@ public class CosmosDbObjectFactoryTests {
 
     @Test
     public void verifyDocumentDb() {
-        final CosmosDbObjectFactory factory = new CosmosDbObjectFactory(applicationContext);
-        final CosmosDbServiceRegistryProperties properties = new CosmosDbServiceRegistryProperties();
+        final var factory = new CosmosDbObjectFactory(applicationContext);
+        final var properties = new CosmosDbServiceRegistryProperties();
         properties.setUri("http://localhost:1234");
         properties.setKey("123456");
         assertNotNull(factory.createDocumentDbFactory(properties));
@@ -50,8 +47,8 @@ public class CosmosDbObjectFactoryTests {
 
     @Test
     public void verifyDocumentDbTemplate() {
-        final CosmosDbObjectFactory factory = new CosmosDbObjectFactory(applicationContext);
-        final CosmosDbServiceRegistryProperties properties = new CosmosDbServiceRegistryProperties();
+        final var factory = new CosmosDbObjectFactory(applicationContext);
+        final var properties = new CosmosDbServiceRegistryProperties();
         properties.setUri("http://localhost:1234");
         properties.setKey("123456");
         assertNotNull(factory.createDocumentDbTemplate(factory.createDocumentDbFactory(properties), properties));

@@ -10,8 +10,6 @@ import org.apereo.cas.web.support.WebUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.webflow.execution.RequestContext;
 
-import javax.servlet.http.HttpServletRequest;
-
 /**
  * A webflow action that attempts to grab the remote address from the request,
  * and construct a {@link RemoteAddressCredential} object.
@@ -30,8 +28,8 @@ public class RemoteAddressNonInteractiveCredentialsAction extends AbstractNonInt
 
     @Override
     protected Credential constructCredentialsFromRequest(final RequestContext context) {
-        final HttpServletRequest request = WebUtils.getHttpServletRequestFromExternalWebflowContext(context);
-        final String remoteAddress = request.getRemoteAddr();
+        final var request = WebUtils.getHttpServletRequestFromExternalWebflowContext(context);
+        final var remoteAddress = request.getRemoteAddr();
 
         if (StringUtils.hasText(remoteAddress)) {
             return new RemoteAddressCredential(remoteAddress);

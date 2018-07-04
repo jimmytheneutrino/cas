@@ -1,12 +1,10 @@
 package org.apereo.cas.services.resource;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.support.events.service.CasRegisteredServicePreSaveEvent;
 import org.apereo.cas.support.events.service.CasRegisteredServiceSavedEvent;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.Objects;
 
 /**
@@ -24,11 +22,11 @@ public class ModifyResourceBasedRegisteredServiceWatcher extends BaseResourceBas
     @Override
     public void accept(final File file) {
         LOGGER.debug("New service definition [{}] was modified. Locating service entry from cache...", file);
-        final Collection<RegisteredService> newServices = serviceRegistryDao.load(file);
+        final var newServices = serviceRegistryDao.load(file);
         newServices.stream()
             .filter(Objects::nonNull)
             .forEach(newService -> {
-                final RegisteredService oldService = serviceRegistryDao.findServiceById(newService.getId());
+                final var oldService = serviceRegistryDao.findServiceById(newService.getId());
 
                 if (!newService.equals(oldService)) {
                     LOGGER.debug("Updating service definitions with [{}]", newService);

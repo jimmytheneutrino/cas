@@ -27,7 +27,7 @@ public class X509CertificateCredentialTests {
     public void verifySerializeAX509CertificateCredentialToJson() throws IOException {
         MAPPER.findAndRegisterModules();
         final X509Certificate certificate = new CasX509Certificate(true);
-        final X509CertificateCredential credentialWritten = new X509CertificateCredential(new X509Certificate[]{certificate});
+        final var credentialWritten = new X509CertificateCredential(new X509Certificate[]{certificate});
 
         MAPPER.writeValue(JSON_FILE, credentialWritten);
         final CredentialMetaData credentialRead = MAPPER.readValue(JSON_FILE, X509CertificateCredential.class);

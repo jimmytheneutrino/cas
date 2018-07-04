@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apereo.cas.authentication.adaptive.geo.GeoLocationRequest;
 import org.apereo.cas.support.events.AbstractCasEvent;
 import org.apereo.cas.support.events.CasEventRepository;
 import org.apereo.cas.support.events.authentication.CasAuthenticationPolicyFailureEvent;
@@ -16,7 +15,6 @@ import org.apereo.cas.util.AsciiArtUtils;
 import org.apereo.cas.util.DateTimeUtils;
 import org.apereo.cas.util.serialization.TicketIdSanitizationUtils;
 import org.apereo.cas.web.support.WebUtils;
-import org.apereo.inspektr.common.web.ClientInfo;
 import org.apereo.inspektr.common.web.ClientInfoHolder;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
@@ -55,7 +53,7 @@ public class DefaultCasEventListener {
     @EventListener
     public void handleCasTicketGrantingTicketCreatedEvent(final CasTicketGrantingTicketCreatedEvent event) {
         if (this.casEventRepository != null) {
-            final CasEvent dto = prepareCasEvent(event);
+            final var dto = prepareCasEvent(event);
             dto.setCreationTime(event.getTicketGrantingTicket().getCreationTime().toString());
             dto.putId(TicketIdSanitizationUtils.sanitize(event.getTicketGrantingTicket().getId()));
             dto.setPrincipalId(event.getTicketGrantingTicket().getAuthentication().getPrincipal().getId());
@@ -71,7 +69,7 @@ public class DefaultCasEventListener {
     @EventListener
     public void handleCasAuthenticationTransactionFailureEvent(final CasAuthenticationTransactionFailureEvent event) {
         if (this.casEventRepository != null) {
-            final CasEvent dto = prepareCasEvent(event);
+            final var dto = prepareCasEvent(event);
             dto.setPrincipalId(event.getCredential().getId());
             dto.putId(CasAuthenticationPolicyFailureEvent.class.getSimpleName());
             this.casEventRepository.save(dto);
@@ -86,7 +84,7 @@ public class DefaultCasEventListener {
     @EventListener
     public void handleCasAuthenticationPolicyFailureEvent(final CasAuthenticationPolicyFailureEvent event) {
         if (this.casEventRepository != null) {
-            final CasEvent dto = prepareCasEvent(event);
+            final var dto = prepareCasEvent(event);
             dto.setPrincipalId(event.getAuthentication().getPrincipal().getId());
             dto.putId(CasAuthenticationPolicyFailureEvent.class.getSimpleName());
             this.casEventRepository.save(dto);
@@ -101,7 +99,7 @@ public class DefaultCasEventListener {
     @EventListener
     public void handleCasRiskyAuthenticationDetectedEvent(final CasRiskyAuthenticationDetectedEvent event) {
         if (this.casEventRepository != null) {
-            final CasEvent dto = prepareCasEvent(event);
+            final var dto = prepareCasEvent(event);
             dto.putId(event.getService().getName());
             dto.setPrincipalId(event.getAuthentication().getPrincipal().getId());
             this.casEventRepository.save(dto);
@@ -109,17 +107,17 @@ public class DefaultCasEventListener {
     }
 
     private static CasEvent prepareCasEvent(final AbstractCasEvent event) {
-        final CasEvent dto = new CasEvent();
+        final var dto = new CasEvent();
         dto.setType(event.getClass().getCanonicalName());
         dto.putTimestamp(event.getTimestamp());
         dto.setCreationTime(DateTimeUtils.zonedDateTimeOf(event.getTimestamp()).toString());
 
-        final ClientInfo clientInfo = ClientInfoHolder.getClientInfo();
+        final var clientInfo = ClientInfoHolder.getClientInfo();
         dto.putClientIpAddress(clientInfo.getClientIpAddress());
         dto.putServerIpAddress(clientInfo.getServerIpAddress());
         dto.putAgent(WebUtils.getHttpServletRequestUserAgentFromRequestContext());
 
-        final GeoLocationRequest location = WebUtils.getHttpServletRequestGeoLocationFromRequestContext();
+        final var location = WebUtils.getHttpServletRequestGeoLocationFromRequestContext();
         if (location != null) {
             dto.putGeoLocation(location);
         }

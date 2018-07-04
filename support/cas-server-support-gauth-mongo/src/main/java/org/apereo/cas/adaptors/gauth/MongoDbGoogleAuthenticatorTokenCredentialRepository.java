@@ -1,6 +1,5 @@
 package org.apereo.cas.adaptors.gauth;
 
-import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
 import com.warrenstrange.googleauth.IGoogleAuthenticator;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
@@ -41,9 +40,9 @@ public class MongoDbGoogleAuthenticatorTokenCredentialRepository extends BaseOne
     @Override
     public OneTimeTokenAccount get(final String username) {
         try {
-            final Query query = new Query();
+            final var query = new Query();
             query.addCriteria(Criteria.where("username").is(username));
-            final GoogleAuthenticatorAccount r = this.mongoTemplate.findOne(query, GoogleAuthenticatorAccount.class, this.collectionName);
+            final var r = this.mongoTemplate.findOne(query, GoogleAuthenticatorAccount.class, this.collectionName);
             if (r != null) {
                 return decode(r);
             }
@@ -55,20 +54,25 @@ public class MongoDbGoogleAuthenticatorTokenCredentialRepository extends BaseOne
 
     @Override
     public void save(final String userName, final String secretKey, final int validationCode, final List<Integer> scratchCodes) {
-        final GoogleAuthenticatorAccount account = new GoogleAuthenticatorAccount(userName, secretKey, validationCode, scratchCodes);
+        final var account = new GoogleAuthenticatorAccount(userName, secretKey, validationCode, scratchCodes);
         update(account);
     }
 
     @Override
     public OneTimeTokenAccount create(final String username) {
-        final GoogleAuthenticatorKey key = this.googleAuthenticator.createCredentials();
+        final var key = this.googleAuthenticator.createCredentials();
         return new GoogleAuthenticatorAccount(username, key.getKey(), key.getVerificationCode(), key.getScratchCodes());
     }
 
     @Override
     public OneTimeTokenAccount update(final OneTimeTokenAccount account) {
-        final OneTimeTokenAccount encodedAccount = encode(account);
+        final var encodedAccount = encode(account);
         this.mongoTemplate.save(encodedAccount, this.collectionName);
         return encodedAccount;
+    }
+
+    @Override
+    public void deleteAll() {
+        this.mongoTemplate.remove(new Query(), GoogleAuthenticatorAccount.class, this.collectionName);
     }
 }

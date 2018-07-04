@@ -22,16 +22,16 @@ import static org.junit.Assert.*;
 public class JsonWebKeySetStringCipherExecutorTests {
     @Test
     public void verifyAction() throws Exception {
-        final ClassPathResource jwksKeystore = new ClassPathResource("sample.jwks");
-        final String data = IOUtils.toString(jwksKeystore.getInputStream(), StandardCharsets.UTF_8);
-        final File keystoreFile = new File(FileUtils.getTempDirectoryPath(), "sample.jwks");
+        final var jwksKeystore = new ClassPathResource("sample.jwks");
+        final var data = IOUtils.toString(jwksKeystore.getInputStream(), StandardCharsets.UTF_8);
+        final var keystoreFile = new File(FileUtils.getTempDirectoryPath(), "sample.jwks");
         FileUtils.write(keystoreFile, data, StandardCharsets.UTF_8);
 
-        try (MockWebServer webServer = new MockWebServer(8435,
+        try (var webServer = new MockWebServer(8435,
             new ByteArrayResource(data.getBytes(StandardCharsets.UTF_8), "REST Output"), MediaType.APPLICATION_JSON_VALUE)) {
             webServer.start();
-            final JsonWebKeySetStringCipherExecutor cipher = new JsonWebKeySetStringCipherExecutor(keystoreFile, "http://localhost:8435");
-            final String token = cipher.encode("Misagh");
+            final var cipher = new JsonWebKeySetStringCipherExecutor(keystoreFile, "http://localhost:8435");
+            final var token = cipher.encode("Misagh");
             assertEquals("Misagh", cipher.decode(token));
         } catch (final Exception e) {
             throw new AssertionError(e.getMessage(), e);

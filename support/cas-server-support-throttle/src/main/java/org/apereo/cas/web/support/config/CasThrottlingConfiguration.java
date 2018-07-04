@@ -5,7 +5,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apereo.cas.audit.AuditTrailExecutionPlan;
 import org.apereo.cas.config.CasCoreUtilConfiguration;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.support.throttle.ThrottleProperties;
 import org.apereo.cas.web.support.AuthenticationThrottlingExecutionPlan;
 import org.apereo.cas.web.support.AuthenticationThrottlingExecutionPlanConfigurer;
 import org.apereo.cas.web.support.DefaultAuthenticationThrottlingExecutionPlan;
@@ -52,7 +51,7 @@ public class CasThrottlingConfiguration {
     @Bean
     @Lazy
     public ThrottledSubmissionHandlerInterceptor authenticationThrottle() {
-        final ThrottleProperties throttle = casProperties.getAuthn().getThrottle();
+        final var throttle = casProperties.getAuthn().getThrottle();
 
         if (throttle.getFailure().getRangeSeconds() <= 0 && throttle.getFailure().getThreshold() <= 0) {
             LOGGER.debug("Authentication throttling is disabled since no range-seconds or failure-threshold is defined");
@@ -81,9 +80,9 @@ public class CasThrottlingConfiguration {
     @ConditionalOnMissingBean(name = "authenticationThrottlingExecutionPlan")
     @Bean
     public AuthenticationThrottlingExecutionPlan authenticationThrottlingExecutionPlan(final List<AuthenticationThrottlingExecutionPlanConfigurer> configurers) {
-        final DefaultAuthenticationThrottlingExecutionPlan plan = new DefaultAuthenticationThrottlingExecutionPlan();
+        final var plan = new DefaultAuthenticationThrottlingExecutionPlan();
         configurers.forEach(c -> {
-            final String name = StringUtils.removePattern(c.getClass().getSimpleName(), "\\$.+");
+            final var name = StringUtils.removePattern(c.getClass().getSimpleName(), "\\$.+");
             LOGGER.debug("Registering authentication throttler [{}]", name);
             c.configureAuthenticationThrottlingExecutionPlan(plan);
         });

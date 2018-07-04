@@ -45,12 +45,12 @@ public class RestPasswordManagementServiceTests {
 
     @Test
     public void verifyEmailFound() {
-        final String data = "casuser@example.org";
-        final MockWebServer webServer = new MockWebServer(9090,
+        final var data = "casuser@example.org";
+        final var webServer = new MockWebServer(9090,
             new ByteArrayResource(data.getBytes(StandardCharsets.UTF_8), "REST Output"),
             MediaType.APPLICATION_JSON_VALUE);
         webServer.start();
-        final String email = this.passwordChangeService.findEmail("casuser");
+        final var email = this.passwordChangeService.findEmail("casuser");
         webServer.stop();
         assertNotNull(email);
         assertEquals(data, email);
@@ -58,8 +58,8 @@ public class RestPasswordManagementServiceTests {
 
     @Test
     public void verifySecurityQuestions() {
-        final String data = "{\"question1\":\"answer1\"}";
-        final MockWebServer webServer = new MockWebServer(9090,
+        final var data = "{\"question1\":\"answer1\"}";
+        final var webServer = new MockWebServer(9090,
             new ByteArrayResource(data.getBytes(StandardCharsets.UTF_8), "REST Output"),
             MediaType.APPLICATION_JSON_VALUE);
         webServer.start();
@@ -71,12 +71,12 @@ public class RestPasswordManagementServiceTests {
 
     @Test
     public void verifyPasswordChanged() {
-        final String data = "true";
-        final MockWebServer webServer = new MockWebServer(9090,
+        final var data = "true";
+        final var webServer = new MockWebServer(9090,
             new ByteArrayResource(data.getBytes(StandardCharsets.UTF_8), "REST Output"),
             MediaType.APPLICATION_JSON_VALUE);
         webServer.start();
-        final boolean result = this.passwordChangeService.change(CoreAuthenticationTestUtils.getCredentialsWithSameUsernameAndPassword(),
+        final var result = this.passwordChangeService.change(CoreAuthenticationTestUtils.getCredentialsWithSameUsernameAndPassword(),
             new PasswordChangeBean("123456", "123456"));
         assertTrue(result);
         webServer.stop();

@@ -11,7 +11,6 @@ import org.apereo.cas.configuration.model.core.authentication.HttpClientProperti
 import org.apereo.cas.configuration.model.core.authentication.PersonDirectoryPrincipalResolverProperties;
 import org.apereo.cas.configuration.model.core.events.EventsProperties;
 import org.apereo.cas.configuration.model.core.logout.LogoutProperties;
-import org.apereo.cas.configuration.model.core.metrics.MetricsProperties;
 import org.apereo.cas.configuration.model.core.monitor.MonitorProperties;
 import org.apereo.cas.configuration.model.core.rest.RestProperties;
 import org.apereo.cas.configuration.model.core.services.ServiceRegistryProperties;
@@ -20,7 +19,6 @@ import org.apereo.cas.configuration.model.core.sso.SsoProperties;
 import org.apereo.cas.configuration.model.core.standalone.StandaloneConfigurationProperties;
 import org.apereo.cas.configuration.model.core.util.TicketProperties;
 import org.apereo.cas.configuration.model.core.web.MessageBundleProperties;
-import org.apereo.cas.configuration.model.core.web.security.AdminPagesSecurityProperties;
 import org.apereo.cas.configuration.model.core.web.security.HttpRequestProperties;
 import org.apereo.cas.configuration.model.core.web.view.ViewProperties;
 import org.apereo.cas.configuration.model.support.analytics.GoogleAnalyticsProperties;
@@ -117,6 +115,12 @@ public class CasConfigurationProperties implements Serializable {
     private EventsProperties events = new EventsProperties();
 
     /**
+     * Monitoring functionality.
+     */
+    @NestedConfigurationProperty
+    private MonitorProperties monitor = new MonitorProperties();
+
+    /**
      * Settings that define this CAS host.
      */
     @NestedConfigurationProperty
@@ -127,18 +131,6 @@ public class CasConfigurationProperties implements Serializable {
      */
     @NestedConfigurationProperty
     private LogoutProperties logout = new LogoutProperties();
-
-    /**
-     * Metrics functionality.
-     */
-    @NestedConfigurationProperty
-    private MetricsProperties metrics = new MetricsProperties();
-
-    /**
-     * Monitoring functionality.
-     */
-    @NestedConfigurationProperty
-    private MonitorProperties monitor = new MonitorProperties();
 
     /**
      * REST API functionality.
@@ -187,13 +179,7 @@ public class CasConfigurationProperties implements Serializable {
      */
     @NestedConfigurationProperty
     private MessageBundleProperties messageBundle = new MessageBundleProperties();
-
-    /**
-     * Admin pages and their security, controling endpoints, etc.
-     */
-    @NestedConfigurationProperty
-    private AdminPagesSecurityProperties adminPagesSecurity = new AdminPagesSecurityProperties();
-
+    
     /**
      * Settings that control filtering of the incoming http requests.
      */

@@ -1,6 +1,5 @@
 package org.apereo.cas.adaptors.gauth;
 
-import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
 import com.warrenstrange.googleauth.IGoogleAuthenticator;
 import lombok.SneakyThrows;
 import lombok.ToString;
@@ -28,6 +27,8 @@ import java.util.List;
 @Slf4j
 @ToString
 public class JpaGoogleAuthenticatorTokenCredentialRepository extends BaseOneTimeTokenCredentialRepository {
+    private static final String ENTITY_NAME = GoogleAuthenticatorAccount.class.getSimpleName();
+
     private final IGoogleAuthenticator googleAuthenticator;
 
     @PersistenceContext(unitName = "googleAuthenticatorEntityManagerFactory")
@@ -42,8 +43,7 @@ public class JpaGoogleAuthenticatorTokenCredentialRepository extends BaseOneTime
     @Override
     public OneTimeTokenAccount get(final String username) {
         try {
-            final GoogleAuthenticatorAccount r = this.entityManager.createQuery("SELECT r FROM "
-                    + GoogleAuthenticatorAccount.class.getSimpleName() + " r where r.username = :username",
+            final var r = this.entityManager.createQuery("SELECT r FROM " + ENTITY_NAME + " r where r.username = :username",
                 GoogleAuthenticatorAccount.class)
                 .setParameter("username", username)
                 .getSingleResult();
@@ -59,31 +59,35 @@ public class JpaGoogleAuthenticatorTokenCredentialRepository extends BaseOneTime
 
     @Override
     public void save(final String userName, final String secretKey, final int validationCode, final List<Integer> scratchCodes) {
-        final GoogleAuthenticatorAccount r = new GoogleAuthenticatorAccount(userName, secretKey, validationCode, scratchCodes);
+        final var r = new GoogleAuthenticatorAccount(userName, secretKey, validationCode, scratchCodes);
         update(r);
     }
 
     @Override
     public OneTimeTokenAccount create(final String username) {
-        final GoogleAuthenticatorKey key = this.googleAuthenticator.createCredentials();
+        final var key = this.googleAuthenticator.createCredentials();
         return new GoogleAuthenticatorAccount(username, key.getKey(), key.getVerificationCode(), key.getScratchCodes());
     }
 
     @Override
     @SneakyThrows
     public OneTimeTokenAccount update(final OneTimeTokenAccount account) {
-        final OneTimeTokenAccount ac = get(account.getUsername());
+        final var ac = get(account.getUsername());
         if (ac != null) {
             ac.setValidationCode(account.getValidationCode());
             ac.setScratchCodes(account.getScratchCodes());
             ac.setSecretKey(account.getSecretKey());
-            final OneTimeTokenAccount encoded = encode(ac);
+            final var encoded = encode(ac);
             this.entityManager.merge(encoded);
             return encoded;
         }
-        final OneTimeTokenAccount encoded = encode(account);
+        final var encoded = encode(account);
         this.entityManager.merge(encoded);
         return encoded;
+    }
 
+    @Override
+    public void deleteAll() {
+        this.entityManager.createQuery("DELETE FROM " + ENTITY_NAME).executeUpdate();
     }
 }

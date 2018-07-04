@@ -3,12 +3,12 @@ package org.apereo.cas.adaptors.jdbc;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apereo.cas.authentication.AuthenticationHandlerExecutionResult;
 import org.apereo.cas.authentication.PreventedException;
 import org.apereo.cas.authentication.UsernamePasswordCredential;
 import org.apereo.cas.authentication.exceptions.AccountDisabledException;
 import org.apereo.cas.authentication.exceptions.AccountPasswordMustChangeException;
-import org.apereo.cas.authentication.principal.Principal;
 import org.apereo.cas.authentication.principal.PrincipalFactory;
 import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.util.CollectionUtils;
@@ -73,36 +73,41 @@ public class QueryDatabaseAuthenticationHandler extends AbstractJdbcUsernamePass
         }
 
         final Map<String, Object> attributes = new LinkedHashMap<>(this.principalAttributeMap.size());
-        final String username = credential.getUsername();
-        final String password = credential.getPassword();
+        final var username = credential.getUsername();
+        final var password = credential.getPassword();
         try {
-            final Map<String, Object> dbFields = query(credential);
+            final var dbFields = query(credential);
             if (dbFields.containsKey(this.fieldPassword)) {
-                final String dbPassword = (String) dbFields.get(this.fieldPassword);
+                final var dbPassword = (String) dbFields.get(this.fieldPassword);
                 if ((StringUtils.isNotBlank(originalPassword) && !matches(originalPassword, dbPassword))
                     || (StringUtils.isBlank(originalPassword) && !StringUtils.equals(password, dbPassword))) {
                     throw new FailedLoginException("Password does not match value on record.");
                 }
             } else {
                 LOGGER.debug("Password field is not found in the query results. Checking for result count...");
-                if (dbFields.containsKey("total")) {
-                    final long count = (long) dbFields.get("total");
-                    if (count != 1) {
-                        throw new FailedLoginException("No records found for user " + username);
-                    }
-                } else {
+                if (!dbFields.containsKey("total")) {
                     throw new FailedLoginException("Missing field 'total' from the query results for " + username);
+                }
+
+                final var count = dbFields.get("total");
+                if (count == null || !NumberUtils.isCreatable(count.toString())) {
+                    throw new FailedLoginException("Missing field value 'total' from the query results for " + username + " or value not parseable as a number");
+                }
+
+                final var number = NumberUtils.createNumber(count.toString());
+                if (number.longValue() != 1) {
+                    throw new FailedLoginException("No records found for user " + username);
                 }
             }
 
             if (StringUtils.isNotBlank(this.fieldDisabled) && dbFields.containsKey(this.fieldDisabled)) {
-                final String dbDisabled = dbFields.get(this.fieldDisabled).toString();
+                final var dbDisabled = dbFields.get(this.fieldDisabled).toString();
                 if (BooleanUtils.toBoolean(dbDisabled) || "1".equals(dbDisabled)) {
                     throw new AccountDisabledException("Account has been disabled");
                 }
             }
             if (StringUtils.isNotBlank(this.fieldExpired) && dbFields.containsKey(this.fieldExpired)) {
-                final String dbExpired = dbFields.get(this.fieldExpired).toString();
+                final var dbExpired = dbFields.get(this.fieldExpired).toString();
                 if (BooleanUtils.toBoolean(dbExpired) || "1".equals(dbExpired)) {
                     throw new AccountPasswordMustChangeException("Password has expired");
                 }
@@ -116,7 +121,7 @@ public class QueryDatabaseAuthenticationHandler extends AbstractJdbcUsernamePass
         } catch (final DataAccessException e) {
             throw new PreventedException("SQL exception while executing query for " + username, e);
         }
-        final Principal principal = this.principalFactory.createPrincipal(username, attributes);
+        final var principal = this.principalFactory.createPrincipal(username, attributes);
         return createHandlerResult(credential, principal, new ArrayList<>(0));
     }
 
@@ -132,10 +137,10 @@ public class QueryDatabaseAuthenticationHandler extends AbstractJdbcUsernamePass
 
     private void collectPrincipalAttributes(final Map<String, Object> attributes, final Map<String, Object> dbFields) {
         this.principalAttributeMap.forEach((key, names) -> {
-            final Object attribute = dbFields.get(key);
+            final var attribute = dbFields.get(key);
             if (attribute != null) {
                 LOGGER.debug("Found attribute [{}] from the query results", key);
-                final Collection<String> attributeNames = (Collection<String>) names;
+                final var attributeNames = (Collection<String>) names;
                 attributeNames.forEach(s -> {
                     LOGGER.debug("Principal attribute [{}] is virtually remapped/renamed to [{}]", key, s);
                     attributes.put(s, CollectionUtils.wrap(attribute.toString()));

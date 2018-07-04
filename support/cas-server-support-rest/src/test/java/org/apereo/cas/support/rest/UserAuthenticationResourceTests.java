@@ -2,7 +2,6 @@ package org.apereo.cas.support.rest;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apereo.cas.authentication.AuthenticationException;
-import org.apereo.cas.authentication.AuthenticationResult;
 import org.apereo.cas.authentication.AuthenticationSystemSupport;
 import org.apereo.cas.authentication.CoreAuthenticationTestUtils;
 import org.apereo.cas.authentication.DefaultAuthenticationResultBuilder;
@@ -12,8 +11,8 @@ import org.apereo.cas.rest.factory.DefaultUserAuthenticationResourceEntityRespon
 import org.apereo.cas.rest.factory.UsernamePasswordRestHttpRequestCredentialFactory;
 import org.apereo.cas.support.rest.resources.UserAuthenticationResource;
 import org.apereo.cas.util.CollectionUtils;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -51,7 +50,7 @@ public class UserAuthenticationResourceTests {
     private MockMvc mockMvc;
 
     @Before
-    public void setUp() {
+    public void initialize() {
         this.userAuthenticationResource = new UserAuthenticationResource(authenticationSupport,
             new UsernamePasswordRestHttpRequestCredentialFactory(),
             new WebApplicationServiceFactory(), new DefaultUserAuthenticationResourceEntityResponseFactory());
@@ -65,7 +64,7 @@ public class UserAuthenticationResourceTests {
 
     @Test
     public void verifyStatus() throws Exception {
-        final AuthenticationResult result = new DefaultAuthenticationResultBuilder()
+        final var result = new DefaultAuthenticationResultBuilder()
             .collect(CoreAuthenticationTestUtils.getAuthentication())
             .build(new DefaultPrincipalElectionStrategy());
         when(authenticationSupport.handleAndFinalizeSingleAuthenticationTransaction(any(), anyCollection())).thenReturn(result);
@@ -85,7 +84,7 @@ public class UserAuthenticationResourceTests {
 
     @Test
     public void verifyStatusAuthnException() throws Exception {
-        final AuthenticationException ex = new AuthenticationException(CollectionUtils.wrap("error", new FailedLoginException()));
+        final var ex = new AuthenticationException(CollectionUtils.wrap("error", new FailedLoginException()));
         when(authenticationSupport.handleAndFinalizeSingleAuthenticationTransaction(any(), any(Collection.class))).thenThrow(ex);
         this.mockMvc.perform(post(TICKETS_RESOURCE_URL)
             .param("username", "casuser")

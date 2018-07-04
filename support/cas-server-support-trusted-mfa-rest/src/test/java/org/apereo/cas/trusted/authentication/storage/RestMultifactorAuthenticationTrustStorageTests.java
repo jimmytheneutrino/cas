@@ -12,8 +12,8 @@ import org.apereo.cas.trusted.config.MultifactorAuthnTrustedDeviceFingerprintCon
 import org.apereo.cas.trusted.config.RestMultifactorAuthenticationTrustConfiguration;
 import org.apereo.cas.util.CollectionUtils;
 import org.apereo.cas.util.MockWebServer;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -26,7 +26,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.Set;
 
 import static org.junit.Assert.*;
 
@@ -60,15 +59,15 @@ public class RestMultifactorAuthenticationTrustStorageTests {
 
     @Test
     public void verifySetAnExpireByKey() throws Exception {
-        final MultifactorAuthenticationTrustRecord r =
+        final var r =
             MultifactorAuthenticationTrustRecord.newInstance("casuser", "geography", "fingerprint");
-        final String data = MAPPER.writeValueAsString(CollectionUtils.wrap(r));
-        try (MockWebServer webServer = new MockWebServer(9297,
+        final var data = MAPPER.writeValueAsString(CollectionUtils.wrap(r));
+        try (var webServer = new MockWebServer(9297,
             new ByteArrayResource(data.getBytes(StandardCharsets.UTF_8), "REST Output"), MediaType.APPLICATION_JSON_VALUE)) {
             webServer.start();
 
             mfaTrustEngine.set(r);
-            final Set<MultifactorAuthenticationTrustRecord> records = mfaTrustEngine.get("casuser");
+            final var records = mfaTrustEngine.get("casuser");
             assertNotNull(records);
         } catch (final Exception e) {
             throw new AssertionError(e.getMessage(), e);
@@ -77,16 +76,16 @@ public class RestMultifactorAuthenticationTrustStorageTests {
 
     @Test
     public void verifyExpireByDate() throws Exception {
-        final MultifactorAuthenticationTrustRecord r =
+        final var r =
             MultifactorAuthenticationTrustRecord.newInstance("castest", "geography", "fingerprint");
         r.setRecordDate(LocalDateTime.now().minusDays(2));
 
-        final String data = MAPPER.writeValueAsString(CollectionUtils.wrap(r));
-        try (MockWebServer webServer = new MockWebServer(9297,
+        final var data = MAPPER.writeValueAsString(CollectionUtils.wrap(r));
+        try (var webServer = new MockWebServer(9297,
             new ByteArrayResource(data.getBytes(StandardCharsets.UTF_8), "REST Output"), MediaType.APPLICATION_JSON_VALUE)) {
             webServer.start();
             mfaTrustEngine.set(r);
-            final Set<MultifactorAuthenticationTrustRecord> records = mfaTrustEngine.get(r.getPrincipal());
+            final var records = mfaTrustEngine.get(r.getPrincipal());
             assertNotNull(records);
         } catch (final Exception e) {
             throw new AssertionError(e.getMessage(), e);

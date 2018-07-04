@@ -4,9 +4,9 @@ import org.apereo.cas.config.ClickatellSmsConfiguration;
 import org.apereo.cas.util.MockWebServer;
 import org.apereo.cas.util.io.SmsSender;
 import org.apereo.cas.util.junit.ConditionalSpringRunner;
+import org.junit.Test;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -40,8 +40,8 @@ public class ClickatellSmsSenderTests {
     private MockWebServer webServer;
 
     @Before
-    public void setup() {
-        final String data = "{\n"
+    public void initialize() {
+        final var data = "{\n"
             + "\"messages\": [\n"
             + "{\n"
             + "\"apiMessageId\": \"77fb29998253415fa5d66971d519d362\",\n"
@@ -57,7 +57,7 @@ public class ClickatellSmsSenderTests {
             + "}\n"
             + "],\n"
             + "\"error\": null\n"
-            + "}";
+            + '}';
         this.webServer = new MockWebServer(8099,
             new ByteArrayResource(data.getBytes(StandardCharsets.UTF_8), "REST Output"),
             MediaType.APPLICATION_JSON_VALUE);

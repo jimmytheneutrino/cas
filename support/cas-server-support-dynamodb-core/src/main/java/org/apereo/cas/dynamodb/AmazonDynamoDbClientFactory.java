@@ -2,7 +2,6 @@ package org.apereo.cas.dynamodb;
 
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.Protocol;
-import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
@@ -37,19 +36,19 @@ public class AmazonDynamoDbClientFactory {
         if (dynamoDbProperties.isLocalInstance()) {
             LOGGER.debug("Creating DynamoDb standard client with endpoint [{}] and region [{}]",
                 dynamoDbProperties.getEndpoint(), dynamoDbProperties.getRegion());
-            final AwsClientBuilder.EndpointConfiguration endpoint = new AwsClientBuilder.EndpointConfiguration(
+            final var endpoint = new AwsClientBuilder.EndpointConfiguration(
                 dynamoDbProperties.getEndpoint(), dynamoDbProperties.getRegion());
             return AmazonDynamoDBClientBuilder.standard()
                 .withEndpointConfiguration(endpoint)
                 .build();
         }
 
-        final AWSCredentialsProvider provider =
+        final var provider =
             ChainingAWSCredentialsProvider.getInstance(dynamoDbProperties.getCredentialAccessKey(),
                 dynamoDbProperties.getCredentialSecretKey(), dynamoDbProperties.getCredentialsPropertiesFile());
 
         LOGGER.debug("Creating DynamoDb client configuration...");
-        final ClientConfiguration cfg = new ClientConfiguration();
+        final var cfg = new ClientConfiguration();
         cfg.setConnectionTimeout(dynamoDbProperties.getConnectionTimeout());
         cfg.setMaxConnections(dynamoDbProperties.getMaxConnections());
         cfg.setRequestTimeout(dynamoDbProperties.getRequestTimeout());
@@ -69,7 +68,7 @@ public class AmazonDynamoDbClientFactory {
 
 
         LOGGER.debug("Creating DynamoDb client instance...");
-        final AmazonDynamoDBClient client = new AmazonDynamoDBClient(provider, cfg);
+        final var client = new AmazonDynamoDBClient(provider, cfg);
 
         if (StringUtils.isNotBlank(dynamoDbProperties.getEndpoint())) {
             LOGGER.debug("Setting DynamoDb client endpoint [{}]", dynamoDbProperties.getEndpoint());

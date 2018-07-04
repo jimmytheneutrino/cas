@@ -4,7 +4,6 @@ import com.nimbusds.jwt.JWTParser;
 import lombok.extern.slf4j.Slf4j;
 import org.apereo.cas.CasProtocolConstants;
 import org.apereo.cas.authentication.CoreAuthenticationTestUtils;
-import org.apereo.cas.authentication.principal.Response;
 import org.apereo.cas.authentication.principal.ResponseBuilder;
 import org.apereo.cas.authentication.principal.ServiceFactory;
 import org.apereo.cas.authentication.principal.WebApplicationService;
@@ -101,11 +100,11 @@ public class TokenWebApplicationServiceResponseBuilderTests {
 
     @Test
     public void verifyDecrypt() {
-        final String signingSecret = "EihBwA3OuDQMm4gdWzkqRJ87596G7o7a_naJAJipxFoRJbXK7APRcnCA91Y30rJdh4q-C2dmpfV6eNhQT0bR5A";
-        final String encryptionSecret = "dJ2YpUd-r_Qd7e3nDm79WiIHkqaLT8yZt6nN5eG0YnE";
+        final var signingSecret = "EihBwA3OuDQMm4gdWzkqRJ87596G7o7a_naJAJipxFoRJbXK7APRcnCA91Y30rJdh4q-C2dmpfV6eNhQT0bR5A";
+        final var encryptionSecret = "dJ2YpUd-r_Qd7e3nDm79WiIHkqaLT8yZt6nN5eG0YnE";
 
-        final TokenTicketCipherExecutor cipher = new TokenTicketCipherExecutor(encryptionSecret, signingSecret, true);
-        final String result = cipher.decode(cipher.encode("ThisIsValue"));
+        final var cipher = new TokenTicketCipherExecutor(encryptionSecret, signingSecret, true);
+        final var result = cipher.decode(cipher.encode("ThisIsValue"));
         assertEquals("ThisIsValue", result);
     }
 
@@ -116,17 +115,17 @@ public class TokenWebApplicationServiceResponseBuilderTests {
 
     @Test
     public void verifyTokenBuilder() {
-        final String data = "yes\ncasuser";
-        try (MockWebServer webServer = new MockWebServer(8281,
+        final var data = "yes\ncasuser";
+        try (var webServer = new MockWebServer(8281,
             new ByteArrayResource(data.getBytes(StandardCharsets.UTF_8), "REST Output"), MediaType.APPLICATION_JSON_VALUE)) {
             webServer.start();
 
-            final Response result = responseBuilder.build(CoreAuthenticationTestUtils.getWebApplicationService("jwtservice"),
+            final var result = responseBuilder.build(CoreAuthenticationTestUtils.getWebApplicationService("jwtservice"),
                 "ST-123456",
                 CoreAuthenticationTestUtils.getAuthentication());
             assertNotNull(result);
             assertTrue(result.getAttributes().containsKey(CasProtocolConstants.PARAMETER_TICKET));
-            final String ticket = result.getAttributes().get(CasProtocolConstants.PARAMETER_TICKET);
+            final var ticket = result.getAttributes().get(CasProtocolConstants.PARAMETER_TICKET);
             assertNotNull(JWTParser.parse(ticket));
         } catch (final Exception e) {
             throw new AssertionError(e.getMessage(), e);

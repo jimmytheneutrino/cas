@@ -72,8 +72,8 @@ public class MultifactorAuthenticationUtils {
      */
     public static Collection<MultifactorAuthenticationProvider> getMultifactorAuthenticationProvidersByIds(final Collection<String> ids,
                                                                                                            final ApplicationContext applicationContext) {
-        final Map<String, MultifactorAuthenticationProvider> available = getAvailableMultifactorAuthenticationProviders(applicationContext);
-        final Collection<MultifactorAuthenticationProvider> values = available.values();
+        final var available = getAvailableMultifactorAuthenticationProviders(applicationContext);
+        final var values = available.values();
         return values.stream()
             .filter(p -> ids.contains(p.getId()))
             .collect(Collectors.toSet());

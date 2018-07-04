@@ -13,7 +13,6 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.RedirectStrategy;
 import org.apache.http.client.ServiceUnavailableRetryStrategy;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
@@ -27,13 +26,12 @@ import org.apache.http.impl.client.DefaultBackoffStrategy;
 import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.impl.client.DefaultServiceUnavailableRetryStrategy;
 import org.apache.http.impl.client.FutureRequestExecutionService;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.client.ProxyAuthenticationStrategy;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 
-import javax.annotation.PreDestroy;
 import javax.net.ssl.HostnameVerifier;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
@@ -55,7 +53,7 @@ import java.util.stream.IntStream;
  */
 @Slf4j
 @Setter
-public class SimpleHttpClientFactoryBean implements FactoryBean<SimpleHttpClient> {
+public class SimpleHttpClientFactoryBean implements FactoryBean<SimpleHttpClient>, DisposableBean {
 
     /**
      * Max connections per route.
@@ -183,9 +181,9 @@ public class SimpleHttpClientFactoryBean implements FactoryBean<SimpleHttpClient
 
     @Override
     public SimpleHttpClient getObject() {
-        final CloseableHttpClient httpClient = buildHttpClient();
-        final FutureRequestExecutionService requestExecutorService = buildRequestExecutorService(httpClient);
-        final List<Integer> codes = this.acceptableCodes.stream().sorted().collect(Collectors.toList());
+        final var httpClient = buildHttpClient();
+        final var requestExecutorService = buildRequestExecutorService(httpClient);
+        final var codes = this.acceptableCodes.stream().sorted().collect(Collectors.toList());
         return new SimpleHttpClient(codes, httpClient, requestExecutorService);
     }
 
@@ -208,20 +206,20 @@ public class SimpleHttpClientFactoryBean implements FactoryBean<SimpleHttpClient
     private CloseableHttpClient buildHttpClient() {
         final ConnectionSocketFactory plainsf = PlainConnectionSocketFactory.getSocketFactory();
         final LayeredConnectionSocketFactory sslsf = this.sslSocketFactory;
-        final Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
+        final var registry = RegistryBuilder.<ConnectionSocketFactory>create()
             .register("http", plainsf).register("https", sslsf).build();
-        final PoolingHttpClientConnectionManager connMgmr = new PoolingHttpClientConnectionManager(registry);
+        final var connMgmr = new PoolingHttpClientConnectionManager(registry);
         connMgmr.setMaxTotal(this.maxPooledConnections);
         connMgmr.setDefaultMaxPerRoute(this.maxConnectionsPerRoute);
         connMgmr.setValidateAfterInactivity(DEFAULT_TIMEOUT);
-        final HttpHost httpHost = new HttpHost(InetAddress.getLocalHost());
-        final HttpRoute httpRoute = new HttpRoute(httpHost);
+        final var httpHost = new HttpHost(InetAddress.getLocalHost());
+        final var httpRoute = new HttpRoute(httpHost);
         connMgmr.setMaxPerRoute(httpRoute, MAX_CONNECTIONS_PER_ROUTE);
-        final RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(this.readTimeout)
+        final var requestConfig = RequestConfig.custom().setSocketTimeout(this.readTimeout)
             .setConnectTimeout((int) this.connectionTimeout).setConnectionRequestTimeout((int) this.connectionTimeout)
             .setCircularRedirectsAllowed(this.circularRedirectsAllowed).setRedirectsEnabled(this.redirectsEnabled)
             .setAuthenticationEnabled(this.authenticationEnabled).build();
-        final HttpClientBuilder builder = HttpClients.custom().setConnectionManager(connMgmr)
+        final var builder = HttpClients.custom().setConnectionManager(connMgmr)
             .setDefaultRequestConfig(requestConfig).setSSLSocketFactory(sslsf)
             .setSSLHostnameVerifier(this.hostnameVerifier).setRedirectStrategy(this.redirectionStrategy)
             .setDefaultCredentialsProvider(this.credentialsProvider).setDefaultCookieStore(this.cookieStore)
@@ -249,7 +247,7 @@ public class SimpleHttpClientFactoryBean implements FactoryBean<SimpleHttpClient
     /**
      * Destroy.
      */
-    @PreDestroy
+    @Override
     public void destroy() {
         if (this.executorService != null) {
             this.executorService.shutdownNow();

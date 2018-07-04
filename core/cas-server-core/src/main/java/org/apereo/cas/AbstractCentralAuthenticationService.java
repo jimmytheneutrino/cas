@@ -1,16 +1,13 @@
 package org.apereo.cas;
 
-import com.codahale.metrics.annotation.Counted;
-import com.codahale.metrics.annotation.Metered;
-import com.codahale.metrics.annotation.Timed;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import lombok.Setter;
 import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 import org.apereo.cas.audit.AuditableExecution;
 import org.apereo.cas.authentication.Authentication;
 import org.apereo.cas.authentication.AuthenticationServiceSelectionPlan;
-import org.apereo.cas.authentication.ContextualAuthenticationPolicy;
 import org.apereo.cas.authentication.ContextualAuthenticationPolicyFactory;
 import org.apereo.cas.authentication.principal.PrincipalFactory;
 import org.apereo.cas.authentication.principal.Service;
@@ -31,11 +28,11 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import lombok.Setter;
 
 /**
  * An abstract implementation of the {@link CentralAuthenticationService} that provides access to
@@ -104,6 +101,7 @@ public abstract class AbstractCentralAuthenticationService implements CentralAut
      * since the access strategy is not usually managed as a Spring bean.
      */
     protected final AuditableExecution registeredServiceAccessStrategyEnforcer;
+
     /**
      * Publish CAS events.
      *
@@ -117,12 +115,9 @@ public abstract class AbstractCentralAuthenticationService implements CentralAut
     }
 
     @Transactional(transactionManager = "ticketTransactionManager", noRollbackFor = InvalidTicketException.class)
-    @Timed(name = "GET_TICKET_TIMER")
-    @Metered(name = "GET_TICKET_METER")
-    @Counted(name = "GET_TICKET_COUNTER", monotonic = true)
     @Override
     public Ticket getTicket(@NonNull final String ticketId) throws InvalidTicketException {
-        final Ticket ticket = this.ticketRegistry.getTicket(ticketId);
+        final var ticket = this.ticketRegistry.getTicket(ticketId);
         verifyTicketState(ticket, ticketId, null);
         return ticket;
     }
@@ -136,9 +131,6 @@ public abstract class AbstractCentralAuthenticationService implements CentralAut
      * builds new object, most likely for each pull. Is this synchronization needed here?
      */
     @Transactional(transactionManager = "ticketTransactionManager", noRollbackFor = InvalidTicketException.class)
-    @Timed(name = "GET_TICKET_TIMER")
-    @Metered(name = "GET_TICKET_METER")
-    @Counted(name = "GET_TICKET_COUNTER", monotonic = true)
     @Override
     public <T extends Ticket> T getTicket(@NonNull final String ticketId, final Class<T> clazz) throws InvalidTicketException {
         final Ticket ticket = this.ticketRegistry.getTicket(ticketId, clazz);
@@ -147,18 +139,12 @@ public abstract class AbstractCentralAuthenticationService implements CentralAut
     }
 
     @Transactional(transactionManager = "ticketTransactionManager")
-    @Timed(name = "GET_TICKETS_TIMER")
-    @Metered(name = "GET_TICKETS_METER")
-    @Counted(name = "GET_TICKETS_COUNTER", monotonic = true)
     @Override
     public Collection<Ticket> getTickets(final Predicate<Ticket> predicate) {
         return this.ticketRegistry.getTickets().stream().filter(predicate).collect(Collectors.toSet());
     }
 
     @Transactional(transactionManager = "ticketTransactionManager")
-    @Timed(name = "DELETE_TICKET_TIMER")
-    @Metered(name = "DELETE_TICKET_METER")
-    @Counted(name = "DELETE_TICKET_COUNTER", monotonic = true)
     @Override
     public void deleteTicket(final String ticketId) {
         this.ticketRegistry.deleteTicket(ticketId);
@@ -173,7 +159,7 @@ public abstract class AbstractCentralAuthenticationService implements CentralAut
      * @throws AbstractTicketException the ticket exception
      */
     protected Authentication getAuthenticationSatisfiedByPolicy(final Authentication authentication, final ServiceContext context) throws AbstractTicketException {
-        final ContextualAuthenticationPolicy<ServiceContext> policy = this.serviceContextAuthenticationPolicyFactory.createPolicy(context);
+        final var policy = this.serviceContextAuthenticationPolicyFactory.createPolicy(context);
         try {
             if (policy.isSatisfiedBy(authentication)) {
                 return authentication;
@@ -192,10 +178,10 @@ public abstract class AbstractCentralAuthenticationService implements CentralAut
      * @param registeredService    the registered service
      */
     protected void evaluateProxiedServiceIfNeeded(final Service service, final TicketGrantingTicket ticketGrantingTicket, final RegisteredService registeredService) {
-        final Service proxiedBy = ticketGrantingTicket.getProxiedBy();
+        final var proxiedBy = ticketGrantingTicket.getProxiedBy();
         if (proxiedBy != null) {
             LOGGER.debug("TGT is proxied by [{}]. Locating proxy service in registry...", proxiedBy.getId());
-            final RegisteredService proxyingService = this.servicesManager.findServiceBy(proxiedBy);
+            final var proxyingService = this.servicesManager.findServiceBy(proxiedBy);
             if (proxyingService != null) {
                 LOGGER.debug("Located proxying service [{}] in the service registry", proxyingService);
                 if (!proxyingService.getProxyPolicy().isAllowedToProxy()) {

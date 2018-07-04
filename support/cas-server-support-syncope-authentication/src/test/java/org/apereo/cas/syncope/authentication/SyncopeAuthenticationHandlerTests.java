@@ -58,7 +58,7 @@ public class SyncopeAuthenticationHandlerTests {
     @Test
     public void verifyHandlerPasses() {
         try {
-            final UserTO user = new UserTO();
+            final var user = new UserTO();
             user.setUsername("casuser");
             startMockSever(user);
             syncopeAuthenticationHandler.authenticate(CoreAuthenticationTestUtils.getCredentialsWithSameUsernameAndPassword("casuser"));
@@ -72,7 +72,7 @@ public class SyncopeAuthenticationHandlerTests {
     @Test
     public void verifyHandlerMustChangePassword() {
         try {
-            final UserTO user = new UserTO();
+            final var user = new UserTO();
             user.setUsername("casuser");
             user.setMustChangePassword(true);
             startMockSever(user);
@@ -90,7 +90,7 @@ public class SyncopeAuthenticationHandlerTests {
     @Test
     public void verifyHandlerSuspended() {
         try {
-            final UserTO user = new UserTO();
+            final var user = new UserTO();
             user.setUsername("casuser");
             user.setSuspended(true);
             startMockSever(user);
@@ -106,7 +106,7 @@ public class SyncopeAuthenticationHandlerTests {
     }
 
     private void startMockSever(final UserTO user) throws JsonProcessingException {
-        final String data = MAPPER.writeValueAsString(user);
+        final var data = MAPPER.writeValueAsString(user);
         this.webServer = new MockWebServer(8095,
             new ByteArrayResource(data.getBytes(StandardCharsets.UTF_8), "REST Output"),
             MediaType.APPLICATION_JSON_VALUE);

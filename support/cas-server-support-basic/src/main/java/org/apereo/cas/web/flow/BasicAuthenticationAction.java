@@ -10,12 +10,8 @@ import org.apereo.cas.web.flow.resolver.CasDelegatingWebflowEventResolver;
 import org.apereo.cas.web.flow.resolver.CasWebflowEventResolver;
 import org.apereo.cas.web.support.WebUtils;
 import org.pac4j.core.context.WebContext;
-import org.pac4j.core.credentials.UsernamePasswordCredentials;
 import org.pac4j.core.credentials.extractor.BasicAuthExtractor;
 import org.springframework.webflow.execution.RequestContext;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * This is {@link BasicAuthenticationAction} that extracts basic authN credentials from the request.
@@ -35,11 +31,11 @@ public class BasicAuthenticationAction extends AbstractNonInteractiveCredentials
     @Override
     protected Credential constructCredentialsFromRequest(final RequestContext requestContext) {
         try {
-            final HttpServletRequest request = WebUtils.getHttpServletRequestFromExternalWebflowContext(requestContext);
-            final HttpServletResponse response = WebUtils.getHttpServletResponseFromExternalWebflowContext(requestContext);
-            final BasicAuthExtractor extractor = new BasicAuthExtractor();
+            final var request = WebUtils.getHttpServletRequestFromExternalWebflowContext(requestContext);
+            final var response = WebUtils.getHttpServletResponseFromExternalWebflowContext(requestContext);
+            final var extractor = new BasicAuthExtractor();
             final WebContext webContext = Pac4jUtils.getPac4jJ2EContext(request, response);
-            final UsernamePasswordCredentials credentials = extractor.extract(webContext);
+            final var credentials = extractor.extract(webContext);
             if (credentials != null) {
                 LOGGER.debug("Received basic authentication request from credentials [{}]", credentials);
                 return new UsernamePasswordCredential(credentials.getUsername(), credentials.getPassword());

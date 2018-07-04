@@ -40,11 +40,11 @@ public class SmartOpenIdController extends AbstractDelegateController implements
      * @return the association response
      */
     public Map<String, String> getAssociationResponse(final HttpServletRequest request) {
-        final ParameterList parameters = new ParameterList(request.getParameterMap());
+        final var parameters = new ParameterList(request.getParameterMap());
 
-        final String mode = parameters.hasParameter(OpenIdProtocolConstants.OPENID_MODE)
-                ? parameters.getParameterValue(OpenIdProtocolConstants.OPENID_MODE)
-                : null;
+        final var mode = parameters.hasParameter(OpenIdProtocolConstants.OPENID_MODE)
+            ? parameters.getParameterValue(OpenIdProtocolConstants.OPENID_MODE)
+            : null;
 
         Message response = null;
 
@@ -62,14 +62,13 @@ public class SmartOpenIdController extends AbstractDelegateController implements
 
     @Override
     protected ModelAndView handleRequestInternal(final HttpServletRequest request, final HttpServletResponse response) {
-        final Map<String, String> parameters = new HashMap<>();
-        parameters.putAll(getAssociationResponse(request));
+        final Map<String, String> parameters = new HashMap<>(getAssociationResponse(request));
         return new ModelAndView(this.successView, parameters);
     }
 
     @Override
     public boolean canHandle(final HttpServletRequest request, final HttpServletResponse response) {
-        final String openIdMode = request.getParameter(OpenIdProtocolConstants.OPENID_MODE);
+        final var openIdMode = request.getParameter(OpenIdProtocolConstants.OPENID_MODE);
         if (StringUtils.equals(openIdMode, OpenIdProtocolConstants.ASSOCIATE)) {
             LOGGER.info("Handling request. openid.mode : [{}]", openIdMode);
             return true;

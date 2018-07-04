@@ -1,6 +1,5 @@
 package org.apereo.cas.authentication;
 
-import org.apereo.cas.authentication.principal.Service;
 import org.apereo.cas.config.CasAuthenticationEventExecutionPlanTestConfiguration;
 import org.apereo.cas.config.CasCoreAuthenticationPrincipalConfiguration;
 import org.apereo.cas.config.CasCoreAuthenticationServiceSelectionStrategyConfiguration;
@@ -84,9 +83,9 @@ public class SecurityTokenServiceAuthenticationMetaDataPopulatorTests {
 
     @Test
     public void verifySecurityPopulator() {
-        final String realm = casProperties.getAuthn().getWsfedIdp().getIdp().getRealm();
+        final var realm = casProperties.getAuthn().getWsfedIdp().getIdp().getRealm();
 
-        final WSFederationRegisteredService registeredService = new WSFederationRegisteredService();
+        final var registeredService = new WSFederationRegisteredService();
         registeredService.setRealm(realm);
         registeredService.setServiceId("http://app.example.org/wsfed-idp");
         registeredService.setName("WSFED App");
@@ -95,10 +94,10 @@ public class SecurityTokenServiceAuthenticationMetaDataPopulatorTests {
         registeredService.setWsdlLocation("classpath:wsdl/ws-trust-1.4-service.wsdl");
         servicesManager.save(registeredService);
 
-        final AuthenticationBuilder builder = CoreAuthenticationTestUtils.getAuthenticationBuilder();
-        final Service service = CoreAuthenticationTestUtils.getService("http://example.org?"
-            + WSFederationConstants.WREPLY + "=" + registeredService.getServiceId() + "&"
-            + WSFederationConstants.WTREALM + "=" + realm);
+        final var builder = CoreAuthenticationTestUtils.getAuthenticationBuilder();
+        final var service = CoreAuthenticationTestUtils.getService("http://example.org?"
+            + WSFederationConstants.WREPLY + '=' + registeredService.getServiceId() + '&'
+            + WSFederationConstants.WTREALM + '=' + realm);
         final AuthenticationTransaction transaction =
             DefaultAuthenticationTransaction.of(service, CoreAuthenticationTestUtils.getCredentialsWithSameUsernameAndPassword());
 

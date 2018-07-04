@@ -2,11 +2,9 @@ package org.apereo.cas.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.support.redis.RedisTicketRegistryProperties;
 import org.apereo.cas.redis.core.RedisObjectFactory;
 import org.apereo.cas.ticket.Ticket;
 import org.apereo.cas.ticket.registry.RedisTicketRegistry;
-import org.apereo.cas.ticket.registry.TicketRedisTemplate;
 import org.apereo.cas.ticket.registry.TicketRegistry;
 import org.apereo.cas.util.CoreTicketUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,21 +32,22 @@ public class RedisTicketRegistryConfiguration {
     @ConditionalOnMissingBean(name = "redisTicketConnectionFactory")
     @Bean
     public RedisConnectionFactory redisTicketConnectionFactory() {
-        final RedisTicketRegistryProperties redis = casProperties.getTicket().getRegistry().getRedis();
-        final RedisObjectFactory obj = new RedisObjectFactory();
+        final var redis = casProperties.getTicket().getRegistry().getRedis();
+        final var obj = new RedisObjectFactory();
         return obj.newRedisConnectionFactory(redis);
     }
 
     @Bean
     @ConditionalOnMissingBean(name = "ticketRedisTemplate")
     public RedisTemplate<String, Ticket> ticketRedisTemplate() {
-        return new TicketRedisTemplate(redisTicketConnectionFactory());
+        final var obj = new RedisObjectFactory();
+        return obj.newRedisTemplate(redisTicketConnectionFactory(), String.class, Ticket.class);
     }
 
     @Bean
     public TicketRegistry ticketRegistry() {
-        final RedisTicketRegistryProperties redis = casProperties.getTicket().getRegistry().getRedis();
-        final RedisTicketRegistry r = new RedisTicketRegistry(ticketRedisTemplate());
+        final var redis = casProperties.getTicket().getRegistry().getRedis();
+        final var r = new RedisTicketRegistry(ticketRedisTemplate());
         r.setCipherExecutor(CoreTicketUtils.newTicketRegistryCipherExecutor(redis.getCrypto(), "redis"));
         return r;
     }

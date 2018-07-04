@@ -49,8 +49,8 @@ public class MongoDbCacheStatistics implements CacheStatistics {
     @Override
     public String toString(final StringBuilder builder) {
         try {
-            final JsonValue json = JsonValue.readJSON(this.statistics.toString());
-            final StringWriter writer = new StringWriter();
+            final var json = JsonValue.readJSON(this.statistics.toString());
+            final var writer = new StringWriter();
             json.writeTo(writer, Stringify.FORMATTED);
             builder.append(writer.toString());
         } catch (final Exception e) {

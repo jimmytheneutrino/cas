@@ -11,13 +11,12 @@ import org.apereo.cas.CasProtocolConstants;
 import org.apereo.cas.audit.AuditTrailExecutionPlan;
 import org.apereo.cas.util.DateTimeUtils;
 import org.apereo.inspektr.audit.AuditActionContext;
-import org.apereo.inspektr.common.web.ClientInfo;
 import org.apereo.inspektr.common.web.ClientInfoHolder;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
-import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.time.ZoneOffset;
@@ -35,7 +34,8 @@ import java.util.List;
 @ToString
 @Getter
 @RequiredArgsConstructor
-public abstract class AbstractThrottledSubmissionHandlerInterceptorAdapter extends HandlerInterceptorAdapter implements ThrottledSubmissionHandlerInterceptor {
+public abstract class AbstractThrottledSubmissionHandlerInterceptorAdapter extends HandlerInterceptorAdapter
+    implements ThrottledSubmissionHandlerInterceptor, InitializingBean {
     /**
      * Throttled login attempt action code used to tag the attempt in audit records.
      */
@@ -63,7 +63,7 @@ public abstract class AbstractThrottledSubmissionHandlerInterceptorAdapter exten
     /**
      * Configure the threshold rate.
      */
-    @PostConstruct
+    @Override
     public void afterPropertiesSet() {
         this.thresholdRate = this.failureThreshold / this.failureRangeInSeconds;
         LOGGER.debug("Calculated threshold rate as [{}]", this.thresholdRate);
@@ -90,14 +90,28 @@ public abstract class AbstractThrottledSubmissionHandlerInterceptorAdapter exten
     @Override
     public void postHandle(final HttpServletRequest request, final HttpServletResponse response, final Object o, final ModelAndView modelAndView) {
         if (!HttpMethod.POST.name().equals(request.getMethod())) {
+            LOGGER.trace("Skipping authentication throttling for requests other than POST");
             return;
         }
-        final boolean recordEvent = response.getStatus() != HttpStatus.SC_CREATED
-            && response.getStatus() != HttpStatus.SC_OK && response.getStatus() != HttpStatus.SC_MOVED_TEMPORARILY;
+        final var recordEvent = shouldResponseBeRecordedAsFailure(response);
         if (recordEvent) {
             LOGGER.debug("Recording submission failure for [{}]", request.getRequestURI());
             recordSubmissionFailure(request);
+        } else {
+            LOGGER.trace("Skipping to record submission failure for [{}] with response status [{}]",
+                request.getRequestURI(), response.getStatus());
         }
+    }
+
+    /**
+     * Should response be recorded as failure boolean.
+     *
+     * @param response the response
+     * @return the boolean
+     */
+    protected boolean shouldResponseBeRecordedAsFailure(final HttpServletResponse response) {
+        final var status = response.getStatus();
+        return status != HttpStatus.SC_CREATED && status != HttpStatus.SC_OK && status != HttpStatus.SC_MOVED_TEMPORARILY;
     }
 
     /**
@@ -119,6 +133,7 @@ public abstract class AbstractThrottledSubmissionHandlerInterceptorAdapter exten
     /**
      * Calculate threshold rate and compare boolean.
      * Compute rate in submissions/sec between last two authn failures and compare with threshold.
+     *
      * @param failures the failures
      * @return the boolean
      */
@@ -126,10 +141,10 @@ public abstract class AbstractThrottledSubmissionHandlerInterceptorAdapter exten
         if (failures.size() < 2) {
             return false;
         }
-        final long lastTime = failures.get(0).getTime();
-        final long secondToLastTime = failures.get(1).getTime();
-        final long difference = lastTime - secondToLastTime;
-        final double rate = NUMBER_OF_MILLISECONDS_IN_SECOND / difference;
+        final var lastTime = failures.get(0).getTime();
+        final var secondToLastTime = failures.get(1).getTime();
+        final var difference = lastTime - secondToLastTime;
+        final var rate = NUMBER_OF_MILLISECONDS_IN_SECOND / difference;
         LOGGER.debug("Last attempt was at [{}] and the one before that was at [{}]. Difference is [{}] calculated as rate of [{}]",
             lastTime, secondToLastTime, difference, rate);
         if (rate > getThresholdRate()) {
@@ -155,7 +170,7 @@ public abstract class AbstractThrottledSubmissionHandlerInterceptorAdapter exten
      * @return the failure in range cut off date
      */
     protected Date getFailureInRangeCutOffDate() {
-        final ZonedDateTime cutoff = ZonedDateTime.now(ZoneOffset.UTC).minusSeconds(getFailureRangeInSeconds());
+        final var cutoff = ZonedDateTime.now(ZoneOffset.UTC).minusSeconds(getFailureRangeInSeconds());
         return DateTimeUtils.timestampOf(cutoff);
     }
 
@@ -166,10 +181,10 @@ public abstract class AbstractThrottledSubmissionHandlerInterceptorAdapter exten
      * @param actionName Name of the action to be recorded.
      */
     protected void recordAuditAction(final HttpServletRequest request, final String actionName) {
-        final String userToUse = getUsernameParameterFromRequest(request);
-        final ClientInfo clientInfo = ClientInfoHolder.getClientInfo();
-        final String resource = StringUtils.defaultString(request.getParameter(CasProtocolConstants.PARAMETER_SERVICE), "N/A");
-        final AuditActionContext context = new AuditActionContext(
+        final var userToUse = getUsernameParameterFromRequest(request);
+        final var clientInfo = ClientInfoHolder.getClientInfo();
+        final var resource = StringUtils.defaultString(request.getParameter(CasProtocolConstants.PARAMETER_SERVICE), "N/A");
+        final var context = new AuditActionContext(
             userToUse,
             resource,
             actionName,

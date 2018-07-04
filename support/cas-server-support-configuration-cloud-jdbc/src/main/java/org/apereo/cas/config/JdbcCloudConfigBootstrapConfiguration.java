@@ -11,8 +11,6 @@ import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.core.env.PropertySource;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import javax.sql.DataSource;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -29,13 +27,13 @@ public class JdbcCloudConfigBootstrapConfiguration implements PropertySourceLoca
 
     @Override
     public PropertySource<?> locate(final Environment environment) {
-        final Properties props = new Properties();
+        final var props = new Properties();
 
         try {
-            final JdbcCloudConnection connection = new JdbcCloudConnection(environment);
-            final DataSource dataSource = JpaBeans.newDataSource(connection);
-            final JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            final List<Map<String, Object>> rows = jdbcTemplate.queryForList(connection.getSql());
+            final var connection = new JdbcCloudConnection(environment);
+            final var dataSource = JpaBeans.newDataSource(connection);
+            final var jdbcTemplate = new JdbcTemplate(dataSource);
+            final var rows = jdbcTemplate.queryForList(connection.getSql());
             for (final Map row : rows) {
                 props.put(row.get("name"), row.get("value"));
             }

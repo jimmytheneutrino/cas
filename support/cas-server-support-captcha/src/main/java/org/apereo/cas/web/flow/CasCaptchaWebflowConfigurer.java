@@ -35,7 +35,7 @@ public class CasCaptchaWebflowConfigurer extends AbstractCasWebflowConfigurer {
 
     @Override
     protected void doInitialize() {
-        final Flow flow = getLoginFlow();
+        final var flow = getLoginFlow();
         if (flow != null) {
             createInitialRecaptchaEnabledAction(flow);
             createValidateRecaptchaAction(flow);
@@ -43,7 +43,7 @@ public class CasCaptchaWebflowConfigurer extends AbstractCasWebflowConfigurer {
     }
 
     private void createValidateRecaptchaAction(final Flow flow) {
-        final ActionState state = getState(flow, CasWebflowConstants.STATE_ID_REAL_SUBMIT, ActionState.class);
+        final var state = getState(flow, CasWebflowConstants.STATE_ID_REAL_SUBMIT, ActionState.class);
         final List<Action> currentActions = new ArrayList<>();
         state.getActionList().forEach(currentActions::add);
         currentActions.forEach(a -> state.getActionList().remove(a));
@@ -58,6 +58,8 @@ public class CasCaptchaWebflowConfigurer extends AbstractCasWebflowConfigurer {
             @Override
             public Event execute(final RequestContext requestContext) {
                 WebUtils.putRecaptchaSiteKeyIntoFlowScope(requestContext, casProperties.getGoogleRecaptcha().getSiteKey());
+                WebUtils.putRecaptchaInvisibleIntoFlowScope(requestContext, casProperties.getGoogleRecaptcha().isInvisible());
+                WebUtils.putRecaptchaPositionIntoFlowScope(requestContext, casProperties.getGoogleRecaptcha().getPosition());
                 return new EventFactorySupport().success(this);
             }
         });

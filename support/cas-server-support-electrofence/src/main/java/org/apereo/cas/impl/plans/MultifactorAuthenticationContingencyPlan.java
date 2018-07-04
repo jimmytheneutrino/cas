@@ -8,12 +8,10 @@ import org.apereo.cas.authentication.Authentication;
 import org.apereo.cas.authentication.AuthenticationException;
 import org.apereo.cas.authentication.DefaultAuthenticationBuilder;
 import org.apereo.cas.authentication.MultifactorAuthenticationUtils;
-import org.apereo.cas.services.MultifactorAuthenticationProvider;
 import org.apereo.cas.services.RegisteredService;
 import org.springframework.webflow.execution.Event;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Map;
 
 /**
  * This is {@link MultifactorAuthenticationContingencyPlan}.
@@ -31,14 +29,14 @@ public class MultifactorAuthenticationContingencyPlan extends BaseAuthentication
                                                                     final AuthenticationRiskScore score,
                                                                     final HttpServletRequest request) {
         
-        final Map<String, MultifactorAuthenticationProvider> providerMap =
+        final var providerMap =
                 MultifactorAuthenticationUtils.getAvailableMultifactorAuthenticationProviders(this.applicationContext);
         if (providerMap == null || providerMap.isEmpty()) {
             LOGGER.warn("No multifactor authentication providers are available in the application context");
             throw new AuthenticationException();
         }
 
-        String id = casProperties.getAuthn().getAdaptive().getRisk().getResponse().getMfaProvider();
+        var id = casProperties.getAuthn().getAdaptive().getRisk().getResponse().getMfaProvider();
         if (StringUtils.isBlank(id)) {
             if (providerMap.size() == 1) {
                 id = providerMap.values().iterator().next().getId();
@@ -48,8 +46,8 @@ public class MultifactorAuthenticationContingencyPlan extends BaseAuthentication
             }
         }
 
-        final String attributeName = casProperties.getAuthn().getAdaptive().getRisk().getResponse().getRiskyAuthenticationAttribute();
-        final Authentication newAuthn = DefaultAuthenticationBuilder.newInstance(authentication)
+        final var attributeName = casProperties.getAuthn().getAdaptive().getRisk().getResponse().getRiskyAuthenticationAttribute();
+        final var newAuthn = DefaultAuthenticationBuilder.newInstance(authentication)
                 .addAttribute(attributeName, Boolean.TRUE)
                 .build();
         LOGGER.debug("Updated authentication to remember risk-based authn via [{}]", attributeName);

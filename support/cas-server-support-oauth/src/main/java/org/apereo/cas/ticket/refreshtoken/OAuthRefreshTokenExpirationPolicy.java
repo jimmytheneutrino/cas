@@ -20,7 +20,7 @@ import java.time.temporal.ChronoUnit;
  * @author Jerome Leleu
  * @since 5.0.0
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 @Slf4j
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -45,7 +45,7 @@ public class OAuthRefreshTokenExpirationPolicy extends AbstractCasExpirationPoli
 
     @Override
     public boolean isExpired(final TicketState ticketState) {
-        final boolean expired = isRefreshTokenExpired(ticketState);
+        final var expired = isRefreshTokenExpired(ticketState);
         if (!expired) {
             return super.isExpired(ticketState);
         }
@@ -71,7 +71,7 @@ public class OAuthRefreshTokenExpirationPolicy extends AbstractCasExpirationPoli
      */
     @JsonIgnore
     protected boolean isRefreshTokenExpired(final TicketState ticketState) {
-        final ZonedDateTime expiringTime = ticketState.getCreationTime().plus(this.timeToKillInSeconds, ChronoUnit.SECONDS);
+        final var expiringTime = ticketState.getCreationTime().plus(this.timeToKillInSeconds, ChronoUnit.SECONDS);
         return ticketState == null || expiringTime.isBefore(ZonedDateTime.now(ZoneOffset.UTC));
     }
 
@@ -81,7 +81,7 @@ public class OAuthRefreshTokenExpirationPolicy extends AbstractCasExpirationPoli
      * of the TGT that lent a hand in issuing them. If the refresh token is considered expired
      * by this policy, the parent ticket's expiration policy is not consulted, making the RT independent.
      */
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
     @Slf4j
     @NoArgsConstructor
     @EqualsAndHashCode(callSuper = true)

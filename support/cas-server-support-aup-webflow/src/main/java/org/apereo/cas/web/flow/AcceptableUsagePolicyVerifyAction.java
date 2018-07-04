@@ -2,10 +2,8 @@ package org.apereo.cas.web.flow;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apereo.cas.aup.AcceptableUsagePolicyRepository;
 import org.apereo.cas.authentication.Credential;
-import org.apereo.cas.authentication.principal.Principal;
 import org.apereo.cas.web.support.WebUtils;
 import org.springframework.binding.message.MessageContext;
 import org.springframework.webflow.action.AbstractAction;
@@ -39,7 +37,7 @@ public class AcceptableUsagePolicyVerifyAction extends AbstractAction {
      * @return success if policy is accepted. {@link #EVENT_ID_MUST_ACCEPT} otherwise.
      */
     private Event verify(final RequestContext context, final Credential credential, final MessageContext messageContext) {
-        final Pair<Boolean, Principal> res = repository.verify(context, credential);
+        final var res = repository.verify(context, credential);
         context.getFlowScope().put("principal", res.getValue());
         if (res.getKey()) {
             return success();

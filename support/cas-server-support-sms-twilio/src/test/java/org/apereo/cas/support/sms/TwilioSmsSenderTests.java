@@ -13,7 +13,7 @@ import static org.junit.Assert.*;
 public class TwilioSmsSenderTests {
     @Test
     public void verifyAction() {
-        final TwilioSmsSender s = new TwilioSmsSender("accountid", "token");
+        final var s = new TwilioSmsSender("accountid", "token");
         assertFalse(s.send("123456789", "123456789", "Msg"));
     }
 }

@@ -10,7 +10,6 @@ import org.apereo.cas.web.flow.resolver.CasDelegatingWebflowEventResolver;
 import org.apereo.cas.web.flow.resolver.CasWebflowEventResolver;
 
 import javax.servlet.http.HttpServletRequest;
-import java.security.Principal;
 
 /**
  * Implementation of the {@link AbstractNonInteractiveCredentialsAction} that looks for a user
@@ -39,7 +38,7 @@ public class PrincipalFromRequestUserPrincipalNonInteractiveCredentialsAction ex
 
     @Override
     protected String getRemotePrincipalId(final HttpServletRequest request) {
-        final Principal principal = request.getUserPrincipal();
+        final var principal = request.getUserPrincipal();
 
         if (principal != null) {
             LOGGER.debug("Principal [{}] found in HttpServletRequest", principal.getName());

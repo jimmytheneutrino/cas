@@ -21,13 +21,13 @@ public class SamlIdPTestUtils {
      * @return the saml registered service
      */
     public static SamlRegisteredService getSamlRegisteredService() {
-        final SamlRegisteredService registeredService = new SamlRegisteredService();
+        final var registeredService = new SamlRegisteredService();
         registeredService.setId(100);
         registeredService.setName("SAML");
         registeredService.setServiceId("https://sp.testshib.org/shibboleth-sp");
         registeredService.setMetadataLocation("http://www.testshib.org/metadata/testshib-providers.xml");
 
-        final MockHttpServletRequest request = new MockHttpServletRequest();
+        final var request = new MockHttpServletRequest();
         request.addParameter(SamlProtocolConstants.PARAMETER_ENTITY_ID, registeredService.getServiceId());
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
         return registeredService;

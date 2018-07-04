@@ -11,7 +11,6 @@ import java.io.Serializable;
  * @author Misagh Moayyed
  * @since 5.0.0
  */
-
 @Getter
 @Setter
 public class AuditProperties implements Serializable {
@@ -88,6 +87,12 @@ public class AuditProperties implements Serializable {
      */
     @NestedConfigurationProperty
     private AuditSlf4jLogProperties slf4j = new AuditSlf4jLogProperties();
+
+    /**
+     * Family of sub-properties pertaining to couchbase-based audit destinations.
+     */
+    @NestedConfigurationProperty
+    private AuditCouchbaseProperties couchbase = new AuditCouchbaseProperties();
 
     /**
      * Indicates whether catastrophic audit failures should simply be logged

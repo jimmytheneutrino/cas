@@ -17,16 +17,14 @@ public class ServiceRegistryInitializerTests {
 
     @Test
     public void ensureInitFromJsonDoesNotCreateDuplicates() {
-        RegisteredService initialService = newService();
+        var initialService = newService();
 
-        final ServicesManager servicesManager = mock(ServicesManager.class);
-        final ServiceRegistry jsonServiceRegistry = mock(ServiceRegistry.class);
+        final var servicesManager = mock(ServicesManager.class);
+        final var jsonServiceRegistry = mock(ServiceRegistry.class);
         when(jsonServiceRegistry.load()).thenReturn(Arrays.asList(initialService));
 
         final ServiceRegistry serviceRegistry = new InMemoryServiceRegistry();
-        final ServiceRegistryInitializer serviceRegistryInitializer = new ServiceRegistryInitializer(jsonServiceRegistry, serviceRegistry,
-            servicesManager, true);
-
+        final var serviceRegistryInitializer = new ServiceRegistryInitializer(jsonServiceRegistry, serviceRegistry, servicesManager);
         serviceRegistryInitializer.initServiceRegistryIfNecessary();
         assertThat(serviceRegistry.size()).isEqualTo(1);
 
@@ -38,7 +36,7 @@ public class ServiceRegistryInitializerTests {
     }
 
     private RegisteredService newService() {
-        final RegisteredService service = mock(RegisteredService.class);
+        final var service = mock(RegisteredService.class);
         when(service.getServiceId()).thenReturn("^https?://.*");
         when(service.getName()).thenReturn("Test");
         when(service.getDescription()).thenReturn("Test");

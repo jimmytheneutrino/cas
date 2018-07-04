@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apereo.cas.util.ScriptingUtils;
 import org.apereo.cas.util.spring.ApplicationContextProvider;
-import org.springframework.core.io.Resource;
 import org.springframework.security.crypto.password.AbstractPasswordEncoder;
 
 /**
@@ -21,9 +20,9 @@ public class GroovyPasswordEncoder extends AbstractPasswordEncoder {
 
     @Override
     protected byte[] encode(final CharSequence rawPassword, final byte[] salt) {
-        final Resource resource = ApplicationContextProvider.getResourceLoader().getResource(this.scriptFile);
+        final var resource = ApplicationContextProvider.getResourceLoader().getResource(this.scriptFile);
         final Object[] args = {rawPassword, salt, LOGGER, ApplicationContextProvider.getApplicationContext()};
-        final byte[] result = ScriptingUtils.executeGroovyScript(resource, args, byte[].class);
+        final var result = ScriptingUtils.executeGroovyScript(resource, args, byte[].class);
         return result;
     }
 }

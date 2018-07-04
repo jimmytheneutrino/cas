@@ -1,6 +1,5 @@
 package org.apereo.cas.authentication.principal;
 
-import org.apereo.cas.authentication.handler.PrincipalNameTransformer;
 import org.apereo.cas.configuration.model.core.authentication.PrincipalTransformationProperties;
 import org.junit.Test;
 
@@ -15,12 +14,12 @@ import static org.junit.Assert.*;
 public class PrincipalNameTransformerUtilsTests {
     @Test
     public void verifyAction() {
-        final PrincipalTransformationProperties properties = new PrincipalTransformationProperties();
+        final var properties = new PrincipalTransformationProperties();
         properties.setPrefix("prefix-");
         properties.setSuffix("-suffix");
         properties.setCaseConversion(PrincipalTransformationProperties.CaseConversion.UPPERCASE);
-        final PrincipalNameTransformer t = PrincipalNameTransformerUtils.newPrincipalNameTransformer(properties);
-        final String result = t.transform("userid");
+        final var t = PrincipalNameTransformerUtils.newPrincipalNameTransformer(properties);
+        final var result = t.transform("userid");
         assertEquals("PREFIX-USERID-SUFFIX", result);
     }
 }

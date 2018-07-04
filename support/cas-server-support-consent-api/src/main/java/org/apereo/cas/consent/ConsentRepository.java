@@ -41,7 +41,7 @@ public interface ConsentRepository extends Serializable {
      * @return the consent decision
      */
     Collection<ConsentDecision> findConsentDecisions();
-    
+
     /**
      * Store consent decision.
      *

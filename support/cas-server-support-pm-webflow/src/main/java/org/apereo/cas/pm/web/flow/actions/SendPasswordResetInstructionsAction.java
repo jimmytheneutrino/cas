@@ -4,8 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.support.email.EmailProperties;
-import org.apereo.cas.configuration.model.support.pm.PasswordManagementProperties;
 import org.apereo.cas.pm.PasswordManagementService;
 import org.apereo.cas.util.io.CommunicationsManager;
 import org.apereo.cas.web.flow.CasWebflowConfigurer;
@@ -13,8 +11,6 @@ import org.apereo.cas.web.support.WebUtils;
 import org.springframework.webflow.action.AbstractAction;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * This is {@link SendPasswordResetInstructionsAction}.
@@ -30,9 +26,20 @@ public class SendPasswordResetInstructionsAction extends AbstractAction {
      */
     public static final String PARAMETER_NAME_TOKEN = "pswdrst";
 
-    private final CasConfigurationProperties casProperties;
-    private final CommunicationsManager communicationsManager;
-    private final PasswordManagementService passwordManagementService;
+    /**
+     * The CAS configuration properties.
+     */
+    protected final CasConfigurationProperties casProperties;
+
+    /**
+     * The communication manager for SMS/emails.
+     */
+    protected final CommunicationsManager communicationsManager;
+
+    /**
+     * The password management service.
+     */
+    protected final PasswordManagementService passwordManagementService;
 
     @Override
     protected Event doExecute(final RequestContext requestContext) {
@@ -40,21 +47,22 @@ public class SendPasswordResetInstructionsAction extends AbstractAction {
         if (!communicationsManager.isMailSenderDefined()) {
             return error();
         }
-        final PasswordManagementProperties pm = casProperties.getAuthn().getPm();
-        final HttpServletRequest request = WebUtils.getHttpServletRequestFromExternalWebflowContext(requestContext);
-        final String username = request.getParameter("username");
+        final var pm = casProperties.getAuthn().getPm();
+        final var request = WebUtils.getHttpServletRequestFromExternalWebflowContext(requestContext);
+        final var username = request.getParameter("username");
+        
         if (StringUtils.isBlank(username)) {
             LOGGER.warn("No username is provided");
             return error();
         }
 
-        final String to = passwordManagementService.findEmail(username);
+        final var to = passwordManagementService.findEmail(username);
         if (StringUtils.isBlank(to)) {
             LOGGER.warn("No recipient is provided");
             return error();
         }
 
-        final String url = buildPasswordResetUrl(username, passwordManagementService, casProperties);
+        final var url = buildPasswordResetUrl(username, passwordManagementService, casProperties);
 
         LOGGER.debug("Generated password reset URL [{}]; Link is only active for the next [{}] minute(s)", url,
             pm.getReset().getExpirationMinutes());
@@ -76,7 +84,7 @@ public class SendPasswordResetInstructionsAction extends AbstractAction {
     public static String buildPasswordResetUrl(final String username,
                                                final PasswordManagementService passwordManagementService,
                                                final CasConfigurationProperties casProperties) {
-        final String token = passwordManagementService.createToken(username);
+        final var token = passwordManagementService.createToken(username);
         return casProperties.getServer().getPrefix()
             .concat('/' + CasWebflowConfigurer.FLOW_ID_LOGIN + '?' + PARAMETER_NAME_TOKEN + '=').concat(token);
     }
@@ -89,8 +97,8 @@ public class SendPasswordResetInstructionsAction extends AbstractAction {
      * @return true/false
      */
     protected boolean sendPasswordResetEmailToAccount(final String to, final String url) {
-        final EmailProperties reset = casProperties.getAuthn().getPm().getReset().getMail();
-        final String text = String.format(reset.getText(), url);
+        final var reset = casProperties.getAuthn().getPm().getReset().getMail();
+        final var text = String.format(reset.getText(), url);
         return this.communicationsManager.email(text, reset.getFrom(),
             reset.getSubject(),
             to,

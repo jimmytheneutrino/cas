@@ -12,7 +12,6 @@ import org.opensaml.security.credential.Credential;
 import org.opensaml.security.x509.BasicX509Credential;
 import org.springframework.core.io.Resource;
 
-import java.io.InputStream;
 import java.io.Serializable;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -94,7 +93,7 @@ public class WsFederationConfiguration implements Serializable {
     public void initialize() {
         this.signingCertificateResources.forEach(Unchecked.consumer(r -> {
             try {
-                final FileWatcherService watcher = new FileWatcherService(r.getFile(), file -> createSigningWallet(this.signingCertificateResources));
+                final var watcher = new FileWatcherService(r.getFile(), file -> createSigningWallet(this.signingCertificateResources));
                 watcher.start(getClass().getSimpleName());
             } catch (final Exception e) {
                 LOGGER.trace(e.getMessage(), e);
@@ -136,9 +135,9 @@ public class WsFederationConfiguration implements Serializable {
      * @return an X509 credential
      */
     private static Credential getSigningCredential(final Resource resource) {
-        try (InputStream inputStream = resource.getInputStream()) {
-            final CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
-            final X509Certificate certificate = (X509Certificate) certificateFactory.generateCertificate(inputStream);
+        try (var inputStream = resource.getInputStream()) {
+            final var certificateFactory = CertificateFactory.getInstance("X.509");
+            final var certificate = (X509Certificate) certificateFactory.generateCertificate(inputStream);
             final Credential publicCredential = new BasicX509Credential(certificate);
             LOGGER.debug("Signing credential key retrieved from [{}].", resource);
             return publicCredential;

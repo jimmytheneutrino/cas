@@ -4,10 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apereo.cas.CentralAuthenticationService;
 import org.apereo.cas.authentication.AuthenticationException;
-import org.apereo.cas.authentication.AuthenticationResult;
 import org.apereo.cas.authentication.AuthenticationSystemSupport;
 import org.apereo.cas.authentication.Credential;
-import org.apereo.cas.authentication.principal.Service;
 import org.apereo.cas.authentication.principal.ServiceFactory;
 import org.apereo.cas.rest.BadRestRequestException;
 import org.apereo.cas.rest.factory.RestHttpRequestCredentialFactory;
@@ -63,7 +61,7 @@ public class TicketGrantingTicketResource {
     public ResponseEntity<String> createTicketGrantingTicket(@RequestBody final MultiValueMap<String, String> requestBody,
                                                              final HttpServletRequest request) {
         try {
-            final TicketGrantingTicket tgtId = createTicketGrantingTicketForRequest(requestBody, request);
+            final var tgtId = createTicketGrantingTicketForRequest(requestBody, request);
             return createResponseEntityForTicket(request, tgtId);
         } catch (final AuthenticationException e) {
             return RestResourceUtils.createResponseEntityForAuthnFailure(e);
@@ -115,8 +113,8 @@ public class TicketGrantingTicketResource {
         if (credential == null || credential.isEmpty()) {
             throw new BadRestRequestException("No credentials are provided or extracted to authenticate the REST request");
         }
-        final Service service = this.serviceFactory.createService(request);
-        final AuthenticationResult authenticationResult =
+        final var service = this.serviceFactory.createService(request);
+        final var authenticationResult =
             authenticationSystemSupport.handleAndFinalizeSingleAuthenticationTransaction(service, credential);
         return centralAuthenticationService.createTicketGrantingTicket(authenticationResult);
     }

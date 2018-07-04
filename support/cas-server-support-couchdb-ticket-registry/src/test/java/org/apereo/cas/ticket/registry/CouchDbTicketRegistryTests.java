@@ -1,5 +1,7 @@
 package org.apereo.cas.ticket.registry;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apereo.cas.category.CouchDbCategory;
 import org.apereo.cas.config.CasCoreAuthenticationConfiguration;
 import org.apereo.cas.config.CasCoreAuthenticationHandlersConfiguration;
 import org.apereo.cas.config.CasCoreAuthenticationMetadataConfiguration;
@@ -22,19 +24,22 @@ import org.apereo.cas.couchdb.core.CouchDbConnectorFactory;
 import org.apereo.cas.couchdb.tickets.TicketRepository;
 import org.apereo.cas.logout.config.CasCoreLogoutConfiguration;
 import org.apereo.cas.util.junit.ConditionalIgnore;
-import org.apereo.cas.util.junit.ConditionalParameterizedRunner;
+import org.apereo.cas.util.junit.ConditionalIgnoreRule;
 import org.apereo.cas.util.junit.RunningContinuousIntegrationCondition;
 import org.junit.After;
+import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.autoconfigure.RefreshAutoConfiguration;
+import org.springframework.test.context.junit4.rules.SpringClassRule;
 
 import java.util.Arrays;
 import java.util.Collection;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * This is {@link CouchDbTicketRegistryTests}.
@@ -42,9 +47,10 @@ import lombok.extern.slf4j.Slf4j;
  * @author Timur Duehr
  * @since 5.3.0
  */
-@RunWith(ConditionalParameterizedRunner.class)
+@RunWith(Parameterized.class)
 @ConditionalIgnore(condition = RunningContinuousIntegrationCondition.class)
-@SpringBootTest(classes = {CouchDbTicketRegistryConfiguration.class,
+@SpringBootTest(classes = {
+    CouchDbTicketRegistryConfiguration.class,
     CasCoreTicketsConfiguration.class,
     CasCoreTicketCatalogConfiguration.class,
     CasCoreLogoutConfiguration.class,
@@ -66,7 +72,15 @@ import lombok.extern.slf4j.Slf4j;
     RefreshAutoConfiguration.class},
     properties = {"org.ektorp.support.AutoUpdateViewOnChange=true", "cas.ticket.registry.couchDb.username=", "cas.ticket.registry.couchDb.password="})
 @Slf4j
+@Category(CouchDbCategory.class)
 public class CouchDbTicketRegistryTests extends BaseSpringRunnableTicketRegistryTests {
+
+    @ClassRule
+    public static final SpringClassRule SPRING_CLASS_RULE = new SpringClassRule();
+    
+    @Rule
+    public final ConditionalIgnoreRule conditionalIgnoreRule = new ConditionalIgnoreRule();
+
     @Autowired
     @Qualifier("ticketRegistry")
     private TicketRegistry ticketRegistry;
@@ -84,7 +98,7 @@ public class CouchDbTicketRegistryTests extends BaseSpringRunnableTicketRegistry
     }
 
     @After
-    public void tearDown() {
+    public void afterEachTest() {
         couchDbFactory.getCouchDbInstance().deleteDatabase(couchDbFactory.getCouchDbConnector().getDatabaseName());
     }
 

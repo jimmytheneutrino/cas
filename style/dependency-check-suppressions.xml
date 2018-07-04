@@ -1,10 +1,88 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.1.xsd">
     <suppress>
+        <cve>CVE-2018-1258</cve>
+    </suppress>
+    <suppress>
+        <cve>CVE-2010-1622</cve>
+    </suppress>
+    <suppress>
+        <cve>CVE-2014-0225</cve>
+    </suppress>
+    <suppress>
+        <cve>CVE-2012-5055</cve>
+    </suppress>
+    <suppress>
+        <cve>CVE-2010-3700</cve>
+    </suppress>
+    <suppress>
+        <cve>CVE-2016-1000031</cve>
+    </suppress>
+    <suppress>
+        <cve>CVE-2007-1652</cve>
+    </suppress>
+    <suppress>
+        <cve>CVE-2018-7489</cve>
+    </suppress>
+    <suppress>
+        <cve>CVE-2017-7525</cve>
+    </suppress>
+    <suppress>
+        <cve>CVE-2017-15095</cve>
+    </suppress>
+    <suppress>
+        <cve>CVE-2015-0225</cve>
+    </suppress>
+    <suppress>
+        <cve>CVE-2014-0050</cve>
+    </suppress>
+    <suppress>
+        <cve>CVE-2007-6465</cve>
+    </suppress>
+    <suppress>
+        <cve>CVE-2002-1394</cve>
+    </suppress>
+    <suppress>
+        <cve>CVE-2016-3092</cve>
+    </suppress>
+    <suppress>
+        <cve>CVE-2002-2272</cve>
+    </suppress>
+    <suppress>
+        <cve>CVE-2016-5397</cve>
+    </suppress>
+    <suppress>
         <cve>CVE-2011-4644</cve>
     </suppress>
     <suppress>
+        <cve>CVE-2012-1856</cve>
+    </suppress>
+    <suppress>
+        <cve>CVE-2015-1762</cve>
+    </suppress>
+    <suppress>
+        <cve>CVE-2007-5090</cve>
+    </suppress>
+    <suppress>
+        <cve>CVE-2015-1763</cve>
+    </suppress>
+    <suppress>
         <cve>CVE-2017-17485</cve>
+    </suppress>
+    <suppress>
+        <cve>CVE-2018-8088</cve>
+    </suppress>
+    <suppress>
+        <cve>CVE-2015-1762</cve>
+    </suppress>
+    <suppress>
+        <cve>CVE-2007-5090</cve>
+    </suppress>
+    <suppress>
+        <cve>CVE-2015-1763</cve>
+    </suppress>
+    <suppress>
+        <cve>CVE-2012-1856</cve>
     </suppress>
     <suppress>
         <cve>CVE-2013-4366</cve>

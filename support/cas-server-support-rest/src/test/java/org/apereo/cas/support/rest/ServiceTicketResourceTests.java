@@ -18,8 +18,8 @@ import org.apereo.cas.ticket.InvalidTicketException;
 import org.apereo.cas.ticket.ServiceTicket;
 import org.apereo.cas.ticket.registry.TicketRegistrySupport;
 import org.apereo.cas.web.support.DefaultArgumentExtractor;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -61,12 +61,12 @@ public class ServiceTicketResourceTests {
     private MockMvc mockMvc;
 
     @Before
-    public void setUp() {
-        final AuthenticationManager mgmr = mock(AuthenticationManager.class);
+    public void initialize() {
+        final var mgmr = mock(AuthenticationManager.class);
         when(mgmr.authenticate(any(AuthenticationTransaction.class))).thenReturn(CoreAuthenticationTestUtils.getAuthentication());
         when(ticketSupport.getAuthenticationFrom(anyString())).thenReturn(CoreAuthenticationTestUtils.getAuthentication());
 
-        final ApplicationEventPublisher publisher = mock(ApplicationEventPublisher.class);
+        final var publisher = mock(ApplicationEventPublisher.class);
         this.serviceTicketResource = new ServiceTicketResource(
             new DefaultAuthenticationSystemSupport(new DefaultAuthenticationTransactionManager(publisher, mgmr),
                 new DefaultPrincipalElectionStrategy()),
@@ -115,7 +115,7 @@ public class ServiceTicketResourceTests {
     }
 
     private void configureCasMockToCreateValidST() {
-        final ServiceTicket st = mock(ServiceTicket.class);
+        final var st = mock(ServiceTicket.class);
         when(st.getId()).thenReturn("ST-1");
         when(this.casMock.grantServiceTicket(anyString(), any(Service.class), any(AuthenticationResult.class))).thenReturn(st);
     }

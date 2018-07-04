@@ -1,7 +1,6 @@
 package org.apereo.cas.couchdb.services;
 
 import org.ektorp.CouchDbConnector;
-import org.ektorp.ViewResult;
 import org.ektorp.support.CouchDbRepositorySupport;
 import org.ektorp.support.View;
 
@@ -56,7 +55,7 @@ public class RegisteredServiceRepository extends CouchDbRepositorySupport<Regist
      */
     @View(name = "size", map = "function(doc) {emit(null, doc._id)}", reduce = "function(keys, values, combine) {return values.length}")
     public int size() {
-        final ViewResult r = db.queryView(createQuery("size"));
+        final var r = db.queryView(createQuery("size"));
         return r.getRows().get(0).getValueAsInt();
     }
 

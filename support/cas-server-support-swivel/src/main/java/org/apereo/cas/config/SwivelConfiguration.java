@@ -10,7 +10,6 @@ import org.apereo.cas.adaptors.swivel.web.flow.rest.SwivelTuringImageGeneratorCo
 import org.apereo.cas.authentication.AuthenticationServiceSelectionPlan;
 import org.apereo.cas.authentication.AuthenticationSystemSupport;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.support.mfa.SwivelMultifactorProperties;
 import org.apereo.cas.services.MultifactorAuthenticationProviderSelector;
 import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.ticket.registry.TicketRegistrySupport;
@@ -20,6 +19,7 @@ import org.apereo.cas.web.flow.CasWebflowExecutionPlan;
 import org.apereo.cas.web.flow.CasWebflowExecutionPlanConfigurer;
 import org.apereo.cas.web.flow.authentication.RankedMultifactorAuthenticationProviderSelector;
 import org.apereo.cas.web.flow.resolver.CasWebflowEventResolver;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -81,10 +81,9 @@ public class SwivelConfiguration implements CasWebflowExecutionPlanConfigurer {
     @Qualifier("servicesManager")
     private ServicesManager servicesManager;
 
-    @Autowired(required = false)
+    @Autowired
     @Qualifier("multifactorAuthenticationProviderSelector")
-    private MultifactorAuthenticationProviderSelector multifactorAuthenticationProviderSelector =
-        new RankedMultifactorAuthenticationProviderSelector();
+    private ObjectProvider<MultifactorAuthenticationProviderSelector> multifactorAuthenticationProviderSelector;
 
     @Autowired
     @Qualifier("warnCookieGenerator")
@@ -92,7 +91,7 @@ public class SwivelConfiguration implements CasWebflowExecutionPlanConfigurer {
 
     @Bean
     public FlowDefinitionRegistry swivelAuthenticatorFlowRegistry() {
-        final FlowDefinitionRegistryBuilder builder = new FlowDefinitionRegistryBuilder(this.applicationContext, this.flowBuilderServices);
+        final var builder = new FlowDefinitionRegistryBuilder(this.applicationContext, this.flowBuilderServices);
         builder.setBasePath("classpath*:/webflow");
         builder.addFlowLocationPattern("/mfa-swivel/*-webflow.xml");
         return builder.build();
@@ -115,12 +114,12 @@ public class SwivelConfiguration implements CasWebflowExecutionPlanConfigurer {
             ticketRegistrySupport,
             warnCookieGenerator,
             authenticationRequestServiceSelectionStrategies,
-            multifactorAuthenticationProviderSelector);
+            multifactorAuthenticationProviderSelector.getIfAvailable(RankedMultifactorAuthenticationProviderSelector::new));
     }
 
     @Bean
     public SwivelTuringImageGeneratorController swivelTuringImageGeneratorController() {
-        final SwivelMultifactorProperties swivel = this.casProperties.getAuthn().getMfa().getSwivel();
+        final var swivel = this.casProperties.getAuthn().getMfa().getSwivel();
         return new SwivelTuringImageGeneratorController(swivel);
     }
 

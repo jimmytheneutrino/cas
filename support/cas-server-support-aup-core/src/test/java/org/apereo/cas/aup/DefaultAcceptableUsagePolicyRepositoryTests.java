@@ -28,17 +28,18 @@ public class DefaultAcceptableUsagePolicyRepositoryTests {
 
     @Test
     public void verifyAction() {
-        final MockRequestContext context = new MockRequestContext();
-        final MockHttpServletRequest request = new MockHttpServletRequest();
+        final var context = new MockRequestContext();
+        final var request = new MockHttpServletRequest();
         context.setExternalContext(new ServletExternalContext(new MockServletContext(), request, new MockHttpServletResponse()));
 
-        final TicketRegistrySupport support = mock(TicketRegistrySupport.class);
+        final var support = mock(TicketRegistrySupport.class);
         when(support.getAuthenticatedPrincipalFrom(anyString()))
             .thenReturn(CoreAuthenticationTestUtils.getPrincipal(CollectionUtils.wrap("carLicense", "false")));
-        final DefaultAcceptableUsagePolicyRepository repo = new DefaultAcceptableUsagePolicyRepository(support);
+        final var repo = new DefaultAcceptableUsagePolicyRepository(support);
 
+        WebUtils.putAuthentication(CoreAuthenticationTestUtils.getAuthentication(), context);
         WebUtils.putTicketGrantingTicketInScopes(context, "TGT-12345");
-        
+
         final Credential c = CoreAuthenticationTestUtils.getCredentialsWithSameUsernameAndPassword("casaup");
         assertFalse(repo.verify(context, c).getLeft());
         assertTrue(repo.submit(context, c));

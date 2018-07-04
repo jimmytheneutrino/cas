@@ -7,9 +7,9 @@ import org.apereo.cas.config.CasCoreUtilConfiguration;
 import org.apereo.cas.web.support.config.CasThrottlingConfiguration;
 import org.apereo.inspektr.common.web.ClientInfo;
 import org.apereo.inspektr.common.web.ClientInfoHolder;
+import org.junit.Test;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -50,15 +50,15 @@ public abstract class AbstractThrottledSubmissionHandlerInterceptorAdapterTests 
     protected ThrottledSubmissionHandlerInterceptor throttle;
 
     @Before
-    public void setUp() {
-        final MockHttpServletRequest request = new MockHttpServletRequest();
+    public void initialize() {
+        final var request = new MockHttpServletRequest();
         request.setRemoteAddr(IP_ADDRESS);
         request.setLocalAddr(IP_ADDRESS);
         ClientInfoHolder.setClientInfo(new ClientInfo(request));
     }
 
     @After
-    public void tearDown() {
+    public void afterEachTest() {
         ClientInfoHolder.setClientInfo(null);
     }
 
@@ -81,11 +81,11 @@ public abstract class AbstractThrottledSubmissionHandlerInterceptorAdapterTests 
         // Seed with something to compare against
         loginUnsuccessfully("mog", "1.2.3.4");
 
-        for (int i = 0; i < trials; i++) {
+        for (var i = 0; i < trials; i++) {
             LOGGER.debug("Waiting for [{}] ms", period);
             Thread.sleep(period);
 
-            final MockHttpServletResponse status = loginUnsuccessfully("mog", "1.2.3.4");
+            final var status = loginUnsuccessfully("mog", "1.2.3.4");
             assertEquals(expected, status.getStatus());
         }
     }

@@ -16,7 +16,6 @@ import org.apereo.cas.aws.ChainingAWSCredentialsProvider;
 import org.apereo.cas.clouddirectory.CloudDirectoryRepository;
 import org.apereo.cas.clouddirectory.DefaultCloudDirectoryRepository;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.support.clouddirectory.CloudDirectoryProperties;
 import org.apereo.cas.services.ServicesManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -60,9 +59,9 @@ public class CloudDirectoryAuthenticationConfiguration {
     @RefreshScope
     public AuthenticationHandler cloudDirectoryAuthenticationHandler() {
 
-        final CloudDirectoryProperties cloud = casProperties.getAuthn().getCloudDirectory();
+        final var cloud = casProperties.getAuthn().getCloudDirectory();
 
-        final CloudDirectoryAuthenticationHandler handler = new CloudDirectoryAuthenticationHandler(cloud.getName(), servicesManager,
+        final var handler = new CloudDirectoryAuthenticationHandler(cloud.getName(), servicesManager,
             cloudDirectoryPrincipalFactory(), cloudDirectoryRepository(), cloud);
         handler.setPrincipalNameTransformer(PrincipalNameTransformerUtils.newPrincipalNameTransformer(cloud.getPrincipalTransformation()));
         handler.setPasswordEncoder(PasswordEncoderUtils.newPasswordEncoder(cloud.getPasswordEncoder()));
@@ -73,7 +72,7 @@ public class CloudDirectoryAuthenticationConfiguration {
     @Bean
     @RefreshScope
     public CloudDirectoryRepository cloudDirectoryRepository() {
-        final CloudDirectoryProperties cloud = casProperties.getAuthn().getCloudDirectory();
+        final var cloud = casProperties.getAuthn().getCloudDirectory();
         return new DefaultCloudDirectoryRepository(amazonCloudDirectory(), cloud);
     }
 
@@ -81,9 +80,9 @@ public class CloudDirectoryAuthenticationConfiguration {
     @Bean
     @RefreshScope
     public AmazonCloudDirectory amazonCloudDirectory() {
-        final CloudDirectoryProperties cloud = casProperties.getAuthn().getCloudDirectory();
+        final var cloud = casProperties.getAuthn().getCloudDirectory();
 
-        final AwsClientBuilder.EndpointConfiguration endpoint = new AwsClientBuilder.EndpointConfiguration(
+        final var endpoint = new AwsClientBuilder.EndpointConfiguration(
             cloud.getEndpoint(), cloud.getRegion());
         return AmazonCloudDirectoryClientBuilder
             .standard()

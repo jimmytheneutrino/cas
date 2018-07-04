@@ -34,14 +34,14 @@ public class JsonConsentRepository extends BaseConsentRepository {
 
     @Override
     public boolean storeConsentDecision(final ConsentDecision decision) {
-        final boolean result = super.storeConsentDecision(decision);
+        final var result = super.storeConsentDecision(decision);
         writeAccountToJsonResource();
         return result;
     }
 
     @Override
     public boolean deleteConsentDecision(final long decisionId, final String principal) {
-        final boolean result = super.deleteConsentDecision(decisionId, principal);
+        final var result = super.deleteConsentDecision(decisionId, principal);
         writeAccountToJsonResource();
         return result;
     }
@@ -50,7 +50,7 @@ public class JsonConsentRepository extends BaseConsentRepository {
     private Set<ConsentDecision> readDecisionsFromJsonResource() {
         if (ResourceUtils.doesResourceExist(jsonResource)) {
             try (Reader reader = new InputStreamReader(jsonResource.getInputStream(), StandardCharsets.UTF_8)) {
-                final TypeReference<Set<ConsentDecision>> personList = new TypeReference<Set<ConsentDecision>>() {
+                final TypeReference<Set<ConsentDecision>> personList = new TypeReference<>() {
                 };
                 return MAPPER.readValue(JsonValue.readHjson(reader).toString(), personList);
             }

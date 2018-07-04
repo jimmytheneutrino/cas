@@ -18,14 +18,14 @@ import static org.mockito.Mockito.*;
 public class AmazonSimpleNotificationServiceSmsSenderTests {
     @Test
     public void verifyAction() {
-        final AmazonSNS snsClient = mock(AmazonSNS.class);
-        final PublishResult result = new PublishResult();
+        final var snsClient = mock(AmazonSNS.class);
+        final var result = new PublishResult();
         result.setMessageId("PASSED");
         when(snsClient.publish(any(PublishRequest.class))).thenReturn(result);
-        final AmazonSnsProperties properties = new AmazonSnsProperties();
+        final var properties = new AmazonSnsProperties();
         properties.setMaxPrice("100");
         properties.setSenderId("SenderId");
-        final AmazonSimpleNotificationServiceSmsSender sender = new AmazonSimpleNotificationServiceSmsSender(snsClient, properties);
+        final var sender = new AmazonSimpleNotificationServiceSmsSender(snsClient, properties);
         assertTrue(sender.send("1234567890", "1234567890", "TestMessage"));
     }
 }

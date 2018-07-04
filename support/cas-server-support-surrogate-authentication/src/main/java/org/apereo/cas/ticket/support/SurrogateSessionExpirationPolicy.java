@@ -6,8 +6,6 @@ import org.apereo.cas.authentication.surrogate.SurrogateAuthenticationService;
 import org.apereo.cas.ticket.ExpirationPolicy;
 import org.apereo.cas.ticket.TicketState;
 
-import java.util.Map;
-
 /**
  * Delegates to different expiration policies depending on whether surrogate
  * is true or not.
@@ -15,7 +13,7 @@ import java.util.Map;
  * @author Misagh Moayyed
  * @since 5.2.0
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 @Slf4j
 public class SurrogateSessionExpirationPolicy extends BaseDelegatingExpirationPolicy {
     private static final long serialVersionUID = -2735975347698196127L;
@@ -45,7 +43,7 @@ public class SurrogateSessionExpirationPolicy extends BaseDelegatingExpirationPo
 
     @Override
     protected String getExpirationPolicyNameFor(final TicketState ticketState) {
-        final Map<String, Object> attributes = ticketState.getAuthentication().getAttributes();
+        final var attributes = ticketState.getAuthentication().getAttributes();
         if (attributes.containsKey(SurrogateAuthenticationService.AUTHENTICATION_ATTR_SURROGATE_PRINCIPAL)
                 && attributes.containsKey(SurrogateAuthenticationService.AUTHENTICATION_ATTR_SURROGATE_USER)) {
             LOGGER.debug("Ticket is associated with a surrogate authentication.");

@@ -28,16 +28,16 @@ public class OptionalWarningLdapAccountStateHandlerTests {
 
     @Test
     public void verifyWarningOnMatch() {
-        final OptionalWarningLdapAccountStateHandler h = new OptionalWarningLdapAccountStateHandler();
+        final var h = new OptionalWarningLdapAccountStateHandler();
         h.setWarnAttributeName("attribute");
         h.setWarningAttributeValue("value");
         h.setDisplayWarningOnMatch(true);
-        final AuthenticationResponse response = mock(AuthenticationResponse.class);
-        final LdapEntry entry = mock(LdapEntry.class);
+        final var response = mock(AuthenticationResponse.class);
+        final var entry = mock(LdapEntry.class);
         when(response.getLdapEntry()).thenReturn(entry);
         when(entry.getAttribute(anyString())).thenReturn(new LdapAttribute("attribute", "value"));
         final List<MessageDescriptor> messages = new ArrayList<>();
-        final PasswordPolicyConfiguration config = new PasswordPolicyConfiguration();
+        final var config = new PasswordPolicyConfiguration();
         config.setPasswordWarningNumberOfDays(5);
         h.handleWarning(new AccountState.DefaultWarning(ZonedDateTime.now(), 1),
             response, config, messages);
@@ -46,16 +46,16 @@ public class OptionalWarningLdapAccountStateHandlerTests {
 
     @Test
     public void verifyAlwaysWarningOnMatch() {
-        final OptionalWarningLdapAccountStateHandler h = new OptionalWarningLdapAccountStateHandler();
+        final var h = new OptionalWarningLdapAccountStateHandler();
         h.setWarnAttributeName("attribute");
         h.setWarningAttributeValue("value");
         h.setDisplayWarningOnMatch(true);
-        final AuthenticationResponse response = mock(AuthenticationResponse.class);
-        final LdapEntry entry = mock(LdapEntry.class);
+        final var response = mock(AuthenticationResponse.class);
+        final var entry = mock(LdapEntry.class);
         when(response.getLdapEntry()).thenReturn(entry);
         when(entry.getAttribute(anyString())).thenReturn(new LdapAttribute("attribute", "value"));
         final List<MessageDescriptor> messages = new ArrayList<>();
-        final PasswordPolicyConfiguration config = new PasswordPolicyConfiguration();
+        final var config = new PasswordPolicyConfiguration();
         config.setAlwaysDisplayPasswordExpirationWarning(true);
         h.handleWarning(new AccountState.DefaultWarning(ZonedDateTime.now(), 1),
             response, config, messages);
@@ -64,16 +64,16 @@ public class OptionalWarningLdapAccountStateHandlerTests {
 
     @Test
     public void verifyNoWarningOnMatch() {
-        final OptionalWarningLdapAccountStateHandler h = new OptionalWarningLdapAccountStateHandler();
+        final var h = new OptionalWarningLdapAccountStateHandler();
         h.setWarnAttributeName("attribute");
         h.setWarningAttributeValue("value");
         h.setDisplayWarningOnMatch(false);
-        final AuthenticationResponse response = mock(AuthenticationResponse.class);
-        final LdapEntry entry = mock(LdapEntry.class);
+        final var response = mock(AuthenticationResponse.class);
+        final var entry = mock(LdapEntry.class);
         when(response.getLdapEntry()).thenReturn(entry);
         when(entry.getAttribute(anyString())).thenReturn(new LdapAttribute("attribute", "value"));
         final List<MessageDescriptor> messages = new ArrayList<>();
-        final PasswordPolicyConfiguration config = new PasswordPolicyConfiguration();
+        final var config = new PasswordPolicyConfiguration();
         config.setPasswordWarningNumberOfDays(5);
         h.handleWarning(new AccountState.DefaultWarning(ZonedDateTime.now(), 1),
             response, config, messages);

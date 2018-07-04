@@ -1,7 +1,6 @@
 package org.apereo.cas.adaptors.radius.authentication.handler.support;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apereo.cas.adaptors.radius.RadiusServer;
 import org.apereo.cas.adaptors.radius.RadiusUtils;
 import org.apereo.cas.authentication.AuthenticationHandlerExecutionResult;
@@ -14,8 +13,6 @@ import javax.security.auth.login.FailedLoginException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 /**
  * Authentication Handler to authenticate a user against a RADIUS server.
@@ -69,8 +66,8 @@ public class RadiusAuthenticationHandler extends AbstractUsernamePasswordAuthent
                                                                                         final String originalPassword) throws GeneralSecurityException {
 
         try {
-            final String username = credential.getUsername();
-            final Pair<Boolean, Optional<Map<String, Object>>> result =
+            final var username = credential.getUsername();
+            final var result =
                 RadiusUtils.authenticate(username, credential.getPassword(), this.servers,
                     this.failoverOnAuthenticationFailure, this.failoverOnException);
             if (result.getKey()) {

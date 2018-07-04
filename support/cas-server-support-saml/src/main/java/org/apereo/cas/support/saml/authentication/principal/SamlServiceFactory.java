@@ -7,15 +7,11 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.apereo.cas.authentication.principal.AbstractServiceFactory;
 import org.apereo.cas.support.saml.SamlProtocolConstants;
 import org.apereo.cas.support.saml.util.Saml10ObjectBuilder;
-import org.jdom.Attribute;
-import org.jdom.Document;
-import org.jdom.Element;
 import org.jdom.Namespace;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.BufferedReader;
 import java.util.stream.Collectors;
 
 /**
@@ -34,8 +30,8 @@ public class SamlServiceFactory extends AbstractServiceFactory<SamlService> {
 
     @Override
     public SamlService createService(final HttpServletRequest request) {
-        final String service = request.getParameter(SamlProtocolConstants.CONST_PARAM_TARGET);
-        final String requestBody = request.getMethod().equalsIgnoreCase(HttpMethod.POST.name()) ? getRequestBody(request) : null;
+        final var service = request.getParameter(SamlProtocolConstants.CONST_PARAM_TARGET);
+        final var requestBody = request.getMethod().equalsIgnoreCase(HttpMethod.POST.name()) ? getRequestBody(request) : null;
         final String artifactId;
         final String requestId;
 
@@ -43,25 +39,25 @@ public class SamlServiceFactory extends AbstractServiceFactory<SamlService> {
             LOGGER.trace("Request does not specify a [{}] or request body is empty", SamlProtocolConstants.CONST_PARAM_TARGET);
             return null;
         }
-        final String id = cleanupUrl(service);
+        final var id = cleanupUrl(service);
 
         if (StringUtils.hasText(requestBody)) {
             request.setAttribute(SamlProtocolConstants.PARAMETER_SAML_REQUEST, requestBody);
 
-            final Document document = saml10ObjectBuilder.constructDocumentFromXml(requestBody);
-            final Element root = document.getRootElement();
+            final var document = saml10ObjectBuilder.constructDocumentFromXml(requestBody);
+            final var root = document.getRootElement();
 
             @NonNull
-            final Element body = root.getChild("Body", NAMESPACE_ENVELOPE);
+            final var body = root.getChild("Body", NAMESPACE_ENVELOPE);
             @NonNull
-            final Element requestChild = body.getChild("Request", NAMESPACE_SAML1);
+            final var requestChild = body.getChild("Request", NAMESPACE_SAML1);
 
             @NonNull
-            final Element artifactElement = requestChild.getChild("AssertionArtifact", NAMESPACE_SAML1);
+            final var artifactElement = requestChild.getChild("AssertionArtifact", NAMESPACE_SAML1);
             artifactId = artifactElement.getValue();
 
             @NonNull
-            final Attribute requestIdAttribute = requestChild.getAttribute("RequestID");
+            final var requestIdAttribute = requestChild.getAttribute("RequestID");
             requestId = requestIdAttribute.getValue();
         } else {
             artifactId = null;
@@ -69,7 +65,7 @@ public class SamlServiceFactory extends AbstractServiceFactory<SamlService> {
         }
 
         LOGGER.debug("Request Body: [{}]\n\"Extracted ArtifactId: [{}]. Extracted Request Id: [{}]", requestBody, artifactId, requestId);
-        final SamlService samlService = new SamlService(id, service, artifactId, requestId);
+        final var samlService = new SamlService(id, service, artifactId, requestId);
         samlService.setSource(SamlProtocolConstants.CONST_PARAM_TARGET);
         return samlService;
     }
@@ -87,7 +83,7 @@ public class SamlServiceFactory extends AbstractServiceFactory<SamlService> {
      */
     private static String getRequestBody(final HttpServletRequest request) {
         String body = null;
-        try (BufferedReader reader = request.getReader()) {
+        try (var reader = request.getReader()) {
             if (reader == null) {
                 LOGGER.debug("Request body could not be read because it's empty.");
             } else {

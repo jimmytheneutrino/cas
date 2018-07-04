@@ -6,7 +6,6 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.webflow.context.servlet.ServletExternalContext;
-import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.test.MockRequestContext;
 
 import static org.junit.Assert.*;
@@ -20,11 +19,11 @@ import static org.junit.Assert.*;
 public class DisplayUserGraphicsBeforeAuthenticationActionTests extends AbstractGraphicalAuthenticationActionTests {
     @Test
     public void verifyAction() throws Exception {
-        final MockRequestContext context = new MockRequestContext();
-        final MockHttpServletRequest request = new MockHttpServletRequest();
+        final var context = new MockRequestContext();
+        final var request = new MockHttpServletRequest();
         request.addParameter("username", "casuser");
         context.setExternalContext(new ServletExternalContext(new MockServletContext(), request, new MockHttpServletResponse()));
-        final Event event = displayUserGraphicsBeforeAuthenticationAction.execute(context);
+        final var event = displayUserGraphicsBeforeAuthenticationAction.execute(context);
         assertEquals(CasWebflowConstants.TRANSITION_ID_SUCCESS, event.getId());
         assertTrue(WebUtils.containsGraphicalUserAuthenticationImage(context));
         assertTrue(WebUtils.containsGraphicalUserAuthenticationUsername(context));

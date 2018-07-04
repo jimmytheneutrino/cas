@@ -18,8 +18,6 @@ import org.opensaml.saml.common.SAMLObject;
 import org.opensaml.saml.saml2.binding.encoding.impl.HTTPSOAP11Encoder;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.RequestAbstractType;
-import org.opensaml.saml.saml2.ecp.Response;
-import org.opensaml.saml.saml2.metadata.AssertionConsumerService;
 import org.opensaml.soap.messaging.context.SOAP11Context;
 import org.opensaml.soap.soap11.Body;
 import org.opensaml.soap.soap11.Envelope;
@@ -69,16 +67,16 @@ public class SamlProfileSamlSoap11ResponseBuilder extends BaseSamlProfileSamlRes
 
         LOGGER.debug("Locating the assertion consumer service url for binding [{}]", binding);
         @NonNull
-        final AssertionConsumerService acs = adaptor.getAssertionConsumerService(binding);
+        final var acs = adaptor.getAssertionConsumerService(binding);
         LOGGER.debug("Located assertion consumer service url [{}]", acs);
-        final Response ecpResponse = newEcpResponse(acs.getLocation());
-        final Header header = newSoapObject(Header.class);
+        final var ecpResponse = newEcpResponse(acs.getLocation());
+        final var header = newSoapObject(Header.class);
         header.getUnknownXMLObjects().add(ecpResponse);
-        final Body body = newSoapObject(Body.class);
-        final org.opensaml.saml.saml2.core.Response saml2Response =
+        final var body = newSoapObject(Body.class);
+        final var saml2Response =
             buildSaml2Response(casAssertion, authnRequest, service, adaptor, request, binding, messageContext);
         body.getUnknownXMLObjects().add(saml2Response);
-        final Envelope envelope = newSoapObject(Envelope.class);
+        final var envelope = newSoapObject(Envelope.class);
         envelope.setHeader(header);
         envelope.setBody(body);
         SamlUtils.logSamlObject(this.configBean, envelope);
@@ -119,10 +117,10 @@ public class SamlProfileSamlSoap11ResponseBuilder extends BaseSamlProfileSamlRes
                               final String binding,
                               final RequestAbstractType authnRequest,
                               final Object assertion) throws SamlException {
-        final MessageContext result = new MessageContext();
-        final SOAP11Context ctx = result.getSubcontext(SOAP11Context.class, true);
+        final var result = new MessageContext();
+        final var ctx = result.getSubcontext(SOAP11Context.class, true);
         ctx.setEnvelope(envelope);
-        final HTTPSOAP11Encoder encoder = new HTTPSOAP11Encoder();
+        final var encoder = new HTTPSOAP11Encoder();
         encoder.setHttpServletResponse(httpResponse);
         encoder.setMessageContext(result);
         encoder.initialize();

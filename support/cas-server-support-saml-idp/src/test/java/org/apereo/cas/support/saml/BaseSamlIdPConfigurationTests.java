@@ -35,13 +35,16 @@ import org.apereo.cas.support.saml.services.idp.metadata.cache.SamlRegisteredSer
 import org.apereo.cas.support.saml.web.idp.profile.builders.SamlProfileObjectBuilder;
 import org.apereo.cas.support.saml.web.idp.profile.builders.enc.SamlIdPObjectSigner;
 import org.apereo.cas.support.saml.web.idp.profile.builders.enc.SamlObjectSignatureValidator;
+import org.apereo.cas.util.junit.ConditionalSpringRunner;
 import org.apereo.cas.validation.config.CasCoreValidationConfiguration;
 import org.apereo.cas.web.config.CasCookieConfiguration;
 import org.apereo.cas.web.flow.config.CasCoreWebflowConfiguration;
 import org.jasig.cas.client.authentication.AttributePrincipalImpl;
 import org.jasig.cas.client.validation.Assertion;
 import org.jasig.cas.client.validation.AssertionImpl;
+import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
+import org.opensaml.saml.metadata.resolver.MetadataResolver;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.Response;
@@ -53,7 +56,6 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.cloud.autoconfigure.RefreshAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.mockito.Mockito.*;
 
@@ -63,7 +65,7 @@ import static org.mockito.Mockito.*;
  * @author Misagh Moayyed
  * @since 5.1.0
  */
-@RunWith(SpringRunner.class)
+@RunWith(ConditionalSpringRunner.class)
 @SpringBootTest(classes = {
     BaseSamlIdPConfigurationTests.SamlIdPMetadataTestConfiguration.class,
     CasDefaultServiceTicketIdGeneratorsConfiguration.class,
@@ -100,7 +102,11 @@ import static org.mockito.Mockito.*;
     CasCoreUtilConfiguration.class})
 @Slf4j
 public abstract class BaseSamlIdPConfigurationTests {
-    protected static final FileSystemResource METADATA_DIRECTORY = new FileSystemResource("src/test/resources/metadata");
+    protected static FileSystemResource METADATA_DIRECTORY;
+
+    @Autowired
+    @Qualifier("casSamlIdPMetadataResolver")
+    protected MetadataResolver casSamlIdPMetadataResolver;
 
     @Autowired
     @Qualifier("shibboleth.OpenSAMLConfig")
@@ -126,31 +132,49 @@ public abstract class BaseSamlIdPConfigurationTests {
     @Qualifier("samlObjectSignatureValidator")
     protected SamlObjectSignatureValidator samlObjectSignatureValidator;
 
-    protected SamlRegisteredService getSamlRegisteredServiceForTestShib(final boolean signAssertion, final boolean signResponses) {
-        final SamlRegisteredService service = new SamlRegisteredService();
+    @BeforeClass
+    public static void beforeClass() {
+        METADATA_DIRECTORY = new FileSystemResource("src/test/resources/metadata");
+    }
+
+    protected SamlRegisteredService getSamlRegisteredServiceForTestShib() {
+        return getSamlRegisteredServiceForTestShib(false, false, false);
+    }
+
+    protected SamlRegisteredService getSamlRegisteredServiceForTestShib(final boolean signAssertion,
+                                                                        final boolean signResponses) {
+        return getSamlRegisteredServiceForTestShib(signAssertion, signResponses, false);
+    }
+
+    protected SamlRegisteredService getSamlRegisteredServiceForTestShib(final boolean signAssertion,
+                                                                        final boolean signResponses,
+                                                                        final boolean encryptAssertions) {
+        final var service = new SamlRegisteredService();
         service.setName("TestShib");
         service.setServiceId("https://sp.testshib.org/shibboleth-sp");
         service.setId(100);
         service.setSignAssertions(signAssertion);
         service.setSignResponses(signResponses);
+        service.setEncryptAssertions(encryptAssertions);
         service.setDescription("SAML Service");
         service.setMetadataLocation("classpath:metadata/testshib-providers.xml");
         return service;
     }
 
-    protected Assertion getAssertion() {
-        final AttributePrincipalImpl casuser = new AttributePrincipalImpl("casuser", CoreAuthenticationTestUtils.getAttributes());
+    protected static Assertion getAssertion() {
+        final var casuser = new AttributePrincipalImpl("casuser", CoreAuthenticationTestUtils.getAttributes());
         return new AssertionImpl(casuser, CoreAuthenticationTestUtils.getAttributes());
     }
 
-    protected AuthnRequest getAuthnRequestFor(final SamlRegisteredService service) {
-        final AuthnRequest authnRequest = mock(AuthnRequest.class);
+    protected static AuthnRequest getAuthnRequestFor(final SamlRegisteredService service) {
+        final var authnRequest = mock(AuthnRequest.class);
         when(authnRequest.getID()).thenReturn("23hgbcehfgeb7843jdv1");
-        final Issuer issuer = mock(Issuer.class);
+        final var issuer = mock(Issuer.class);
         when(issuer.getValue()).thenReturn(service.getServiceId());
         when(authnRequest.getIssuer()).thenReturn(issuer);
         return authnRequest;
     }
+
 
     @TestConfiguration
     public static class SamlIdPMetadataTestConfiguration {

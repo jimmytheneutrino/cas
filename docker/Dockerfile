@@ -1,4 +1,4 @@
-FROM centos:centos7
+FROM centos:centos7@sha256:eed5b251b615d1e70b10bcec578d64e8aa839d2785c2ffd5424e472818c42755
 
 MAINTAINER Apereo Foundation
 MAINTAINER Misagh Moayyed

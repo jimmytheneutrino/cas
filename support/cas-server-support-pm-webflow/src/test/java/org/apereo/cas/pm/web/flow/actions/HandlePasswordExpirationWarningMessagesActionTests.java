@@ -23,16 +23,16 @@ import static org.junit.Assert.*;
 public class HandlePasswordExpirationWarningMessagesActionTests {
     @Test
     public void verifyAction() throws Exception {
-        final MockRequestContext context = new MockRequestContext();
-        final MockHttpServletRequest request = new MockHttpServletRequest();
+        final var context = new MockRequestContext();
+        final var request = new MockHttpServletRequest();
         context.setExternalContext(new ServletExternalContext(new MockServletContext(), request, new MockHttpServletResponse()));
 
-        final PasswordExpiringWarningMessageDescriptor exception = new PasswordExpiringWarningMessageDescriptor("About to expire", 10);
-        final Event event = new Event(this, "success",
+        final var exception = new PasswordExpiringWarningMessageDescriptor("About to expire", 10);
+        final var event = new Event(this, "success",
             new LocalAttributeMap<>(CasWebflowConstants.ATTRIBUTE_ID_AUTHENTICATION_WARNINGS, CollectionUtils.wrapList(exception)));
         context.setCurrentEvent(event);
 
-        final HandlePasswordExpirationWarningMessagesAction action = new HandlePasswordExpirationWarningMessagesAction();
+        final var action = new HandlePasswordExpirationWarningMessagesAction();
         action.execute(context);
         assertTrue(context.getFlowScope().get(HandlePasswordExpirationWarningMessagesAction.ATTRIBUTE_NAME_EXPIRATION_WARNING_FOUND, Boolean.class));
     }

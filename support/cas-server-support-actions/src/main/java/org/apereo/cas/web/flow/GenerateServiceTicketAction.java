@@ -4,20 +4,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apereo.cas.CasProtocolConstants;
 import org.apereo.cas.CentralAuthenticationService;
-import org.apereo.cas.authentication.Authentication;
 import org.apereo.cas.authentication.AuthenticationException;
-import org.apereo.cas.authentication.AuthenticationResult;
-import org.apereo.cas.authentication.AuthenticationResultBuilder;
 import org.apereo.cas.authentication.AuthenticationServiceSelectionPlan;
 import org.apereo.cas.authentication.AuthenticationSystemSupport;
-import org.apereo.cas.authentication.Credential;
 import org.apereo.cas.authentication.PrincipalElectionStrategy;
 import org.apereo.cas.authentication.principal.Service;
-import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.ticket.AbstractTicketException;
 import org.apereo.cas.ticket.InvalidTicketException;
-import org.apereo.cas.ticket.ServiceTicket;
 import org.apereo.cas.ticket.registry.TicketRegistrySupport;
 import org.apereo.cas.web.support.WebUtils;
 import org.springframework.util.StringUtils;
@@ -26,8 +20,6 @@ import org.springframework.webflow.action.EventFactorySupport;
 import org.springframework.webflow.core.collection.LocalAttributeMap;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
-
-import java.net.URI;
 
 /**
  * Action to generate a service ticket for a given Ticket Granting Ticket and
@@ -63,23 +55,24 @@ public class GenerateServiceTicketAction extends AbstractAction {
         final Service service = WebUtils.getService(context);
         LOGGER.debug("Service asking for service ticket is [{}]", service);
 
-        final String ticketGrantingTicket = WebUtils.getTicketGrantingTicketId(context);
+        final var ticketGrantingTicket = WebUtils.getTicketGrantingTicketId(context);
         LOGGER.debug("Ticket-granting ticket found in the context is [{}]", ticketGrantingTicket);
 
         try {
-            final Authentication authentication = this.ticketRegistrySupport.getAuthenticationFrom(ticketGrantingTicket);
+            final var authentication = this.ticketRegistrySupport.getAuthenticationFrom(ticketGrantingTicket);
             if (authentication == null) {
-                throw new InvalidTicketException(new AuthenticationException("No authentication found for ticket " + ticketGrantingTicket), ticketGrantingTicket);
+                final var authn = new AuthenticationException("No authentication found for ticket " + ticketGrantingTicket);
+                throw new InvalidTicketException(authn, ticketGrantingTicket);
             }
 
-            final Service selectedService = authenticationRequestServiceSelectionStrategies.resolveService(service);
-            final RegisteredService registeredService = servicesManager.findServiceBy(selectedService);
+            final var selectedService = authenticationRequestServiceSelectionStrategies.resolveService(service);
+            final var registeredService = servicesManager.findServiceBy(selectedService);
             LOGGER.debug("Registered service asking for service ticket is [{}]", registeredService);
             WebUtils.putRegisteredService(context, registeredService);
             WebUtils.putService(context, service);
 
             if (registeredService != null) {
-                final URI url = registeredService.getAccessStrategy().getUnauthorizedRedirectUrl();
+                final var url = registeredService.getAccessStrategy().getUnauthorizedRedirectUrl();
                 if (url != null) {
                     LOGGER.debug("Registered service may redirect to [{}] for unauthorized access requests", url);
                 }
@@ -90,12 +83,12 @@ public class GenerateServiceTicketAction extends AbstractAction {
                 return result(CasWebflowConstants.STATE_ID_WARN);
             }
 
-            final Credential credential = WebUtils.getCredential(context);
-            final AuthenticationResultBuilder builder = this.authenticationSystemSupport.establishAuthenticationContextFromInitial(authentication, credential);
-            final AuthenticationResult authenticationResult = builder.build(principalElectionStrategy, service);
+            final var credential = WebUtils.getCredential(context);
+            final var builder = this.authenticationSystemSupport.establishAuthenticationContextFromInitial(authentication, credential);
+            final var authenticationResult = builder.build(principalElectionStrategy, service);
 
             LOGGER.debug("Built the final authentication result [{}] to grant service ticket to [{}]", authenticationResult, service);
-            final ServiceTicket serviceTicketId = this.centralAuthenticationService.grantServiceTicket(ticketGrantingTicket, service, authenticationResult);
+            final var serviceTicketId = this.centralAuthenticationService.grantServiceTicket(ticketGrantingTicket, service, authenticationResult);
             WebUtils.putServiceTicketInRequestScope(context, serviceTicketId);
             LOGGER.debug("Granted service ticket [{}] and added it to the request scope", serviceTicketId);
             return success();
@@ -120,10 +113,9 @@ public class GenerateServiceTicketAction extends AbstractAction {
      * @param context the context
      * @return true, if gateway present
      */
-
     protected boolean isGatewayPresent(final RequestContext context) {
-        return StringUtils.hasText(context.getExternalContext()
-            .getRequestParameterMap().get(CasProtocolConstants.PARAMETER_GATEWAY));
+        final var requestParameterMap = context.getExternalContext().getRequestParameterMap();
+        return StringUtils.hasText(requestParameterMap.get(CasProtocolConstants.PARAMETER_GATEWAY));
     }
 
     /**

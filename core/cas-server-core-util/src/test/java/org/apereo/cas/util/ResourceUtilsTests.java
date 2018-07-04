@@ -27,7 +27,7 @@ public class ResourceUtilsTests {
 
     @Test
     public void verifyResourceOnClasspath() {
-        final ClassPathResource res = new ClassPathResource("valid.json");
+        final var res = new ClassPathResource("valid.json");
         assertNotNull(ResourceUtils.prepareClasspathResourceIfNeeded(res, false, "valid"));
         assertNull(ResourceUtils.prepareClasspathResourceIfNeeded(null, false, "valid"));
     }

@@ -19,7 +19,6 @@ import org.apereo.cas.authentication.principal.PrincipalResolver;
 import org.apereo.cas.authentication.principal.resolvers.ChainingPrincipalResolver;
 import org.apereo.cas.authentication.principal.resolvers.EchoingPrincipalResolver;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.support.trusted.TrustedAuthenticationProperties;
 import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.util.CollectionUtils;
 import org.apereo.cas.web.flow.resolver.CasDelegatingWebflowEventResolver;
@@ -72,19 +71,19 @@ public class TrustedAuthenticationConfiguration {
     @Bean
     @RefreshScope
     public AuthenticationHandler principalBearingCredentialsAuthenticationHandler() {
-        final TrustedAuthenticationProperties trusted = casProperties.getAuthn().getTrusted();
+        final var trusted = casProperties.getAuthn().getTrusted();
         return new PrincipalBearingCredentialsAuthenticationHandler(trusted.getName(), servicesManager, trustedPrincipalFactory());
     }
 
     @Bean
     @RefreshScope
     public PrincipalResolver trustedPrincipalResolver() {
-        final ChainingPrincipalResolver resolver = new ChainingPrincipalResolver();
+        final var resolver = new ChainingPrincipalResolver();
 
-        final TrustedAuthenticationProperties trusted = casProperties.getAuthn().getTrusted();
-        final PrincipalBearingPrincipalResolver bearingPrincipalResolver = new PrincipalBearingPrincipalResolver(attributeRepository,
+        final var trusted = casProperties.getAuthn().getTrusted();
+        final var bearingPrincipalResolver = new PrincipalBearingPrincipalResolver(attributeRepository,
                 trustedPrincipalFactory(), trusted.isReturnNull(), trusted.getPrincipalAttribute());
-        resolver.setChain(CollectionUtils.wrapList(bearingPrincipalResolver, new EchoingPrincipalResolver()));
+        resolver.setChain(CollectionUtils.wrapList(new EchoingPrincipalResolver(), bearingPrincipalResolver));
         return resolver;
     }
 
@@ -120,7 +119,7 @@ public class TrustedAuthenticationConfiguration {
 
     @Bean
     public BasePrincipalFromNonInteractiveCredentialsAction principalFromRemoteHeaderPrincipalAction() {
-        final TrustedAuthenticationProperties trusted = casProperties.getAuthn().getTrusted();
+        final var trusted = casProperties.getAuthn().getTrusted();
         return new PrincipalFromRequestHeaderNonInteractiveCredentialsAction(initialAuthenticationAttemptWebflowEventResolver,
                 serviceTicketRequestWebflowEventResolver,
                 adaptiveAuthenticationPolicy,
@@ -132,7 +131,7 @@ public class TrustedAuthenticationConfiguration {
     @ConditionalOnMissingBean(name = "remoteUserAuthenticationAction")
     @Bean
     public Action remoteUserAuthenticationAction() {
-        final ChainingPrincipalFromRequestNonInteractiveCredentialsAction chain =
+        final var chain =
                 new ChainingPrincipalFromRequestNonInteractiveCredentialsAction(initialAuthenticationAttemptWebflowEventResolver,
                         serviceTicketRequestWebflowEventResolver,
                         adaptiveAuthenticationPolicy,

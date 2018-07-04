@@ -1,12 +1,10 @@
 package org.apereo.cas.services.resource;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.support.events.service.CasRegisteredServicePreSaveEvent;
 import org.apereo.cas.support.events.service.CasRegisteredServiceSavedEvent;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.Objects;
 
 /**
@@ -26,7 +24,7 @@ public class CreateResourceBasedRegisteredServiceWatcher extends BaseResourceBas
     @Override
     public void accept(final File file) {
         LOGGER.debug("New service definition [{}] was created. Locating service entry from cache...", file);
-        final Collection<RegisteredService> services = serviceRegistryDao.load(file);
+        final var services = serviceRegistryDao.load(file);
         services.stream()
             .filter(Objects::nonNull)
             .forEach(service -> {

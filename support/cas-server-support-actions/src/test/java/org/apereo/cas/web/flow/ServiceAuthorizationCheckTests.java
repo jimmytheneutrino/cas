@@ -9,11 +9,10 @@ import org.apereo.cas.services.RegexRegisteredService;
 import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.services.UnauthorizedServiceException;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.Before;
 import org.junit.rules.ExpectedException;
-import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.test.MockRequestContext;
 
 import java.util.ArrayList;
@@ -46,8 +45,8 @@ public class ServiceAuthorizationCheckTests {
 
     @Before
     public void setUpMocks() {
-        final RegexRegisteredService authorizedRegisteredService = new RegexRegisteredService();
-        final RegexRegisteredService unauthorizedRegisteredService = new RegexRegisteredService();
+        final var authorizedRegisteredService = new RegexRegisteredService();
+        final var unauthorizedRegisteredService = new RegexRegisteredService();
         unauthorizedRegisteredService.setAccessStrategy(new DefaultRegisteredServiceAccessStrategy(false, false));
 
         final List<RegisteredService> list = new ArrayList<>();
@@ -65,22 +64,22 @@ public class ServiceAuthorizationCheckTests {
 
     @Test
     public void noServiceProvided() {
-        final MockRequestContext mockRequestContext = new MockRequestContext();
-        final Event event = this.serviceAuthorizationCheck.doExecute(mockRequestContext);
+        final var mockRequestContext = new MockRequestContext();
+        final var event = this.serviceAuthorizationCheck.doExecute(mockRequestContext);
         assertEquals("success", event.getId());
     }
 
     @Test
     public void authorizedServiceProvided() {
-        final MockRequestContext mockRequestContext = new MockRequestContext();
+        final var mockRequestContext = new MockRequestContext();
         mockRequestContext.getFlowScope().put("service", this.authorizedService);
-        final Event event = this.serviceAuthorizationCheck.doExecute(mockRequestContext);
+        final var event = this.serviceAuthorizationCheck.doExecute(mockRequestContext);
         assertEquals("success", event.getId());
     }
 
     @Test
     public void unauthorizedServiceProvided() {
-        final MockRequestContext mockRequestContext = new MockRequestContext();
+        final var mockRequestContext = new MockRequestContext();
         mockRequestContext.getFlowScope().put("service", this.unauthorizedService);
 
         this.thrown.expect(UnauthorizedServiceException.class);
@@ -92,7 +91,7 @@ public class ServiceAuthorizationCheckTests {
 
     @Test
     public void serviceThatIsNotRegisteredProvided() {
-        final MockRequestContext mockRequestContext = new MockRequestContext();
+        final var mockRequestContext = new MockRequestContext();
         mockRequestContext.getFlowScope().put("service", this.undefinedService);
 
         this.thrown.expect(UnauthorizedServiceException.class);

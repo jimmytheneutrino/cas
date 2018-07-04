@@ -7,7 +7,6 @@ import org.apereo.cas.ticket.TicketGrantingTicket;
 import org.apereo.cas.ticket.proxy.ProxyGrantingTicket;
 import org.apereo.cas.util.InetAddressUtils;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -20,8 +19,8 @@ import java.util.regex.Pattern;
 @Slf4j
 @UtilityClass
 public class TicketIdSanitizationUtils {
-    private static final Pattern TICKET_ID_PATTERN = Pattern.compile("(?:(?:" + TicketGrantingTicket.PREFIX + "|"
-        + ProxyGrantingTicket.PROXY_GRANTING_TICKET_IOU_PREFIX + "|" + ProxyGrantingTicket.PROXY_GRANTING_TICKET_PREFIX
+    private static final Pattern TICKET_ID_PATTERN = Pattern.compile("(?:(?:" + TicketGrantingTicket.PREFIX + '|'
+        + ProxyGrantingTicket.PROXY_GRANTING_TICKET_IOU_PREFIX + '|' + ProxyGrantingTicket.PROXY_GRANTING_TICKET_PREFIX
         + ")-\\d+-)([\\w.-]+)");
 
     /**
@@ -44,17 +43,18 @@ public class TicketIdSanitizationUtils {
      * @return the modified message with tgt id removed
      */
     public static String sanitize(final String msg) {
-        String modifiedMessage = msg;
+        var modifiedMessage = msg;
         if (StringUtils.isNotBlank(msg) && !Boolean.getBoolean("CAS_TICKET_ID_SANITIZE_SKIP")) {
-            final Matcher matcher = TICKET_ID_PATTERN.matcher(msg);
+            final var matcher = TICKET_ID_PATTERN.matcher(msg);
             while (matcher.find()) {
-                final String match = matcher.group();
-                final String group = matcher.group(1);
-                int replaceLength = group.length() - VISIBLE_TAIL_LENGTH - (HOST_NAME_LENGTH + 1);
+                final var match = matcher.group();
+                final var group = matcher.group(1);
+                final var length = group.length();
+                var replaceLength = length - VISIBLE_TAIL_LENGTH - (HOST_NAME_LENGTH + 1);
                 if (replaceLength <= 0) {
-                    replaceLength = group.length();
+                    replaceLength = length;
                 }
-                final String newId = match.replace(group.substring(0, replaceLength), StringUtils.repeat("*", replaceLength));
+                final var newId = match.replace(group.substring(0, replaceLength), StringUtils.repeat("*", replaceLength));
                 modifiedMessage = modifiedMessage.replaceAll(match, newId);
             }
         }

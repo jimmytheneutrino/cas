@@ -6,7 +6,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apereo.cas.authentication.AuthenticationHandlerExecutionResult;
 import org.apereo.cas.authentication.handler.support.AbstractPreAndPostProcessingAuthenticationHandler;
 import org.apereo.cas.authentication.principal.ClientCredential;
-import org.apereo.cas.authentication.principal.Principal;
 import org.apereo.cas.authentication.principal.PrincipalFactory;
 import org.apereo.cas.services.ServicesManager;
 import org.pac4j.core.profile.UserProfile;
@@ -46,13 +45,13 @@ public abstract class AbstractPac4jAuthenticationHandler extends AbstractPreAndP
             throw new FailedLoginException("Authentication did not produce a user profile for: " + credentials);
         }
 
-        final String id = determinePrincipalIdFrom(profile);
+        final var id = determinePrincipalIdFrom(profile);
         if (StringUtils.isBlank(id)) {
             throw new FailedLoginException("No identifier found for this user profile: " + profile);
         }
         credentials.setUserProfile(profile);
         credentials.setTypedIdUsed(isTypedIdUsed);
-        final Principal principal = this.principalFactory.createPrincipal(id, new LinkedHashMap<>(profile.getAttributes()));
+        final var principal = this.principalFactory.createPrincipal(id, new LinkedHashMap<>(profile.getAttributes()));
         LOGGER.debug("Constructed authenticated principal [{}] based on user profile [{}]", principal, profile);
         return createHandlerResult(credentials, principal, new ArrayList<>(0));
     }

@@ -3,7 +3,6 @@ package org.apereo.cas.otp.web.flow;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apereo.cas.authentication.OneTimeTokenAccount;
 import org.apereo.cas.otp.repository.credentials.OneTimeTokenCredentialRepository;
 import org.apereo.cas.web.support.WebUtils;
 import org.springframework.webflow.action.AbstractAction;
@@ -27,12 +26,12 @@ public class OneTimeTokenAccountCheckRegistrationAction extends AbstractAction {
 
     @Override
     protected Event doExecute(final RequestContext requestContext) {
-        final String uid = WebUtils.getAuthentication(requestContext).getPrincipal().getId();
+        final var uid = WebUtils.getAuthentication(requestContext).getPrincipal().getId();
 
-        final OneTimeTokenAccount acct = repository.get(uid);
+        final var acct = repository.get(uid);
         if (acct == null || StringUtils.isBlank(acct.getSecretKey())) {
-            final OneTimeTokenAccount keyAccount = this.repository.create(uid);
-            final String keyUri = "otpauth://totp/" + this.label + ':' + uid + "?secret=" + keyAccount.getSecretKey() + "&issuer=" + this.issuer;
+            final var keyAccount = this.repository.create(uid);
+            final var keyUri = "otpauth://totp/" + this.label + ':' + uid + "?secret=" + keyAccount.getSecretKey() + "&issuer=" + this.issuer;
             requestContext.getFlowScope().put("key", keyAccount);
             requestContext.getFlowScope().put("keyUri", keyUri);
             LOGGER.debug("Registration key URI is [{}]", keyUri);

@@ -18,6 +18,7 @@ import org.apereo.cas.web.flow.CasWebflowExecutionPlan;
 import org.apereo.cas.web.flow.CasWebflowExecutionPlanConfigurer;
 import org.apereo.cas.web.flow.authentication.RankedMultifactorAuthenticationProviderSelector;
 import org.apereo.cas.web.flow.resolver.CasWebflowEventResolver;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -75,10 +76,9 @@ public class AuthyConfiguration implements CasWebflowExecutionPlanConfigurer {
     @Qualifier("defaultTicketRegistrySupport")
     private TicketRegistrySupport ticketRegistrySupport;
 
-    @Autowired(required = false)
+    @Autowired
     @Qualifier("multifactorAuthenticationProviderSelector")
-    private MultifactorAuthenticationProviderSelector multifactorAuthenticationProviderSelector =
-        new RankedMultifactorAuthenticationProviderSelector();
+    private ObjectProvider<MultifactorAuthenticationProviderSelector> multifactorAuthenticationProviderSelector;
 
     @Autowired
     @Qualifier("warnCookieGenerator")
@@ -91,7 +91,7 @@ public class AuthyConfiguration implements CasWebflowExecutionPlanConfigurer {
 
     @Bean
     public FlowDefinitionRegistry authyAuthenticatorFlowRegistry() {
-        final FlowDefinitionRegistryBuilder builder = new FlowDefinitionRegistryBuilder(this.applicationContext, this.flowBuilderServices);
+        final var builder = new FlowDefinitionRegistryBuilder(this.applicationContext, this.flowBuilderServices);
         builder.setBasePath("classpath*:/webflow");
         builder.addFlowLocationPattern("/mfa-authy/*-webflow.xml");
         return builder.build();
@@ -106,7 +106,7 @@ public class AuthyConfiguration implements CasWebflowExecutionPlanConfigurer {
             ticketRegistrySupport,
             warnCookieGenerator,
             authenticationRequestServiceSelectionStrategies,
-            multifactorAuthenticationProviderSelector);
+            multifactorAuthenticationProviderSelector.getIfAvailable(RankedMultifactorAuthenticationProviderSelector::new));
     }
 
     @ConditionalOnMissingBean(name = "authyMultifactorWebflowConfigurer")
@@ -140,7 +140,7 @@ public class AuthyConfiguration implements CasWebflowExecutionPlanConfigurer {
         @Bean
         @DependsOn("defaultWebflowConfigurer")
         public CasWebflowConfigurer authyMultifactorTrustWebflowConfigurer() {
-            final boolean deviceRegistrationEnabled = casProperties.getAuthn().getMfa().getTrusted().isDeviceRegistrationEnabled();
+            final var deviceRegistrationEnabled = casProperties.getAuthn().getMfa().getTrusted().isDeviceRegistrationEnabled();
             return new AuthyMultifactorTrustWebflowConfigurer(flowBuilderServices,
                 loginFlowDefinitionRegistry, deviceRegistrationEnabled,
                 authyAuthenticatorFlowRegistry(), applicationContext, casProperties);

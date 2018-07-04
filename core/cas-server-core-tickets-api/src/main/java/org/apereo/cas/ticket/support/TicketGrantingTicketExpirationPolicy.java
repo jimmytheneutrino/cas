@@ -21,7 +21,7 @@ import java.time.temporal.ChronoUnit;
  * @author William G. Thompson, Jr.
  * @since 3.4.10
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 @Slf4j
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -59,11 +59,11 @@ public class TicketGrantingTicketExpirationPolicy extends AbstractCasExpirationP
         Assert.isTrue(this.maxTimeToLiveInSeconds >= this.timeToKillInSeconds,
             "maxTimeToLiveInSeconds must be greater than or equal to timeToKillInSeconds.");
 
-        final ZonedDateTime currentSystemTime = getCurrentSystemTime();
-        final ZonedDateTime creationTime = ticketState.getCreationTime();
-        final ZonedDateTime lastTimeUsed = ticketState.getLastTimeUsed();
         // Ticket has been used, check maxTimeToLive (hard window)
-        ZonedDateTime expirationTime = creationTime.plus(this.maxTimeToLiveInSeconds, ChronoUnit.SECONDS);
+        final var currentSystemTime = getCurrentSystemTime();
+        final var creationTime = ticketState.getCreationTime();
+        final var lastTimeUsed = ticketState.getLastTimeUsed();
+        var expirationTime = creationTime.plus(this.maxTimeToLiveInSeconds, ChronoUnit.SECONDS);
         if (currentSystemTime.isAfter(expirationTime)) {
             LOGGER.debug("Ticket is expired because the time since creation [{}] is greater than current system time [{}]", expirationTime, currentSystemTime);
             return true;

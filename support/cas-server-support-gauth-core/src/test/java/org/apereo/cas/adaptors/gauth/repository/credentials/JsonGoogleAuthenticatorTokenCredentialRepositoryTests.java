@@ -7,9 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apereo.cas.CipherExecutor;
 import org.apereo.cas.config.CasCoreUtilConfiguration;
-import org.apereo.cas.authentication.OneTimeTokenAccount;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.boot.autoconfigure.aop.AopAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -39,8 +38,8 @@ public class JsonGoogleAuthenticatorTokenCredentialRepositoryTests {
     private IGoogleAuthenticator google;
 
     @Before
-    public void setup() {
-        final GoogleAuthenticatorConfig.GoogleAuthenticatorConfigBuilder bldr = new GoogleAuthenticatorConfig.GoogleAuthenticatorConfigBuilder();
+    public void initialize() {
+        final var bldr = new GoogleAuthenticatorConfig.GoogleAuthenticatorConfigBuilder();
         this.google = new GoogleAuthenticator(bldr.build());
     }
 
@@ -49,9 +48,9 @@ public class JsonGoogleAuthenticatorTokenCredentialRepositoryTests {
         if (JSON_FILE.exists()) {
             FileUtils.forceDelete(JSON_FILE.getFile());
         }
-        final JsonGoogleAuthenticatorTokenCredentialRepository repo =
+        final var repo =
             new JsonGoogleAuthenticatorTokenCredentialRepository(JSON_FILE, google, CipherExecutor.noOpOfStringToString());
-        final OneTimeTokenAccount acct = repo.create("casuser");
+        final var acct = repo.create("casuser");
         assertNotNull(acct);
     }
 
@@ -60,9 +59,9 @@ public class JsonGoogleAuthenticatorTokenCredentialRepositoryTests {
         if (JSON_FILE.exists()) {
             FileUtils.forceDelete(JSON_FILE.getFile());
         }
-        final JsonGoogleAuthenticatorTokenCredentialRepository repo =
+        final var repo =
             new JsonGoogleAuthenticatorTokenCredentialRepository(JSON_FILE, google, CipherExecutor.noOpOfStringToString());
-        OneTimeTokenAccount acct = repo.get("casuser");
+        var acct = repo.get("casuser");
         assertNull(acct);
         acct = repo.create("casuser");
         repo.save(acct.getUsername(), acct.getSecretKey(), acct.getValidationCode(), acct.getScratchCodes());

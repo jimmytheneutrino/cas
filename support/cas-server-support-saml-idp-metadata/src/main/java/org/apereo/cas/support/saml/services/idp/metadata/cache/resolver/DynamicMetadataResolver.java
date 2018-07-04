@@ -4,7 +4,6 @@ import com.google.common.io.ByteStreams;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;
 import org.apereo.cas.configuration.model.support.saml.idp.SamlIdPProperties;
-import org.apereo.cas.configuration.model.support.saml.idp.metadata.SamlIdPMetadataProperties;
 import org.apereo.cas.support.saml.InMemoryResourceMetadataResolver;
 import org.apereo.cas.support.saml.OpenSamlConfigBean;
 import org.apereo.cas.support.saml.services.SamlRegisteredService;
@@ -15,7 +14,6 @@ import org.springframework.http.HttpStatus;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.InputStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -41,7 +39,7 @@ public class DynamicMetadataResolver extends UrlResourceMetadataResolver {
 
     @Override
     protected HttpResponse fetchMetadata(final String metadataLocation) {
-        final SamlIdPMetadataProperties metadata = samlIdPProperties.getMetadata();
+        final var metadata = samlIdPProperties.getMetadata();
         final Map headers = new LinkedHashMap();
         headers.put("Content-Type", metadata.getSupportedContentTypes());
         headers.put("Accept", "*/*");
@@ -75,9 +73,9 @@ public class DynamicMetadataResolver extends UrlResourceMetadataResolver {
             return new InMemoryResourceMetadataResolver(backupFile, this.configBean);
         }
 
-        final InputStream ins = response.getEntity().getContent();
-        final byte[] source = ByteStreams.toByteArray(ins);
-        final ByteArrayInputStream bais = new ByteArrayInputStream(source);
+        final var ins = response.getEntity().getContent();
+        final var source = ByteStreams.toByteArray(ins);
+        final var bais = new ByteArrayInputStream(source);
         return new InMemoryResourceMetadataResolver(bais, this.configBean);
     }
 }

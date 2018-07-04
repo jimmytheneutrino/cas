@@ -5,9 +5,9 @@ import org.apereo.cas.services.RegisteredServiceTestUtils;
 import org.apereo.cas.util.CollectionUtils;
 import org.apereo.cas.util.http.HttpClient;
 import org.apereo.cas.util.http.SimpleHttpClientFactoryBean;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.Before;
 import org.junit.rules.ExpectedException;
 
 import javax.security.auth.login.FailedLoginException;
@@ -27,7 +27,7 @@ public class HttpBasedServiceCredentialsAuthenticationHandlerTests {
     private HttpBasedServiceCredentialsAuthenticationHandler authenticationHandler;
 
     @Before
-    public void setUp() {
+    public void initialize() {
         this.authenticationHandler = new HttpBasedServiceCredentialsAuthenticationHandler("", null, null, null, new SimpleHttpClientFactoryBean().getObject());
     }
 
@@ -63,21 +63,16 @@ public class HttpBasedServiceCredentialsAuthenticationHandlerTests {
     @Test
     public void verifyNoAcceptableStatusCode() throws Exception {
         this.thrown.expect(FailedLoginException.class);
-
-
         this.authenticationHandler.authenticate(RegisteredServiceTestUtils.getHttpBasedServiceCredentials("https://clue.acs.rutgers.edu"));
     }
 
     @Test
     public void verifyNoAcceptableStatusCodeButOneSet() throws Exception {
-        final SimpleHttpClientFactoryBean clientFactory = new SimpleHttpClientFactoryBean();
+        final var clientFactory = new SimpleHttpClientFactoryBean();
         clientFactory.setAcceptableCodes(CollectionUtils.wrapList(900));
         final HttpClient httpClient = clientFactory.getObject();
         this.authenticationHandler = new HttpBasedServiceCredentialsAuthenticationHandler("", null, null, null, httpClient);
-
         this.thrown.expect(FailedLoginException.class);
-
-
         this.authenticationHandler.authenticate(RegisteredServiceTestUtils.getHttpBasedServiceCredentials("https://www.ja-sig.org"));
     }
 }

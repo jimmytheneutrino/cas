@@ -41,7 +41,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.autoconfigure.RefreshAutoConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.webflow.execution.Action;
-import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.test.MockRequestContext;
 
 import java.io.Serializable;
@@ -96,17 +95,17 @@ public class OAuth20RegisteredServiceUIActionTests {
     
     @Test
     public void verifyOAuthActionWithoutMDUI() throws Exception {
-        final MockRequestContext ctx = new MockRequestContext();
+        final var ctx = new MockRequestContext();
         WebUtils.putService(ctx, RegisteredServiceTestUtils.getService());
-        final Event event = oauth20RegisteredServiceUIAction.execute(ctx);
+        final var event = oauth20RegisteredServiceUIAction.execute(ctx);
         assertEquals("success", event.getId());
-        final Serializable mdui = WebUtils.getServiceUserInterfaceMetadata(ctx, Serializable.class);
+        final var mdui = WebUtils.getServiceUserInterfaceMetadata(ctx, Serializable.class);
         assertNull(mdui);
     }
 
     @Test
     public void verifyOAuthActionWithMDUI() throws Exception {
-        final OAuthRegisteredService svc = new OAuthRegisteredService();
+        final var svc = new OAuthRegisteredService();
         svc.setClientId("id");
         svc.setName("oauth");
         svc.setDescription("description");
@@ -117,12 +116,12 @@ public class OAuth20RegisteredServiceUIActionTests {
         svc.setLogo("logo");
         servicesManager.save(svc);
         
-        final MockRequestContext ctx = new MockRequestContext();
+        final var ctx = new MockRequestContext();
         WebUtils.putService(ctx, RegisteredServiceTestUtils.getService(
                 "https://www.example.org?client_id=id&client_secret=secret&redirect_uri=https://oauth.example.org"));
-        final Event event = oauth20RegisteredServiceUIAction.execute(ctx);
+        final var event = oauth20RegisteredServiceUIAction.execute(ctx);
         assertEquals("success", event.getId());
-        final DefaultRegisteredServiceUserInterfaceInfo mdui = WebUtils.getServiceUserInterfaceMetadata(ctx, DefaultRegisteredServiceUserInterfaceInfo.class);
+        final var mdui = WebUtils.getServiceUserInterfaceMetadata(ctx, DefaultRegisteredServiceUserInterfaceInfo.class);
         assertNotNull(mdui);
         
         assertEquals(mdui.getDisplayName(), svc.getName());

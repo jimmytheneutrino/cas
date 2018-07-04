@@ -1,7 +1,6 @@
 package org.apereo.cas.authentication;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apereo.cas.authentication.principal.Principal;
 import org.apereo.cas.configuration.model.support.mfa.MultifactorAuthenticationProviderBypassProperties;
 import org.apereo.cas.services.MultifactorAuthenticationProvider;
 import org.apereo.cas.services.RegisteredService;
@@ -33,7 +32,7 @@ public class GroovyMultifactorAuthenticationProviderBypass extends DefaultMultif
                                                                   final MultifactorAuthenticationProvider provider,
                                                                   final HttpServletRequest request) {
         try {
-            final Principal principal = authentication.getPrincipal();
+            final var principal = authentication.getPrincipal();
             LOGGER.debug("Evaluating multifactor authentication bypass properties for principal [{}], "
                     + "service [{}] and provider [{}] via Groovy script [{}]",
                 principal.getId(), registeredService, provider, this.groovyScript);

@@ -21,10 +21,10 @@ import static org.junit.Assert.*;
 public class SpnegoNegotiateCredentialsActionTests extends AbstractSpnegoTests {
     @Test
     public void verifyOperation() throws Exception {
-        final MockRequestContext context = new MockRequestContext();
-        final MockHttpServletRequest request = new MockHttpServletRequest();
+        final var context = new MockRequestContext();
+        final var request = new MockHttpServletRequest();
         request.addHeader("User-Agent", "MSIE");
-        final MockHttpServletResponse response = new MockHttpServletResponse();
+        final var response = new MockHttpServletResponse();
         context.setExternalContext(new ServletExternalContext(new MockServletContext(), request, response));
         negociateSpnegoAction.execute(context);
         assertNotNull(response.getHeader(SpnegoConstants.HEADER_AUTHENTICATE));

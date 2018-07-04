@@ -11,8 +11,8 @@ import org.opensaml.core.xml.schema.XSString;
 import org.opensaml.core.xml.schema.XSURI;
 import org.opensaml.saml.ext.saml2mdui.UIInfo;
 import org.opensaml.saml.saml2.metadata.LocalizedName;
+import org.opensaml.saml.saml2.metadata.LocalizedURI;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -54,7 +54,7 @@ public class SamlMetadataUIInfo extends DefaultRegisteredServiceUserInterfaceInf
      * @param uiInfo            the ui info
      * @param registeredService the registered service
      */
-    public SamlMetadataUIInfo(@Nullable final UIInfo uiInfo, final RegisteredService registeredService) {
+    public SamlMetadataUIInfo(final UIInfo uiInfo, final RegisteredService registeredService) {
         super(registeredService);
         this.uiInfo = uiInfo;
     }
@@ -131,7 +131,7 @@ public class SamlMetadataUIInfo extends DefaultRegisteredServiceUserInterfaceInf
      */
     public String getDescription(final String locale) {
         if (this.uiInfo != null) {
-            final String description = getLocalizedValues(locale, this.uiInfo.getDescriptions());
+            final var description = getLocalizedValues(locale, this.uiInfo.getDescriptions());
             return (description != null) ? description : super.getDescription();
         }
         return super.getDescription();
@@ -150,7 +150,7 @@ public class SamlMetadataUIInfo extends DefaultRegisteredServiceUserInterfaceInf
      */
     public String getDisplayName(final String locale) {
         if (this.uiInfo != null) {
-            final String displayName = getLocalizedValues(locale, this.uiInfo.getDisplayNames());
+            final var displayName = getLocalizedValues(locale, this.uiInfo.getDisplayNames());
             return (displayName != null) ? displayName : super.getDisplayName();
         }
         return super.getDisplayName();
@@ -169,7 +169,7 @@ public class SamlMetadataUIInfo extends DefaultRegisteredServiceUserInterfaceInf
      */
     public String getInformationURL(final String locale) {
         if (this.uiInfo != null) {
-            final String informationUrl = getLocalizedValues(locale, this.uiInfo.getInformationURLs());
+            final var informationUrl = getLocalizedValues(locale, this.uiInfo.getInformationURLs());
             return (informationUrl != null) ? informationUrl : super.getInformationURL();
         }
         return super.getInformationURL();
@@ -188,7 +188,7 @@ public class SamlMetadataUIInfo extends DefaultRegisteredServiceUserInterfaceInf
      */
     public String getPrivacyStatementURL(final String locale) {
         if (this.uiInfo != null) {
-            final String privacyStatementURL = getLocalizedValues(locale, this.uiInfo.getPrivacyStatementURLs());
+            final var privacyStatementURL = getLocalizedValues(locale, this.uiInfo.getPrivacyStatementURLs());
             return (privacyStatementURL != null) ? privacyStatementURL : super.getPrivacyStatementURL();
         }
         return super.getPrivacyStatementURL();
@@ -207,24 +207,35 @@ public class SamlMetadataUIInfo extends DefaultRegisteredServiceUserInterfaceInf
      * @return the string value
      */
     private String getLocalizedValues(final String locale, final List<?> items) {
-        final Optional<String> foundLocale = findLocale(StringUtils.defaultString(locale, "en"), items);
+        final var foundLocale = findLocale(StringUtils.defaultString(locale, "en"), items);
         if (foundLocale.isPresent()) {
             return foundLocale.get();
         }
 
         if (!items.isEmpty()) {
-            LOGGER.trace("Loading first available locale [{}]", ((LocalizedName) items.get(0)).getValue());
-            return ((XSString) items.get(0)).getValue();
+            final Object item = items.get(0);
+            var value = StringUtils.EMPTY;
+            if (item instanceof LocalizedName) {
+                value = ((LocalizedName) item).getValue();
+            }
+            if (item instanceof LocalizedURI) {
+                value = ((LocalizedURI) item).getValue();
+            }
+            if (item instanceof XSString) {
+                value = ((XSString) item).getValue();
+            }
+            LOGGER.trace("Loading first available locale [{}]", value);
+            return value;
         }
         return null;
     }
 
     private Optional<String> findLocale(final String locale, final List<?> items) {
         LOGGER.trace("Looking for locale [{}]", locale);
-        for (int i = 0; i < items.size(); i++) {
+        for (var i = 0; i < items.size(); i++) {
             if (items.get(i) instanceof LocalizedName) {
-                final Pattern p = Pattern.compile(locale, Pattern.CASE_INSENSITIVE);
-                final LocalizedName value = (LocalizedName) items.get(i);
+                final var p = Pattern.compile(locale, Pattern.CASE_INSENSITIVE);
+                final var value = (LocalizedName) items.get(i);
                 if (p.matcher(value.getXMLLang()).matches()) {
                     LOGGER.trace("Found locale [{}]", value);
                     return Optional.of(value.getValue());

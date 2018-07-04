@@ -30,7 +30,7 @@ public class SurrogateInitialAuthenticationActionTests extends BaseSurrogateInit
     @Test
     public void verifyNoCredentialsFound() {
         try {
-            final MockRequestContext context = new MockRequestContext();
+            final var context = new MockRequestContext();
             context.setExternalContext(new ServletExternalContext(new MockServletContext(), new MockHttpServletRequest(),
                 new MockHttpServletResponse()));
             assertEquals("error", authenticationViaFormAction.execute(context).getId());
@@ -42,8 +42,8 @@ public class SurrogateInitialAuthenticationActionTests extends BaseSurrogateInit
     @Test
     public void verifySurrogateCredentialsFound() {
         try {
-            final MockRequestContext context = new MockRequestContext();
-            final SurrogateUsernamePasswordCredential c = new SurrogateUsernamePasswordCredential();
+            final var context = new MockRequestContext();
+            final var c = new SurrogateUsernamePasswordCredential();
             c.setUsername("casuser");
             c.setPassword("Mellon");
             c.setSurrogateUsername("cassurrogate");
@@ -58,8 +58,8 @@ public class SurrogateInitialAuthenticationActionTests extends BaseSurrogateInit
     @Test
     public void verifyUsernamePasswordCredentialsFound() {
         try {
-            final MockRequestContext context = new MockRequestContext();
-            final UsernamePasswordCredential c = new UsernamePasswordCredential();
+            final var context = new MockRequestContext();
+            final var c = new UsernamePasswordCredential();
             c.setUsername("cassurrogate+casuser");
             c.setPassword("Mellon");
             WebUtils.putCredential(context, c);

@@ -9,9 +9,6 @@ import org.springframework.webflow.action.AbstractAction;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -27,16 +24,16 @@ public class VerifySecurityQuestionsAction extends AbstractAction {
 
     @Override
     protected Event doExecute(final RequestContext requestContext) {
-        final HttpServletRequest request = WebUtils.getHttpServletRequestFromExternalWebflowContext(requestContext);
-        final String username = requestContext.getFlowScope().getString("username");
+        final var request = WebUtils.getHttpServletRequestFromExternalWebflowContext(requestContext);
+        final var username = requestContext.getFlowScope().getString("username");
 
-        final Map<String, String> questions = passwordManagementService.getSecurityQuestions(username);
-        final List<String> canonicalQuestions = BasePasswordManagementService.canonicalizeSecurityQuestions(questions);
-        final AtomicInteger i = new AtomicInteger(0);
-        final long c = canonicalQuestions
+        final var questions = passwordManagementService.getSecurityQuestions(username);
+        final var canonicalQuestions = BasePasswordManagementService.canonicalizeSecurityQuestions(questions);
+        final var i = new AtomicInteger(0);
+        final var c = canonicalQuestions
             .stream()
             .filter(q -> {
-                final String answer = request.getParameter("q" + i.getAndIncrement());
+                final var answer = request.getParameter("q" + i.getAndIncrement());
                 return passwordManagementService.isValidSecurityQuestionAnswer(username, q, questions.get(q), answer);
             })
             .count();

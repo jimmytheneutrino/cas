@@ -1,6 +1,5 @@
 package org.apereo.cas.config;
 
-import com.hazelcast.config.Config;
 import com.hazelcast.config.XmlConfigBuilder;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
@@ -11,10 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.Resource;
 import org.springframework.session.hazelcast.config.annotation.web.http.EnableHazelcastHttpSession;
-
-import java.net.URL;
 
 /**
  * This is {@link HazelcastSessionConfiguration}.
@@ -41,9 +37,9 @@ public class HazelcastSessionConfiguration {
     @Bean
     @SneakyThrows
     public HazelcastInstance hazelcastInstance() {
-        final Resource hzConfigResource = casProperties.getWebflow().getSession().getHzLocation();
-        final URL configUrl = hzConfigResource.getURL();
-        final Config config = new XmlConfigBuilder(hzConfigResource.getInputStream()).build();
+        final var hzConfigResource = casProperties.getWebflow().getSession().getHzLocation();
+        final var configUrl = hzConfigResource.getURL();
+        final var config = new XmlConfigBuilder(hzConfigResource.getInputStream()).build();
         config.setConfigurationUrl(configUrl);
         config.setInstanceName(this.getClass().getSimpleName())
             .setProperty("hazelcast.logging.type", "slf4j")

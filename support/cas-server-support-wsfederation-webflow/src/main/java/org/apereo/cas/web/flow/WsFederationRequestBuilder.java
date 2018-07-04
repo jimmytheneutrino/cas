@@ -46,13 +46,13 @@ public class WsFederationRequestBuilder {
      */
     public Event buildAuthenticationRequestEvent(final RequestContext context) {
         final List<WsFedClient> clients = new ArrayList<>();
-        final HttpServletRequest request = WebUtils.getHttpServletRequestFromExternalWebflowContext(context);
-        final Service service = (Service) context.getFlowScope().get(CasProtocolConstants.PARAMETER_SERVICE);
+        final var request = WebUtils.getHttpServletRequestFromExternalWebflowContext(context);
+        final var service = (Service) context.getFlowScope().get(CasProtocolConstants.PARAMETER_SERVICE);
         this.configurations.forEach(cfg -> {
-            final WsFedClient c = new WsFedClient();
+            final var c = new WsFedClient();
             c.setName(cfg.getName());
-            final String id = UUID.randomUUID().toString();
-            final String rpId = wsFederationHelper.getRelyingPartyIdentifier(service, cfg);
+            final var id = UUID.randomUUID().toString();
+            final var rpId = wsFederationHelper.getRelyingPartyIdentifier(service, cfg);
             c.setAuthorizationUrl(cfg.getAuthorizationUrl(rpId, id));
             c.setReplyingPartyId(rpId);
             c.setId(id);
@@ -74,12 +74,12 @@ public class WsFederationRequestBuilder {
      */
     @SneakyThrows
     private static String getRelativeRedirectUrlFor(final WsFederationConfiguration config, final Service service, final HttpServletRequest request) {
-        final URIBuilder builder = new URIBuilder(WsFederationNavigationController.ENDPOINT_REDIRECT);
+        final var builder = new URIBuilder(WsFederationNavigationController.ENDPOINT_REDIRECT);
         builder.addParameter(WsFederationNavigationController.PARAMETER_NAME, config.getId());
         if (service != null) {
             builder.addParameter(CasProtocolConstants.PARAMETER_SERVICE, service.getId());
         }
-        final String method = request.getParameter(CasProtocolConstants.PARAMETER_METHOD);
+        final var method = request.getParameter(CasProtocolConstants.PARAMETER_METHOD);
         if (StringUtils.isNotBlank(method)) {
             builder.addParameter(CasProtocolConstants.PARAMETER_METHOD, method);
         }

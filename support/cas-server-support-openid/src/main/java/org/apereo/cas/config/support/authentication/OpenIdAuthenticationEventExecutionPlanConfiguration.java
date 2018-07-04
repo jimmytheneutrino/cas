@@ -6,7 +6,6 @@ import org.apereo.cas.authentication.AuthenticationHandler;
 import org.apereo.cas.authentication.principal.PrincipalFactory;
 import org.apereo.cas.authentication.principal.PrincipalFactoryUtils;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.support.openid.OpenIdProperties;
 import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.support.openid.authentication.handler.support.OpenIdCredentialsAuthenticationHandler;
 import org.apereo.cas.support.openid.authentication.principal.OpenIdPrincipalResolver;
@@ -47,13 +46,13 @@ public class OpenIdAuthenticationEventExecutionPlanConfiguration {
     
     @Bean
     public AuthenticationHandler openIdCredentialsAuthenticationHandler() {
-        final OpenIdProperties openid = casProperties.getAuthn().getOpenid();
+        final var openid = casProperties.getAuthn().getOpenid();
         return new OpenIdCredentialsAuthenticationHandler(openid.getName(), servicesManager, openidPrincipalFactory(), ticketRegistry);
     }
 
     @Bean
     public OpenIdPrincipalResolver openIdPrincipalResolver() {
-        final OpenIdPrincipalResolver r = new OpenIdPrincipalResolver(attributeRepository, openidPrincipalFactory(),
+        final var r = new OpenIdPrincipalResolver(attributeRepository, openidPrincipalFactory(),
                 casProperties.getAuthn().getOpenid().getPrincipal().isReturnNull(),
                 casProperties.getAuthn().getOpenid().getPrincipal().getPrincipalAttribute());
         return r;

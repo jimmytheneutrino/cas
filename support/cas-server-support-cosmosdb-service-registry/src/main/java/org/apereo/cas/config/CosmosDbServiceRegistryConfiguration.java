@@ -1,12 +1,11 @@
 package org.apereo.cas.config;
 
 import com.microsoft.azure.documentdb.ConsistencyLevel;
+import com.microsoft.azure.documentdb.IndexingMode;
+import com.microsoft.azure.documentdb.IndexingPolicy;
 import com.microsoft.azure.documentdb.RequestOptions;
-import com.microsoft.azure.spring.data.documentdb.DocumentDbFactory;
-import com.microsoft.azure.spring.data.documentdb.core.DocumentDbTemplate;
 import lombok.extern.slf4j.Slf4j;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.support.cosmosdb.CosmosDbServiceRegistryProperties;
 import org.apereo.cas.cosmosdb.CosmosDbObjectFactory;
 import org.apereo.cas.services.CosmosDbServiceRegistry;
 import org.apereo.cas.services.ServiceRegistry;
@@ -43,14 +42,14 @@ public class CosmosDbServiceRegistryConfiguration implements ServiceRegistryExec
     @Bean
     @RefreshScope
     public ServiceRegistry cosmosDbServiceRegistry() {
-        final CosmosDbObjectFactory factory = new CosmosDbObjectFactory(this.applicationContext);
-        final CosmosDbServiceRegistryProperties cosmosDb = casProperties.getServiceRegistry().getCosmosDb();
-        final DocumentDbFactory dbFactory = factory.createDocumentDbFactory(cosmosDb);
-        final DocumentDbTemplate db = factory.createDocumentDbTemplate(dbFactory, cosmosDb);
+        final var factory = new CosmosDbObjectFactory(this.applicationContext);
+        final var cosmosDb = casProperties.getServiceRegistry().getCosmosDb();
+        final var dbFactory = factory.createDocumentDbFactory(cosmosDb);
+        final var db = factory.createDocumentDbTemplate(dbFactory, cosmosDb);
 
         if (cosmosDb.isDropCollection()) {
-            final String collectionLink = CosmosDbObjectFactory.getCollectionLink(cosmosDb.getDatabase(), cosmosDb.getCollection());
-            final RequestOptions options = new RequestOptions();
+            final var collectionLink = CosmosDbObjectFactory.getCollectionLink(cosmosDb.getDatabase(), cosmosDb.getCollection());
+            final var options = new RequestOptions();
             options.setConsistencyLevel(ConsistencyLevel.valueOf(cosmosDb.getConsistencyLevel()));
             options.setOfferThroughput(cosmosDb.getThroughput());
             try {
@@ -59,7 +58,11 @@ public class CosmosDbServiceRegistryConfiguration implements ServiceRegistryExec
                 LOGGER.error(e.getMessage(), e);
             }
         }
-        db.createCollectionIfNotExists(cosmosDb.getCollection(), PARTITION_KEY_FIELD_NAME, cosmosDb.getThroughput());
+        final var indexingPolicy = new IndexingPolicy();
+        indexingPolicy.setAutomatic(true);
+        indexingPolicy.setIndexingMode(IndexingMode.valueOf(cosmosDb.getIndexingMode()));
+        db.createCollectionIfNotExists(cosmosDb.getCollection(), PARTITION_KEY_FIELD_NAME,
+            cosmosDb.getThroughput(), indexingPolicy);
         return new CosmosDbServiceRegistry(db, dbFactory, cosmosDb.getCollection(), cosmosDb.getDatabase());
     }
 

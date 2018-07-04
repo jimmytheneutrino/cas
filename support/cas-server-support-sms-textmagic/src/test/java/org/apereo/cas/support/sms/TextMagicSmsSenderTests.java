@@ -13,7 +13,7 @@ import static org.junit.Assert.*;
 public class TextMagicSmsSenderTests {
     @Test
     public void verifyAction() {
-        final TextMagicSmsSender sender = new TextMagicSmsSender("casuser", "test-token");
+        final var sender = new TextMagicSmsSender("casuser", "test-token");
         assertFalse(sender.send("123456678", "123456678", "Msg"));
     }
 }

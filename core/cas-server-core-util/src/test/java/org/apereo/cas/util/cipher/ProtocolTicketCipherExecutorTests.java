@@ -13,8 +13,8 @@ import static org.junit.Assert.*;
 public class ProtocolTicketCipherExecutorTests {
     @Test
     public void verifyAction() {
-        final ProtocolTicketCipherExecutor cipher = new ProtocolTicketCipherExecutor();
-        final String encoded = cipher.encode("ST-1234567890");
+        final var cipher = new ProtocolTicketCipherExecutor();
+        final var encoded = cipher.encode("ST-1234567890");
         assertEquals("ST-1234567890", cipher.decode(encoded));
         assertNotNull(cipher.getName());
         assertNotNull(cipher.getSigningKeySetting());

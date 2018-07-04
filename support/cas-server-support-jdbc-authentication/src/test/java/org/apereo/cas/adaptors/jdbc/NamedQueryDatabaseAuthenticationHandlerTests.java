@@ -1,16 +1,14 @@
 package org.apereo.cas.adaptors.jdbc;
 
-import com.google.common.collect.Multimap;
 import lombok.extern.slf4j.Slf4j;
-import org.apereo.cas.authentication.AuthenticationHandlerExecutionResult;
 import org.apereo.cas.authentication.CoreAuthenticationTestUtils;
 import org.apereo.cas.authentication.CoreAuthenticationUtils;
 import org.apereo.cas.authentication.principal.PrincipalFactoryUtils;
 import org.apereo.cas.util.CollectionUtils;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +25,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.security.auth.login.FailedLoginException;
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.Statement;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 
@@ -56,18 +52,18 @@ public class NamedQueryDatabaseAuthenticationHandlerTests {
     private DataSource dataSource;
 
     @Before
-    public void setUp() throws Exception {
-        final Connection c = this.dataSource.getConnection();
-        final Statement s = c.createStatement();
+    public void initialize() throws Exception {
+        final var c = this.dataSource.getConnection();
+        final var s = c.createStatement();
         c.setAutoCommit(true);
         s.execute(getSqlInsertStatementToCreateUserAccount(0, Boolean.FALSE.toString(), Boolean.FALSE.toString()));
         c.close();
     }
 
     @After
-    public void tearDown() throws Exception {
-        final Connection c = this.dataSource.getConnection();
-        final Statement s = c.createStatement();
+    public void afterEachTest() throws Exception {
+        final var c = this.dataSource.getConnection();
+        final var s = c.createStatement();
         c.setAutoCommit(true);
         s.execute("delete from casusers;");
         c.close();
@@ -102,14 +98,14 @@ public class NamedQueryDatabaseAuthenticationHandlerTests {
 
     @Test
     public void verifySuccess() throws Exception {
-        final String sql = "SELECT * FROM casusers where username=:username";
-        final Multimap<String, Object> map = CoreAuthenticationUtils.transformPrincipalAttributesListIntoMultiMap(Arrays.asList("phone:phoneNumber"));
-        final QueryDatabaseAuthenticationHandler q = new QueryDatabaseAuthenticationHandler("namedHandler",
+        final var sql = "SELECT * FROM casusers where username=:username";
+        final var map = CoreAuthenticationUtils.transformPrincipalAttributesListIntoMultiMap(Arrays.asList("phone:phoneNumber"));
+        final var q = new QueryDatabaseAuthenticationHandler("namedHandler",
             null, PrincipalFactoryUtils.newPrincipalFactory(), 0,
             this.dataSource, sql, "password",
             null, null,
             CollectionUtils.wrap(map));
-        final AuthenticationHandlerExecutionResult result = q.authenticate(
+        final var result = q.authenticate(
             CoreAuthenticationTestUtils.getCredentialsWithDifferentUsernameAndPassword("user0", "psw0"));
         assertNotNull(result);
         assertNotNull(result.getPrincipal());
@@ -118,14 +114,14 @@ public class NamedQueryDatabaseAuthenticationHandlerTests {
 
     @Test
     public void verifySuccessWithCount() throws Exception {
-        final String sql = "SELECT count(*) as total FROM casusers where username=:username AND password=:password";
-        final Multimap<String, Object> map = CoreAuthenticationUtils.transformPrincipalAttributesListIntoMultiMap(Arrays.asList("phone:phoneNumber"));
-        final QueryDatabaseAuthenticationHandler q = new QueryDatabaseAuthenticationHandler("namedHandler",
+        final var sql = "SELECT count(*) as total FROM casusers where username=:username AND password=:password";
+        final var map = CoreAuthenticationUtils.transformPrincipalAttributesListIntoMultiMap(Arrays.asList("phone:phoneNumber"));
+        final var q = new QueryDatabaseAuthenticationHandler("namedHandler",
             null, PrincipalFactoryUtils.newPrincipalFactory(), 0,
             this.dataSource, sql, null,
             null, null,
             CollectionUtils.wrap(map));
-        final AuthenticationHandlerExecutionResult result = q.authenticate(
+        final var result = q.authenticate(
             CoreAuthenticationTestUtils.getCredentialsWithDifferentUsernameAndPassword("user0", "psw0"));
         assertNotNull(result);
         assertNotNull(result.getPrincipal());
@@ -134,8 +130,8 @@ public class NamedQueryDatabaseAuthenticationHandlerTests {
 
     @Test
     public void verifyFailsWithMissingTotalField() throws Exception {
-        final String sql = "SELECT count(*) FROM casusers where username=:username AND password=:password";
-        final QueryDatabaseAuthenticationHandler q = new QueryDatabaseAuthenticationHandler("namedHandler",
+        final var sql = "SELECT count(*) FROM casusers where username=:username AND password=:password";
+        final var q = new QueryDatabaseAuthenticationHandler("namedHandler",
             null, PrincipalFactoryUtils.newPrincipalFactory(), 0,
             this.dataSource, sql, null,
             null, null,

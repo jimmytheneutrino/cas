@@ -5,8 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apereo.cas.authentication.principal.Principal;
-import org.apereo.cas.configuration.model.support.sms.SmsProperties;
 import org.apereo.cas.util.io.CommunicationsManager;
 
 /**
@@ -24,8 +22,8 @@ public class AuthenticationRiskSmsNotifier extends BaseAuthenticationRiskNotifie
 
     @Override
     public void publish() {
-        final SmsProperties sms = casProperties.getAuthn().getAdaptive().getRisk().getResponse().getSms();
-        final Principal principal = authentication.getPrincipal();
+        final var sms = casProperties.getAuthn().getAdaptive().getRisk().getResponse().getSms();
+        final var principal = authentication.getPrincipal();
 
         if (StringUtils.isBlank(sms.getText()) || StringUtils.isBlank(sms.getFrom())
                 || !principal.getAttributes().containsKey(sms.getAttributeName())) {

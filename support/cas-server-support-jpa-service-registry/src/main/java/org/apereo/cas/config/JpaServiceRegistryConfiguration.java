@@ -30,7 +30,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -57,11 +56,11 @@ public class JpaServiceRegistryConfiguration implements ServiceRegistryExecution
 
     @Bean
     public List<String> jpaServicePackagesToScan() {
-        final Reflections reflections =
+        final var reflections =
             new Reflections(new ConfigurationBuilder()
                 .setUrls(ClasspathHelper.forPackage(CentralAuthenticationService.NAMESPACE))
                 .setScanners(new SubTypesScanner(false)));
-        final Set<Class<? extends AbstractRegisteredService>> subTypes = reflections.getSubTypesOf(AbstractRegisteredService.class);
+        final var subTypes = reflections.getSubTypesOf(AbstractRegisteredService.class);
         return subTypes.stream().map(t -> t.getPackage().getName()).collect(Collectors.toList());
     }
 
@@ -80,7 +79,7 @@ public class JpaServiceRegistryConfiguration implements ServiceRegistryExecution
     @Autowired
     @Bean
     public PlatformTransactionManager transactionManagerServiceReg(@Qualifier("serviceEntityManagerFactory") final EntityManagerFactory emf) {
-        final JpaTransactionManager mgmr = new JpaTransactionManager();
+        final var mgmr = new JpaTransactionManager();
         mgmr.setEntityManagerFactory(emf);
         return mgmr;
     }

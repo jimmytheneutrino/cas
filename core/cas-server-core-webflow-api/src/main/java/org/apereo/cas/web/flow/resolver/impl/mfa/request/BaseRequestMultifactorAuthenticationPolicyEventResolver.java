@@ -2,15 +2,12 @@ package org.apereo.cas.web.flow.resolver.impl.mfa.request;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apereo.cas.CentralAuthenticationService;
-import org.apereo.cas.authentication.Authentication;
 import org.apereo.cas.authentication.AuthenticationException;
 import org.apereo.cas.authentication.AuthenticationServiceSelectionPlan;
 import org.apereo.cas.authentication.AuthenticationSystemSupport;
 import org.apereo.cas.authentication.MultifactorAuthenticationUtils;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.services.MultifactorAuthenticationProvider;
 import org.apereo.cas.services.MultifactorAuthenticationProviderSelector;
-import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.ticket.registry.TicketRegistrySupport;
 import org.apereo.cas.util.CollectionUtils;
@@ -23,8 +20,6 @@ import org.springframework.webflow.execution.RequestContext;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -52,32 +47,32 @@ public abstract class BaseRequestMultifactorAuthenticationPolicyEventResolver ex
 
     @Override
     public Set<Event> resolveInternal(final RequestContext context) {
-        final RegisteredService service = resolveRegisteredServiceInRequestContext(context);
-        final Authentication authentication = WebUtils.getAuthentication(context);
+        final var service = resolveRegisteredServiceInRequestContext(context);
+        final var authentication = WebUtils.getAuthentication(context);
 
         if (service == null || authentication == null) {
             LOGGER.debug("No service or authentication is available to determine event for principal");
             return null;
         }
 
-        final HttpServletRequest request = WebUtils.getHttpServletRequestFromExternalWebflowContext(context);
-        final List<String> values = resolveEventFromHttpRequest(request);
+        final var request = WebUtils.getHttpServletRequestFromExternalWebflowContext(context);
+        final var values = resolveEventFromHttpRequest(request);
         if (values != null && !values.isEmpty()) {
             LOGGER.debug("Received request as [{}]", values);
 
-            final Map<String, MultifactorAuthenticationProvider> providerMap =
+            final var providerMap =
                 MultifactorAuthenticationUtils.getAvailableMultifactorAuthenticationProviders(this.applicationContext);
             if (providerMap == null || providerMap.isEmpty()) {
                 LOGGER.error("No multifactor authentication providers are available in the application context to satisfy [{}]", values);
                 throw new AuthenticationException();
             }
 
-            final Optional<MultifactorAuthenticationProvider> providerFound = resolveProvider(providerMap, values.get(0));
+            final var providerFound = resolveProvider(providerMap, values.get(0));
             if (providerFound.isPresent()) {
-                final MultifactorAuthenticationProvider provider = providerFound.get();
+                final var provider = providerFound.get();
                 if (provider.isAvailable(service)) {
                     LOGGER.debug("Attempting to build an event based on the authentication provider [{}] and service [{}]", provider, service.getName());
-                    final Event event = validateEventIdForMatchingTransitionInContext(provider.getId(), context,
+                    final var event = validateEventIdForMatchingTransitionInContext(provider.getId(), context,
                         buildEventAttributeMap(authentication.getPrincipal(), service, provider));
                     return CollectionUtils.wrapSet(event);
                 }

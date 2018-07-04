@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
+import org.apereo.cas.category.FileSystemCategory;
 import org.apereo.cas.config.CasCoreAuthenticationConfiguration;
 import org.apereo.cas.config.CasCoreAuthenticationHandlersConfiguration;
 import org.apereo.cas.config.CasCoreAuthenticationMetadataConfiguration;
@@ -38,11 +39,12 @@ import org.apereo.cas.util.MockWebServer;
 import org.apereo.cas.validation.config.CasCoreValidationConfiguration;
 import org.apereo.cas.web.config.CasCookieConfiguration;
 import org.apereo.cas.web.flow.config.CasCoreWebflowConfiguration;
+import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.opensaml.saml.metadata.resolver.MetadataResolver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.aop.AopAutoConfiguration;
@@ -53,10 +55,10 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit4.rules.SpringClassRule;
+import org.springframework.test.context.junit4.rules.SpringMethodRule;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
 
 import static org.junit.Assert.*;
 
@@ -66,7 +68,7 @@ import static org.junit.Assert.*;
  * @author Misagh Moayyed
  * @since 5.3.0
  */
-@RunWith(SpringRunner.class)
+@Category(FileSystemCategory.class)
 @SpringBootTest(classes = {
     SamlIdPRestMetadataConfiguration.class,
     CasDefaultServiceTicketIdGeneratorsConfiguration.class,
@@ -105,10 +107,14 @@ import static org.junit.Assert.*;
 @EnableConfigurationProperties(CasConfigurationProperties.class)
 @Slf4j
 public class RestSamlRegisteredServiceMetadataResolverTests {
+
+    @ClassRule
+    public static final SpringClassRule SPRING_CLASS_RULE = new SpringClassRule();
+
     private static final ObjectMapper MAPPER = new ObjectMapper().findAndRegisterModules();
 
-    @Autowired
-    private CasConfigurationProperties casProperties;
+    @Rule
+    public final SpringMethodRule springMethodRule = new SpringMethodRule();
 
     @Autowired
     @Qualifier("restSamlRegisteredServiceMetadataResolver")
@@ -118,14 +124,14 @@ public class RestSamlRegisteredServiceMetadataResolverTests {
 
     @Before
     @SneakyThrows
-    public void setup() {
-        final SamlMetadataDocument doc = new SamlMetadataDocument();
+    public void initialize() {
+        final var doc = new SamlMetadataDocument();
         doc.setId(1);
         doc.setName("SAML Document");
         doc.setSignature(null);
         doc.setValue(IOUtils.toString(new ClassPathResource("sp-metadata.xml").getInputStream(), StandardCharsets.UTF_8));
-        final String data = MAPPER.writeValueAsString(doc);
-        
+        final var data = MAPPER.writeValueAsString(doc);
+
         this.webServer = new MockWebServer(8078,
             new ByteArrayResource(data.getBytes(StandardCharsets.UTF_8), "REST Output"),
             MediaType.APPLICATION_XML_VALUE);
@@ -140,13 +146,13 @@ public class RestSamlRegisteredServiceMetadataResolverTests {
 
     @Test
     public void verifyRestEndpointProducesMetadata() {
-        final SamlRegisteredService service = new SamlRegisteredService();
+        final var service = new SamlRegisteredService();
         service.setName("SAML Wiki Service");
         service.setServiceId("https://carmenwiki.osu.edu/shibboleth");
         service.setDescription("Testing");
         service.setMetadataLocation("rest://");
         assertTrue(resolver.supports(service));
-        final Collection<MetadataResolver> resolvers = resolver.resolve(service);
+        final var resolvers = resolver.resolve(service);
         assertTrue(resolvers.size() == 1);
     }
 }

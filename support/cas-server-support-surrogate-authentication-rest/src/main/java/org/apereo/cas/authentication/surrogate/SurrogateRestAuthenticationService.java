@@ -3,7 +3,6 @@ package org.apereo.cas.authentication.surrogate;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.HttpResponse;
 import org.apereo.cas.authentication.principal.Principal;
 import org.apereo.cas.authentication.principal.Service;
 import org.apereo.cas.configuration.model.support.surrogate.SurrogateAuthenticationProperties;
@@ -41,10 +40,10 @@ public class SurrogateRestAuthenticationService extends BaseSurrogateAuthenticat
     @Override
     public boolean canAuthenticateAsInternal(final String surrogate, final Principal principal, final Service service) {
         try {
-            final HttpResponse response = HttpUtils.execute(properties.getUrl(), properties.getMethod(),
+            final var response = HttpUtils.execute(properties.getUrl(), properties.getMethod(),
                 properties.getBasicAuthUsername(), properties.getBasicAuthPassword(),
                 CollectionUtils.wrap("surrogate", surrogate, "principal", principal.getId()), new HashMap<>());
-            final int statusCode = response.getStatusLine().getStatusCode();
+            final var statusCode = response.getStatusLine().getStatusCode();
             return HttpStatus.valueOf(statusCode).is2xxSuccessful();
         } catch (final Exception e) {
             LOGGER.error(e.getMessage(), e);
@@ -55,7 +54,7 @@ public class SurrogateRestAuthenticationService extends BaseSurrogateAuthenticat
     @Override
     public List<String> getEligibleAccountsForSurrogateToProxy(final String username) {
         try {
-            final HttpResponse response = HttpUtils.execute(properties.getUrl(), properties.getMethod(),
+            final var response = HttpUtils.execute(properties.getUrl(), properties.getMethod(),
                 properties.getBasicAuthUsername(), properties.getBasicAuthPassword(),
                 CollectionUtils.wrap("principal", username), new HashMap<>());
             return MAPPER.readValue(response.getEntity().getContent(), List.class);

@@ -3,7 +3,6 @@ package org.apereo.cas.support.sms;
 import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.model.MessageAttributeValue;
 import com.amazonaws.services.sns.model.PublishRequest;
-import com.amazonaws.services.sns.model.PublishResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -38,7 +37,7 @@ public class AmazonSimpleNotificationServiceSmsSender implements SmsSender {
             if (StringUtils.isNotBlank(snsProperties.getSmsType())) {
                 smsAttributes.put("AWS.SNS.SMS.SMSType", new MessageAttributeValue().withStringValue("Promotional").withDataType("String"));
             }
-            final PublishResult result = snsClient.publish(new PublishRequest()
+            final var result = snsClient.publish(new PublishRequest()
                 .withMessage(message)
                 .withPhoneNumber(to)
                 .withMessageAttributes(smsAttributes));

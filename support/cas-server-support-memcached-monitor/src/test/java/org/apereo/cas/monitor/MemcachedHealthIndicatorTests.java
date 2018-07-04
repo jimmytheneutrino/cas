@@ -1,20 +1,24 @@
 package org.apereo.cas.monitor;
 
-import lombok.extern.slf4j.Slf4j;
+import org.apereo.cas.category.MemcachedCategory;
 import org.apereo.cas.config.CasCoreUtilSerializationConfiguration;
 import org.apereo.cas.monitor.config.MemcachedMonitorConfiguration;
+import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.actuate.health.Status;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.autoconfigure.RefreshAutoConfiguration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit4.rules.SpringClassRule;
+import org.springframework.test.context.junit4.rules.SpringMethodRule;
+
+import lombok.extern.slf4j.Slf4j;
 
 import static org.junit.Assert.*;
 
@@ -24,7 +28,6 @@ import static org.junit.Assert.*;
  * @author Misagh Moayyed
  * @since 4.2.0
  */
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes = {
     RefreshAutoConfiguration.class,
     MemcachedMonitorConfiguration.class,
@@ -33,7 +36,14 @@ import static org.junit.Assert.*;
 @TestPropertySource(locations = {"classpath:/monitor.properties"})
 @DirtiesContext
 @Slf4j
+@Category(MemcachedCategory.class)
 public class MemcachedHealthIndicatorTests {
+
+    @ClassRule
+    public static final SpringClassRule SPRING_CLASS_RULE = new SpringClassRule();
+
+    @Rule
+    public final SpringMethodRule springMethodRule = new SpringMethodRule();
 
     @Autowired
     @Qualifier("memcachedHealthIndicator")
@@ -41,7 +51,7 @@ public class MemcachedHealthIndicatorTests {
 
     @Test
     public void verifyMonitorNotRunning() {
-        final Health health = monitor.health();
+        final var health = monitor.health();
         assertEquals(Status.OUT_OF_SERVICE, health.getStatus());
     }
 }

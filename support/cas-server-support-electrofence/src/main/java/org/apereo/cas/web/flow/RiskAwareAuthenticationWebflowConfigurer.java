@@ -7,7 +7,6 @@ import org.apereo.cas.web.flow.configurer.AbstractCasWebflowConfigurer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.webflow.definition.registry.FlowDefinitionRegistry;
 import org.springframework.webflow.engine.ActionState;
-import org.springframework.webflow.engine.Flow;
 import org.springframework.webflow.engine.builder.support.FlowBuilderServices;
 
 /**
@@ -30,9 +29,9 @@ public class RiskAwareAuthenticationWebflowConfigurer extends AbstractCasWebflow
 
     @Override
     protected void doInitialize() {
-        final Flow flow = getLoginFlow();
+        final var flow = getLoginFlow();
         if (flow != null) {
-            final ActionState submit = getState(flow, CasWebflowConstants.STATE_ID_REAL_SUBMIT, ActionState.class);
+            final var submit = getState(flow, CasWebflowConstants.STATE_ID_REAL_SUBMIT, ActionState.class);
             createTransitionForState(submit, BlockAuthenticationContingencyPlan.EVENT_ID_BLOCK_AUTHN, VIEW_ID_BLOCKED_AUTHN);
             createViewState(flow, VIEW_ID_BLOCKED_AUTHN, VIEW_ID_BLOCKED_AUTHN);
         }

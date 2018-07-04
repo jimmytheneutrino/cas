@@ -3,7 +3,6 @@ package org.apereo.cas.web.support;
 import lombok.extern.slf4j.Slf4j;
 import org.apereo.cas.audit.AuditTrailExecutionPlan;
 import org.apereo.inspektr.audit.AuditActionContext;
-import org.apereo.inspektr.common.web.ClientInfo;
 import org.apereo.inspektr.common.web.ClientInfoHolder;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -11,8 +10,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Date;
-import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -41,10 +38,10 @@ public class MongoDbThrottledSubmissionHandlerInterceptorAdapter extends Abstrac
 
     @Override
     public boolean exceedsThreshold(final HttpServletRequest request) {
-        final ClientInfo clientInfo = ClientInfoHolder.getClientInfo();
-        final String remoteAddress = clientInfo.getClientIpAddress();
+        final var clientInfo = ClientInfoHolder.getClientInfo();
+        final var remoteAddress = clientInfo.getClientIpAddress();
 
-        final Query query = new Query()
+        final var query = new Query()
             .addCriteria(Criteria.where("clientIpAddress").is(remoteAddress)
                 .and("principal").is(getUsernameParameterFromRequest(request))
                 .and("actionPerformed").is(getAuthenticationFailureCode())
@@ -56,7 +53,7 @@ public class MongoDbThrottledSubmissionHandlerInterceptorAdapter extends Abstrac
         query.fields().include("whenActionWasPerformed");
 
         LOGGER.debug("Executing MongoDb throttling query [{}]", query.toString());
-        final List<Date> failures = this.mongoTemplate.find(query, AuditActionContext.class, this.collectionName)
+        final var failures = this.mongoTemplate.find(query, AuditActionContext.class, this.collectionName)
             .stream()
             .map(AuditActionContext::getWhenActionWasPerformed)
             .collect(Collectors.toList());

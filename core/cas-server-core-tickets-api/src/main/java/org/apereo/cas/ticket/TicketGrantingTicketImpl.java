@@ -21,7 +21,6 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -41,7 +40,7 @@ import java.util.List;
 @DiscriminatorColumn(name = "TYPE")
 @DiscriminatorValue(TicketGrantingTicket.PREFIX)
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 @Slf4j
 @Getter
 @NoArgsConstructor
@@ -63,7 +62,7 @@ public class TicketGrantingTicketImpl extends AbstractTicket implements TicketGr
      * Service that produced a proxy-granting ticket.
      */
     @Lob
-    @Column(name = "PROXIED_BY", nullable = true, length = Integer.MAX_VALUE)
+    @Column(name = "PROXIED_BY", length = Integer.MAX_VALUE)
     private Service proxiedBy;
 
     /**
@@ -154,8 +153,8 @@ public class TicketGrantingTicketImpl extends AbstractTicket implements TicketGr
         update();
         service.setPrincipal(getRoot().getAuthentication().getPrincipal().getId());
         if (onlyTrackMostRecentSession) {
-            final String path = normalizePath(service);
-            final Collection<Service> existingServices = this.services.values();
+            final var path = normalizePath(service);
+            final var existingServices = this.services.values();
             // loop on existing services
             existingServices.stream().filter(existingService -> path.equals(normalizePath(existingService))).findFirst().ifPresent(existingServices::remove);
         }
@@ -169,7 +168,7 @@ public class TicketGrantingTicketImpl extends AbstractTicket implements TicketGr
      * @return the normalized path
      */
     private static String normalizePath(final Service service) {
-        String path = service.getId();
+        var path = service.getId();
         path = StringUtils.substringBefore(path, "?");
         path = StringUtils.substringBefore(path, ";");
         path = StringUtils.substringBefore(path, "#");
@@ -197,7 +196,7 @@ public class TicketGrantingTicketImpl extends AbstractTicket implements TicketGr
     @JsonIgnore
     @Override
     public TicketGrantingTicket getRoot() {
-        final TicketGrantingTicket parent = this.getTicketGrantingTicket();
+        final var parent = this.getTicketGrantingTicket();
         if (parent == null) {
             return this;
         }

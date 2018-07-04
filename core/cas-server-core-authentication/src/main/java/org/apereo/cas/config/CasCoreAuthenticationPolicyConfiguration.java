@@ -16,7 +16,6 @@ import org.apereo.cas.authentication.policy.RequiredHandlerAuthenticationPolicyF
 import org.apereo.cas.authentication.policy.RestfulAuthenticationPolicy;
 import org.apereo.cas.authentication.policy.UniquePrincipalAuthenticationPolicy;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.core.authentication.AuthenticationPolicyProperties;
 import org.apereo.cas.ticket.registry.TicketRegistry;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,9 +43,9 @@ public class CasCoreAuthenticationPolicyConfiguration {
     @Qualifier("ticketRegistry")
     private ObjectProvider<TicketRegistry> ticketRegistry;
 
-    @Autowired(required = false)
+    @Autowired
     @Qualifier("geoLocationService")
-    private GeoLocationService geoLocationService;
+    private ObjectProvider<GeoLocationService> geoLocationService;
 
     @Autowired
     private ResourceLoader resourceLoader;
@@ -58,7 +57,7 @@ public class CasCoreAuthenticationPolicyConfiguration {
     @Bean
     public AuthenticationEventExecutionPlanConfigurer authenticationPolicyExecutionPlanConfigurer() {
         return plan -> {
-            final AuthenticationPolicyProperties police = casProperties.getAuthn().getPolicy();
+            final var police = casProperties.getAuthn().getPolicy();
 
             if (police.getReq().isEnabled()) {
                 LOGGER.debug("Activating authentication policy [{}]", RequiredHandlerAuthenticationPolicy.class.getSimpleName());
@@ -94,7 +93,7 @@ public class CasCoreAuthenticationPolicyConfiguration {
     @Bean
     @RefreshScope
     public AdaptiveAuthenticationPolicy adaptiveAuthenticationPolicy() {
-        return new DefaultAdaptiveAuthenticationPolicy(this.geoLocationService, casProperties.getAuthn().getAdaptive());
+        return new DefaultAdaptiveAuthenticationPolicy(this.geoLocationService.getIfAvailable(), casProperties.getAuthn().getAdaptive());
     }
 
     @ConditionalOnMissingBean(name = "requiredHandlerAuthenticationPolicyFactory")

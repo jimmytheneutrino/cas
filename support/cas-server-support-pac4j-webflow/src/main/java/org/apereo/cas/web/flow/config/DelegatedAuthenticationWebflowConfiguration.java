@@ -28,7 +28,7 @@ import org.pac4j.core.client.Clients;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.web.ErrorViewResolver;
+import org.springframework.boot.autoconfigure.web.servlet.error.ErrorViewResolver;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.ApplicationContext;
@@ -162,8 +162,12 @@ public class DelegatedAuthenticationWebflowConfiguration implements CasWebflowEx
     @Bean
     @DependsOn("defaultWebflowConfigurer")
     public CasWebflowConfigurer delegatedAuthenticationWebflowConfigurer() {
-        return new DelegatedAuthenticationWebflowConfigurer(flowBuilderServices, loginFlowDefinitionRegistry,
-            logoutFlowDefinitionRegistry, saml2ClientLogoutAction, applicationContext, casProperties);
+        return new DelegatedAuthenticationWebflowConfigurer(flowBuilderServices,
+            loginFlowDefinitionRegistry,
+            logoutFlowDefinitionRegistry,
+            saml2ClientLogoutAction,
+            applicationContext,
+            casProperties);
     }
 
     @RefreshScope

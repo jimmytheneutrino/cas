@@ -3,11 +3,9 @@ package org.apereo.cas.support.oauth.validator.token;
 import lombok.extern.slf4j.Slf4j;
 import org.apereo.cas.audit.AuditableContext;
 import org.apereo.cas.audit.AuditableExecution;
-import org.apereo.cas.audit.AuditableExecutionResult;
 import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.support.oauth.OAuth20Constants;
 import org.apereo.cas.support.oauth.OAuth20GrantTypes;
-import org.apereo.cas.support.oauth.services.OAuthRegisteredService;
 import org.apereo.cas.support.oauth.util.OAuth20Utils;
 import org.apereo.cas.ticket.OAuthToken;
 import org.apereo.cas.ticket.code.OAuthCode;
@@ -16,8 +14,6 @@ import org.apereo.cas.util.HttpRequestUtils;
 import org.pac4j.core.context.J2EContext;
 import org.pac4j.core.profile.ProfileManager;
 import org.pac4j.core.profile.UserProfile;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * This is {@link OAuth20AuthorizationCodeGrantTypeTokenRequestValidator}.
@@ -30,7 +26,8 @@ public class OAuth20AuthorizationCodeGrantTypeTokenRequestValidator extends Base
     private final ServicesManager servicesManager;
     private final TicketRegistry ticketRegistry;
 
-    public OAuth20AuthorizationCodeGrantTypeTokenRequestValidator(final ServicesManager servicesManager, final TicketRegistry ticketRegistry,
+    public OAuth20AuthorizationCodeGrantTypeTokenRequestValidator(final ServicesManager servicesManager,
+                                                                  final TicketRegistry ticketRegistry,
                                                                   final AuditableExecution registeredServiceAccessStrategyEnforcer) {
         super(registeredServiceAccessStrategyEnforcer);
         this.servicesManager = servicesManager;
@@ -45,38 +42,39 @@ public class OAuth20AuthorizationCodeGrantTypeTokenRequestValidator extends Base
     @Override
     protected boolean validateInternal(final J2EContext context, final String grantType,
                                        final ProfileManager manager, final UserProfile uProfile) {
-        final HttpServletRequest request = context.getRequest();
-        final String clientId = uProfile.getId();
-        final String redirectUri = request.getParameter(OAuth20Constants.REDIRECT_URI);
-        final OAuthRegisteredService clientRegisteredService = OAuth20Utils.getRegisteredOAuthServiceByClientId(this.servicesManager, clientId);
+        final var request = context.getRequest();
+        final var clientId = uProfile.getId();
+        final var redirectUri = request.getParameter(OAuth20Constants.REDIRECT_URI);
+        final var clientRegisteredService = OAuth20Utils.getRegisteredOAuthServiceByClientId(this.servicesManager, clientId);
 
         LOGGER.debug("Received grant type [{}] with client id [{}] and redirect URI [{}]", grantType, clientId, redirectUri);
-        final boolean valid = HttpRequestUtils.doesParameterExist(request, OAuth20Constants.REDIRECT_URI)
+        final var valid = HttpRequestUtils.doesParameterExist(request, OAuth20Constants.REDIRECT_URI)
             && HttpRequestUtils.doesParameterExist(request, OAuth20Constants.CODE)
             && OAuth20Utils.checkCallbackValid(clientRegisteredService, redirectUri);
 
         if (valid) {
-            final String code = context.getRequestParameter(OAuth20Constants.CODE);
+            final var code = context.getRequestParameter(OAuth20Constants.CODE);
             final OAuthToken token = ticketRegistry.getTicket(code, OAuthCode.class);
             if (token == null || token.isExpired()) {
                 LOGGER.warn("Request OAuth code [{}] is not found or has expired", code);
                 return false;
             }
-            final String serviceId = token.getService().getId();
-            final OAuthRegisteredService codeRegisteredService = OAuth20Utils.getRegisteredOAuthServiceByRedirectUri(this.servicesManager, serviceId);
+            
+            final var id = token.getService().getId();
+            final var codeRegisteredService = OAuth20Utils.getRegisteredOAuthServiceByClientId(this.servicesManager, id);
 
-            final AuditableContext audit = AuditableContext.builder()
+            final var audit = AuditableContext.builder()
                 .service(token.getService())
                 .authentication(token.getAuthentication())
                 .registeredService(codeRegisteredService)
                 .retrievePrincipalAttributesFromReleasePolicy(Boolean.TRUE)
                 .build();
-            final AuditableExecutionResult accessResult = this.registeredServiceAccessStrategyEnforcer.execute(audit);
+            final var accessResult = this.registeredServiceAccessStrategyEnforcer.execute(audit);
             accessResult.throwExceptionIfNeeded();
 
             if (!clientRegisteredService.equals(codeRegisteredService)) {
                 LOGGER.warn("The OAuth code [{}] issued to service [{}] does not match the registered service [{}] provided in the request given the redirect URI [{}]",
-                    code, serviceId, clientRegisteredService.getName(), redirectUri);
+                    code, id, clientRegisteredService.getName(), redirectUri);
                 return false;
             }
             return true;

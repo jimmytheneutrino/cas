@@ -13,8 +13,6 @@ import org.apereo.cas.web.support.WebUtils;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
-import javax.servlet.http.HttpServletRequest;
-
 /**
  * This class represents an action in the webflow to retrieve WsFederation information on the callback url which is
  * the webflow url (/login).
@@ -51,8 +49,8 @@ public class WsFederationAction extends AbstractAuthenticationAction {
     @Override
     protected Event doExecute(final RequestContext context) {
         try {
-            final HttpServletRequest request = WebUtils.getHttpServletRequestFromExternalWebflowContext(context);
-            final String wa = request.getParameter(WA);
+            final var request = WebUtils.getHttpServletRequestFromExternalWebflowContext(context);
+            final var wa = request.getParameter(WA);
             if (StringUtils.isNotBlank(wa) && wa.equalsIgnoreCase(WSIGNIN)) {
                 wsFederationResponseValidator.validateWsFederationAuthenticationRequest(context);
                 return super.doExecute(context);

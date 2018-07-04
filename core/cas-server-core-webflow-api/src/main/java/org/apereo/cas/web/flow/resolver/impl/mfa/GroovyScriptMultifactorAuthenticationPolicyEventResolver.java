@@ -3,16 +3,12 @@ package org.apereo.cas.web.flow.resolver.impl.mfa;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apereo.cas.CentralAuthenticationService;
-import org.apereo.cas.authentication.Authentication;
 import org.apereo.cas.authentication.AuthenticationException;
 import org.apereo.cas.authentication.AuthenticationServiceSelectionPlan;
 import org.apereo.cas.authentication.AuthenticationSystemSupport;
 import org.apereo.cas.authentication.MultifactorAuthenticationUtils;
-import org.apereo.cas.authentication.principal.Service;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.services.MultifactorAuthenticationProvider;
 import org.apereo.cas.services.MultifactorAuthenticationProviderSelector;
-import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.ticket.registry.TicketRegistrySupport;
 import org.apereo.cas.util.CollectionUtils;
@@ -25,8 +21,6 @@ import org.springframework.web.util.CookieGenerator;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
-import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -57,9 +51,9 @@ public class GroovyScriptMultifactorAuthenticationPolicyEventResolver extends Ba
 
     @Override
     public Set<Event> resolveInternal(final RequestContext context) {
-        final Service service = resolveServiceFromAuthenticationRequest(context);
-        final RegisteredService registeredService = resolveRegisteredServiceInRequestContext(context);
-        final Authentication authentication = WebUtils.getAuthentication(context);
+        final var service = resolveServiceFromAuthenticationRequest(context);
+        final var registeredService = resolveRegisteredServiceInRequestContext(context);
+        final var authentication = WebUtils.getAuthentication(context);
 
         if (groovyScript == null) {
             LOGGER.debug("No groovy script is configured for multifactor authentication");
@@ -80,7 +74,7 @@ public class GroovyScriptMultifactorAuthenticationPolicyEventResolver extends Ba
             return null;
         }
 
-        final Map<String, MultifactorAuthenticationProvider> providerMap =
+        final var providerMap =
                 MultifactorAuthenticationUtils.getAvailableMultifactorAuthenticationProviders(this.applicationContext);
         if (providerMap == null || providerMap.isEmpty()) {
             LOGGER.error("No multifactor authentication providers are available in the application context");
@@ -89,17 +83,17 @@ public class GroovyScriptMultifactorAuthenticationPolicyEventResolver extends Ba
 
         try {
             final Object[] args = {service, registeredService, authentication, LOGGER};
-            final String provider = ScriptingUtils.executeGroovyScript(groovyScript, args, String.class);
+            final var provider = ScriptingUtils.executeGroovyScript(groovyScript, args, String.class);
             LOGGER.debug("Groovy script run for [{}] returned the provider id [{}]", service, provider);
             if (StringUtils.isBlank(provider)) {
                 return null;
             }
 
-            final Optional<MultifactorAuthenticationProvider> providerFound = resolveProvider(providerMap, provider);
+            final var providerFound = resolveProvider(providerMap, provider);
             if (providerFound.isPresent()) {
-                final MultifactorAuthenticationProvider multifactorAuthenticationProvider = providerFound.get();
+                final var multifactorAuthenticationProvider = providerFound.get();
                 if (multifactorAuthenticationProvider.isAvailable(registeredService)) {
-                    final Event event = validateEventIdForMatchingTransitionInContext(multifactorAuthenticationProvider.getId(), context,
+                    final var event = validateEventIdForMatchingTransitionInContext(multifactorAuthenticationProvider.getId(), context,
                             buildEventAttributeMap(authentication.getPrincipal(), registeredService, multifactorAuthenticationProvider));
                     return CollectionUtils.wrapSet(event);
                 }

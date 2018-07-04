@@ -1,7 +1,6 @@
 package org.apereo.cas.hz;
 
 import org.apereo.cas.configuration.model.support.hazelcast.HazelcastClusterProperties;
-import org.apereo.cas.configuration.model.support.hazelcast.discovery.HazelcastAwsDiscoveryProperties;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -15,9 +14,9 @@ import static org.junit.Assert.*;
 public class HazelcastAwsDiscoveryStrategyTests {
     @Test
     public void verifyAction() {
-        final HazelcastAwsDiscoveryStrategy strategy = new HazelcastAwsDiscoveryStrategy();
-        final HazelcastClusterProperties properties = new HazelcastClusterProperties();
-        final HazelcastAwsDiscoveryProperties aws = properties.getDiscovery().getAws();
+        final var strategy = new HazelcastAwsDiscoveryStrategy();
+        final var properties = new HazelcastClusterProperties();
+        final var aws = properties.getDiscovery().getAws();
 
         aws.setAccessKey("AccessKey");
         aws.setSecretKey("Secret");

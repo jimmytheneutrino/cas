@@ -1,6 +1,5 @@
 package org.apereo.cas.mongo;
 
-import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoClientURI;
@@ -14,7 +13,6 @@ import org.apereo.cas.configuration.model.support.mongo.BaseMongoDbProperties;
 import org.apereo.cas.configuration.support.Beans;
 import org.apereo.cas.util.CollectionUtils;
 import org.springframework.beans.factory.BeanCreationException;
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
@@ -100,7 +98,7 @@ public class MongoDbConnectionFactory {
      * @return the mongo template
      */
     public MongoTemplate buildMongoTemplate(final BaseMongoDbProperties mongo) {
-        final MongoDbFactory mongoDbFactory = mongoDbFactory(buildMongoDbClient(mongo), mongo);
+        final var mongoDbFactory = mongoDbFactory(buildMongoDbClient(mongo), mongo);
         return new MongoTemplate(mongoDbFactory, mappingMongoConverter(mongoDbFactory));
     }
 
@@ -134,7 +132,7 @@ public class MongoDbConnectionFactory {
     }
 
     private MongoMappingContext mongoMappingContext() {
-        final MongoMappingContext mappingContext = new MongoMappingContext();
+        final var mappingContext = new MongoMappingContext();
         mappingContext.setInitialEntitySet(getInitialEntitySet());
         mappingContext.setSimpleTypeHolder(this.customConversions.getSimpleTypeHolder());
         mappingContext.setFieldNamingStrategy(this.fieldNamingStrategy());
@@ -143,38 +141,25 @@ public class MongoDbConnectionFactory {
 
     private MappingMongoConverter mappingMongoConverter(final MongoDbFactory mongoDbFactory) {
         final DbRefResolver dbRefResolver = new DefaultDbRefResolver(mongoDbFactory);
-        final MappingMongoConverter converter = new MappingMongoConverter(dbRefResolver, this.mongoMappingContext());
+        final var converter = new MappingMongoConverter(dbRefResolver, this.mongoMappingContext());
         converter.setCustomConversions(customConversions);
         converter.afterPropertiesSet();
         return converter;
     }
 
-    private MongoDbFactory mongoDbFactory(final Mongo mongo, final BaseMongoDbProperties props) {
-        final String dbName;
-        final String authDbName;
-
+    private MongoDbFactory mongoDbFactory(final MongoClient mongo, final BaseMongoDbProperties props) {
         if (StringUtils.isNotBlank(props.getClientUri())) {
-            final MongoClientURI uri = buildMongoClientURI(props.getClientUri(), buildMongoDbClientOptions(props));
-            authDbName = uri.getCredentials().getSource();
-            dbName = uri.getDatabase();
-            LOGGER.debug("Using database [{}] from the connection client URI", dbName);
-        } else {
-            authDbName = props.getAuthenticationDatabaseName();
-            dbName = props.getDatabaseName();
-            LOGGER.debug("Using database [{}] from individual settings", dbName);
+            final var uri = buildMongoClientURI(props.getClientUri(), buildMongoDbClientOptions(props));
+            LOGGER.debug("Using database [{}] from the connection client URI with authentication database [{}]",
+                uri.getDatabase(), uri.getCredentials().getSource());
+            return new SimpleMongoDbFactory(uri);
         }
-
-        if (StringUtils.isBlank(dbName)) {
-            LOGGER.error("Database name cannot be undefined. It must be specified as part of the client URI connection string if used, or "
-                    + "as an individual setting for the MongoDb connection");
-        }
-
-        return new SimpleMongoDbFactory(mongo, dbName, null, authDbName);
+        return new SimpleMongoDbFactory(mongo, props.getDatabaseName());
     }
 
     private Set<Class<?>> getInitialEntitySet() {
         final Set<Class<?>> initialEntitySet = new HashSet<>();
-        for (final String basePackage : getMappingBasePackages()) {
+        for (final var basePackage : getMappingBasePackages()) {
             initialEntitySet.addAll(scanForEntities(basePackage));
         }
         return initialEntitySet;
@@ -192,12 +177,12 @@ public class MongoDbConnectionFactory {
         final Set<Class<?>> initialEntitySet = new HashSet<>();
 
         if (StringUtils.isNotBlank(basePackage)) {
-            final ClassPathScanningCandidateComponentProvider componentProvider = new ClassPathScanningCandidateComponentProvider(
+            final var componentProvider = new ClassPathScanningCandidateComponentProvider(
                 false);
             componentProvider.addIncludeFilter(new AnnotationTypeFilter(Document.class));
             componentProvider.addIncludeFilter(new AnnotationTypeFilter(Persistent.class));
 
-            for (final BeanDefinition candidate : componentProvider.findCandidateComponents(basePackage)) {
+            for (final var candidate : componentProvider.findCandidateComponents(basePackage)) {
                 try {
                     initialEntitySet.add(ClassUtils.forName(candidate.getBeanClassName(), getClass().getClassLoader()));
                 } catch (final Exception e) {
@@ -249,7 +234,7 @@ public class MongoDbConnectionFactory {
     @SneakyThrows
     private MongoClientOptionsFactoryBean buildMongoDbClientOptionsFactoryBean(final BaseMongoDbProperties mongo) {
 
-        final MongoClientOptionsFactoryBean bean1 = new MongoClientOptionsFactoryBean();
+        final var bean1 = new MongoClientOptionsFactoryBean();
 
         bean1.setWriteConcern(WriteConcern.valueOf(mongo.getWriteConcern()));
         bean1.setHeartbeatConnectTimeout((int) Beans.newDuration(mongo.getTimeout()).toMillis());
@@ -271,10 +256,10 @@ public class MongoDbConnectionFactory {
         bean1.afterPropertiesSet();
 
         if (StringUtils.isNotBlank(mongo.getClientUri())) {
-            final MongoClientOptionsFactoryBean bean2 = new MongoClientOptionsFactoryBean();
+            final var bean2 = new MongoClientOptionsFactoryBean();
 
-            final MongoClientURI uri = buildMongoClientURI(mongo.getClientUri(), bean1.getObject());
-            final MongoClientOptions opts = uri.getOptions();
+            final var uri = buildMongoClientURI(mongo.getClientUri(), bean1.getObject());
+            final var opts = uri.getOptions();
 
             bean2.setWriteConcern(opts.getWriteConcern());
             bean2.setHeartbeatConnectTimeout(opts.getHeartbeatConnectTimeout());
@@ -306,14 +291,14 @@ public class MongoDbConnectionFactory {
         return buildMongoDbClientOptionsFactoryBean(mongo).getObject();
     }
 
-    private Mongo buildMongoDbClient(final BaseMongoDbProperties mongo) {
+    private MongoClient buildMongoDbClient(final BaseMongoDbProperties mongo) {
 
         if (StringUtils.isNotBlank(mongo.getClientUri())) {
             LOGGER.debug("Using MongoDb client URI [{}] to connect to MongoDb instance", mongo.getClientUri());
             return buildMongoDbClient(mongo.getClientUri(), buildMongoDbClientOptions(mongo));
         }
 
-        final String[] serverAddresses = mongo.getHost().split(",");
+        final var serverAddresses = mongo.getHost().split(",");
         if (serverAddresses == null || serverAddresses.length == 0) {
             throw new BeanCreationException("Unable to build a MongoDb client without any hosts/servers defined");
         }
@@ -327,28 +312,28 @@ public class MongoDbConnectionFactory {
                 .map(ServerAddress::new)
                 .collect(Collectors.toList());
         } else {
-            final int port = mongo.getPort() > 0 ? mongo.getPort() : DEFAULT_PORT;
+            final var port = mongo.getPort() > 0 ? mongo.getPort() : DEFAULT_PORT;
             LOGGER.debug("Found single MongoDb server address [{}] using port [{}]", mongo.getHost(), port);
-            final ServerAddress addr = new ServerAddress(mongo.getHost(), port);
+            final var addr = new ServerAddress(mongo.getHost(), port);
             servers.add(addr);
         }
 
-        final MongoCredential credential = buildMongoCredential(mongo);
+        final var credential = buildMongoCredential(mongo);
         return new MongoClient(servers, CollectionUtils.wrap(credential), buildMongoDbClientOptions(mongo));
     }
 
-    private Mongo buildMongoDbClient(final String clientUri, final MongoClientOptions clientOptions) {
-        final MongoClientURI uri = buildMongoClientURI(clientUri, clientOptions);
+    private MongoClient buildMongoDbClient(final String clientUri, final MongoClientOptions clientOptions) {
+        final var uri = buildMongoClientURI(clientUri, clientOptions);
         return new MongoClient(uri);
     }
 
     private MongoCredential buildMongoCredential(final BaseMongoDbProperties mongo) {
-        final String dbName = StringUtils.defaultIfBlank(mongo.getAuthenticationDatabaseName(), mongo.getDatabaseName());
+        final var dbName = StringUtils.defaultIfBlank(mongo.getAuthenticationDatabaseName(), mongo.getDatabaseName());
         return MongoCredential.createCredential(mongo.getUserId(), dbName, mongo.getPassword().toCharArray());
     }
 
     private MongoClientURI buildMongoClientURI(final String clientUri, final MongoClientOptions clientOptions) {
-        final MongoClientOptions.Builder builder = new MongoClientOptions.Builder(clientOptions);
+        final var builder = new MongoClientOptions.Builder(clientOptions);
         return new MongoClientURI(clientUri, builder);
     }
 

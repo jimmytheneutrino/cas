@@ -11,7 +11,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,15 +60,15 @@ public class HttpRequestUtils {
      * @return the http servlet request geo location
      */
     public static GeoLocationRequest getHttpServletRequestGeoLocation(final HttpServletRequest request) {
-        final int latIndex = 0;
-        final int longIndex = 1;
-        final int accuracyIndex = 2;
-        final int timeIndex = 3;
-        final GeoLocationRequest loc = new GeoLocationRequest();
+        final var latIndex = 0;
+        final var longIndex = 1;
+        final var accuracyIndex = 2;
+        final var timeIndex = 3;
+        final var loc = new GeoLocationRequest();
         if (request != null) {
-            final String geoLocationParam = request.getParameter("geolocation");
+            final var geoLocationParam = request.getParameter("geolocation");
             if (StringUtils.isNotBlank(geoLocationParam)) {
-                final List<String> geoLocation = Splitter.on(",").splitToList(geoLocationParam);
+                final var geoLocation = Splitter.on(",").splitToList(geoLocationParam);
                 loc.setLatitude(geoLocation.get(latIndex));
                 loc.setLongitude(geoLocation.get(longIndex));
                 loc.setAccuracy(geoLocation.get(accuracyIndex));
@@ -87,11 +86,11 @@ public class HttpRequestUtils {
      */
     public static Map<String, String> getRequestHeaders(final HttpServletRequest request) {
         final Map<String, String> headers = new LinkedHashMap<>();
-        final Enumeration<String> headerNames = request.getHeaderNames();
+        final var headerNames = request.getHeaderNames();
         if (headerNames != null) {
             while (headerNames.hasMoreElements()) {
-                final String headerName = headerNames.nextElement();
-                final String headerValue = StringUtils.stripToEmpty(request.getHeader(headerName));
+                final var headerName = headerNames.nextElement();
+                final var headerValue = StringUtils.stripToEmpty(request.getHeader(headerName));
                 headers.put(headerName, headerValue);
             }
         }
@@ -131,7 +130,7 @@ public class HttpRequestUtils {
      * @return whether the parameter exists
      */
     public static boolean doesParameterExist(final HttpServletRequest request, final String name) {
-        final String parameter = request.getParameter(name);
+        final var parameter = request.getParameter(name);
         if (StringUtils.isBlank(parameter)) {
             LOGGER.error("Missing request parameter: [{}]", name);
             return false;

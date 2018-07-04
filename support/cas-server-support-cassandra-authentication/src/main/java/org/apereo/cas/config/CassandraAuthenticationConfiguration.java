@@ -13,7 +13,6 @@ import org.apereo.cas.authentication.principal.PrincipalResolver;
 import org.apereo.cas.authentication.support.password.PasswordEncoderUtils;
 import org.apereo.cas.cassandra.CassandraSessionFactory;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.support.cassandra.authentication.CassandraAuthenticationProperties;
 import org.apereo.cas.services.ServicesManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -58,14 +57,14 @@ public class CassandraAuthenticationConfiguration {
     @Bean
     @RefreshScope
     public CassandraRepository cassandraRepository() {
-        final CassandraAuthenticationProperties cassandra = casProperties.getAuthn().getCassandra();
+        final var cassandra = casProperties.getAuthn().getCassandra();
         return new DefaultCassandraRepository(cassandra, cassandraSessionFactory);
     }
     
     @Bean
     public AuthenticationHandler cassandraAuthenticationHandler() {
-        final CassandraAuthenticationProperties cassandra = casProperties.getAuthn().getCassandra();
-        final CassandraAuthenticationHandler handler = new CassandraAuthenticationHandler(cassandra.getName(), servicesManager,
+        final var cassandra = casProperties.getAuthn().getCassandra();
+        final var handler = new CassandraAuthenticationHandler(cassandra.getName(), servicesManager,
                 cassandraPrincipalFactory(),
                 cassandra.getOrder(), cassandra, cassandraRepository());
         handler.setPrincipalNameTransformer(PrincipalNameTransformerUtils.newPrincipalNameTransformer(cassandra.getPrincipalTransformation()));

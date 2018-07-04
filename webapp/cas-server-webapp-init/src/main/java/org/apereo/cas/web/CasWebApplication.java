@@ -3,8 +3,7 @@ package org.apereo.cas.web;
 import lombok.NoArgsConstructor;
 import org.apereo.cas.CasEmbeddedContainerUtils;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.springframework.boot.Banner;
-import org.springframework.boot.actuate.autoconfigure.MetricsDropwizardAutoConfiguration;
+import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.cassandra.CassandraAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
@@ -24,8 +23,6 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import java.util.Map;
-
 /**
  * This is {@link CasWebApplication}.
  *
@@ -44,7 +41,6 @@ import java.util.Map;
     MongoDataAutoConfiguration.class,
     CassandraAutoConfiguration.class,
     DataSourceTransactionManagerAutoConfiguration.class,
-    MetricsDropwizardAutoConfiguration.class,
     RedisRepositoriesAutoConfiguration.class
 })
 @EnableConfigurationProperties(CasConfigurationProperties.class)
@@ -60,11 +56,11 @@ public class CasWebApplication {
      * @param args the args
      */
     public static void main(final String[] args) {
-        final Map<String, Object> properties = CasEmbeddedContainerUtils.getRuntimeProperties(Boolean.TRUE);
-        final Banner banner = CasEmbeddedContainerUtils.getCasBannerInstance();
+        final var properties = CasEmbeddedContainerUtils.getRuntimeProperties(Boolean.TRUE);
+        final var banner = CasEmbeddedContainerUtils.getCasBannerInstance();
         new SpringApplicationBuilder(CasWebApplication.class)
             .banner(banner)
-            .web(true)
+            .web(WebApplicationType.SERVLET)
             .properties(properties)
             .logStartupInfo(true)
             .contextClass(CasWebApplicationContext.class)

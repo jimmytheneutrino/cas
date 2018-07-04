@@ -17,7 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.Resource;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -37,7 +36,7 @@ public class ChainingAWSCredentialsProvider implements AWSCredentialsProvider {
     @Override
     public AWSCredentials getCredentials() {
         LOGGER.debug("Attempting to locate AWS credentials from the chain...");
-        for (final AWSCredentialsProvider p : this.chain) {
+        for (final var p : this.chain) {
             AWSCredentials c;
             try {
                 LOGGER.debug("Calling credential provider [{}] to fetch credentials...", p.getClass().getSimpleName());
@@ -57,7 +56,7 @@ public class ChainingAWSCredentialsProvider implements AWSCredentialsProvider {
 
     @Override
     public void refresh() {
-        for (final AWSCredentialsProvider p : this.chain) {
+        for (final var p : this.chain) {
             try {
                 p.refresh();
             } catch (final Throwable e) {
@@ -120,7 +119,7 @@ public class ChainingAWSCredentialsProvider implements AWSCredentialsProvider {
 
         if (credentialPropertiesFile != null) {
             try {
-                final File f = credentialPropertiesFile.getFile();
+                final var f = credentialPropertiesFile.getFile();
                 chain.add(new PropertiesFileCredentialsProvider(f.getCanonicalPath()));
             } catch (final Exception e) {
                 LOGGER.error(e.getMessage(), e);
@@ -149,7 +148,7 @@ public class ChainingAWSCredentialsProvider implements AWSCredentialsProvider {
 
         if (StringUtils.isNotBlank(credentialAccessKey) && StringUtils.isNotBlank(credentialSecretKey)) {
             addProviderToChain(nothing -> {
-                final BasicAWSCredentials credentials = new BasicAWSCredentials(credentialAccessKey, credentialSecretKey);
+                final var credentials = new BasicAWSCredentials(credentialAccessKey, credentialSecretKey);
                 chain.add(new AWSStaticCredentialsProvider(credentials));
                 return null;
             });

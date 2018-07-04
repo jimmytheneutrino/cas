@@ -9,7 +9,6 @@ import org.apereo.cas.util.CollectionUtils;
 import org.apereo.cas.util.io.SmsSender;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -50,28 +49,28 @@ public class ClickatellSmsSender implements SmsSender {
             map.put("to", CollectionUtils.wrap(to));
             map.put("from", from);
 
-            final StringWriter stringify = new StringWriter();
+            final var stringify = new StringWriter();
             mapper.writeValue(stringify, map);
 
             final HttpEntity<String> request = new HttpEntity<>(stringify.toString(), headers);
-            final ResponseEntity<Map> response = restTemplate.postForEntity(new URI(this.serverUrl), request, Map.class);
+            final var response = restTemplate.postForEntity(new URI(this.serverUrl), request, Map.class);
             if (response.hasBody()) {
-                final Map body = response.getBody();
+                final var body = response.getBody();
                 LOGGER.debug("Received response [{}]", body);
 
                 if (!body.containsKey("messages")) {
                     LOGGER.error("Response body does not contain any messages");
                     return false;
                 }
-                final List<Map> messages = (List<Map>) body.get("messages");
+                final var messages = (List<Map>) body.get("messages");
 
-                final String error = (String) body.get("error");
+                final var error = (String) body.get("error");
                 if (StringUtils.isNotBlank(error)) {
                     LOGGER.error(error);
                     return false;
                 }
 
-                final List<String> errors = messages.stream()
+                final var errors = messages.stream()
                     .filter(m -> m.containsKey("accepted") && !Boolean.parseBoolean(m.get("accepted").toString()) && m.containsKey("error"))
                     .map(m -> (String) m.get("error"))
                     .collect(Collectors.toList());

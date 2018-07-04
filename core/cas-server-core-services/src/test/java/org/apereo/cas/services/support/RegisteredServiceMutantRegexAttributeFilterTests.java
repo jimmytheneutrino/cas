@@ -7,8 +7,8 @@ import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceAttributeFilter;
 import org.apereo.cas.util.CollectionUtils;
 import org.apereo.cas.util.serialization.SerializationUtils;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -43,7 +43,7 @@ public class RegisteredServiceMutantRegexAttributeFilterTests {
     private Map<String, Object> givenAttributesMap;
 
     @Before
-    public void setUp() {
+    public void initialize() {
         MockitoAnnotations.initMocks(this);
         when(this.registeredService.getName()).thenReturn("sample test service");
         when(this.registeredService.getServiceId()).thenReturn("https://www.apereo.org");
@@ -57,15 +57,15 @@ public class RegisteredServiceMutantRegexAttributeFilterTests {
     @Test
     public void verifyPatternFilter() {
         this.filter.setPatterns(Collections.singletonMap("memberOf", "^m"));
-        final Map<String, Object> attrs = this.filter.filter(this.givenAttributesMap);
+        final var attrs = this.filter.filter(this.givenAttributesMap);
         assertEquals(attrs.size(), this.givenAttributesMap.size());
         assertEquals(2, CollectionUtils.toCollection(attrs.get("memberOf")).size());
     }
 
     @Test
     public void verifySerialization() {
-        final byte[] data = SerializationUtils.serialize(this.filter);
-        final RegisteredServiceAttributeFilter secondFilter =
+        final var data = SerializationUtils.serialize(this.filter);
+        final var secondFilter =
             SerializationUtils.deserializeAndCheckObject(data, RegisteredServiceAttributeFilter.class);
         assertEquals(secondFilter, this.filter);
     }
@@ -89,7 +89,7 @@ public class RegisteredServiceMutantRegexAttributeFilterTests {
         this.filter.setExcludeUnmappedAttributes(true);
         final Map results = filter.filter(this.givenAttributesMap);
         assertEquals(1, results.size());
-        final Collection values = (Collection) results.get("memberOf");
+        final var values = (Collection) results.get("memberOf");
         assertTrue(values.contains("prefixathon101"));
         assertTrue(values.contains("postfixh101"));
     }

@@ -11,7 +11,6 @@ import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.util.http.HttpClient;
 
 import javax.security.auth.login.FailedLoginException;
-import java.net.URL;
 import java.security.GeneralSecurityException;
 
 /**
@@ -50,7 +49,7 @@ public class HttpBasedServiceCredentialsAuthenticationHandler extends AbstractAu
 
     @Override
     public AuthenticationHandlerExecutionResult authenticate(final Credential credential) throws GeneralSecurityException {
-        final HttpBasedServiceCredential httpCredential = (HttpBasedServiceCredential) credential;
+        final var httpCredential = (HttpBasedServiceCredential) credential;
         if (!httpCredential.getService().getProxyPolicy().isAllowedProxyCallbackUrl(httpCredential.getCallbackUrl())) {
             LOGGER.warn("Proxy policy for service [{}] cannot authorize the requested callback url [{}].",
                     httpCredential.getService().getServiceId(), httpCredential.getCallbackUrl());
@@ -58,7 +57,7 @@ public class HttpBasedServiceCredentialsAuthenticationHandler extends AbstractAu
         }
 
         LOGGER.debug("Attempting to authenticate [{}]", httpCredential);
-        final URL callbackUrl = httpCredential.getCallbackUrl();
+        final var callbackUrl = httpCredential.getCallbackUrl();
         if (!this.httpClient.isValidEndPoint(callbackUrl)) {
             throw new FailedLoginException(callbackUrl.toExternalForm() + " sent an unacceptable response status code");
         }

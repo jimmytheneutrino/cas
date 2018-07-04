@@ -17,12 +17,12 @@ import static org.mockito.Mockito.*;
 public class PasswordlessTokenAuthenticationHandlerTests {
     @Test
     public void verifyAction() throws Exception {
-        final InMemoryPasswordlessTokenRepository repository = new InMemoryPasswordlessTokenRepository(60);
+        final var repository = new InMemoryPasswordlessTokenRepository(60);
         repository.saveToken("casuser", "123456");
         final AuthenticationHandler h = new PasswordlessTokenAuthenticationHandler(null,
             mock(ServicesManager.class),
             PrincipalFactoryUtils.newPrincipalFactory(), 0, repository);
-        final OneTimePasswordCredential c = new OneTimePasswordCredential("casuser", "123456");
+        final var c = new OneTimePasswordCredential("casuser", "123456");
         assertNotNull(h.authenticate(c));
     }
 }

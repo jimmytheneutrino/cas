@@ -12,7 +12,6 @@ import org.apereo.cas.authentication.principal.PrincipalNameTransformerUtils;
 import org.apereo.cas.authentication.principal.PrincipalResolver;
 import org.apereo.cas.authentication.support.password.PasswordEncoderUtils;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.support.mongo.MongoAuthenticationProperties;
 import org.apereo.cas.services.ServicesManager;
 import org.pac4j.core.credentials.password.SpringSecurityPasswordEncoder;
 import org.pac4j.mongo.profile.service.MongoProfileService;
@@ -57,8 +56,8 @@ public class CasMongoAuthenticationConfiguration {
     @Bean
     @RefreshScope
     public AuthenticationHandler mongoAuthenticationHandler() {
-        final MongoAuthenticationProperties mongo = casProperties.getAuthn().getMongo();
-        final MongoDbAuthenticationHandler handler = new MongoDbAuthenticationHandler(mongo.getName(), servicesManager, mongoPrincipalFactory());
+        final var mongo = casProperties.getAuthn().getMongo();
+        final var handler = new MongoDbAuthenticationHandler(mongo.getName(), servicesManager, mongoPrincipalFactory());
         handler.setAuthenticator(mongoAuthenticatorProfileService());
         handler.setPrincipalNameTransformer(PrincipalNameTransformerUtils.newPrincipalNameTransformer(mongo.getPrincipalTransformation()));
         return handler;
@@ -73,14 +72,14 @@ public class CasMongoAuthenticationConfiguration {
     @ConditionalOnMissingBean(name = "mongoAuthenticatorProfileService")
     @Bean
     public MongoProfileService mongoAuthenticatorProfileService() {
-        final MongoAuthenticationProperties mongo = casProperties.getAuthn().getMongo();
+        final var mongo = casProperties.getAuthn().getMongo();
         
-        final MongoClientURI uri = new MongoClientURI(mongo.getMongoHostUri());
-        final MongoClient client = new MongoClient(uri);
+        final var uri = new MongoClientURI(mongo.getMongoHostUri());
+        final var client = new MongoClient(uri);
         LOGGER.info("Connected to MongoDb instance @ [{}] using database [{}]", uri.getHosts(), uri.getDatabase());
 
-        final SpringSecurityPasswordEncoder encoder = new SpringSecurityPasswordEncoder(PasswordEncoderUtils.newPasswordEncoder(mongo.getPasswordEncoder()));
-        final MongoProfileService auth = new MongoProfileService(client, mongo.getAttributes());
+        final var encoder = new SpringSecurityPasswordEncoder(PasswordEncoderUtils.newPasswordEncoder(mongo.getPasswordEncoder()));
+        final var auth = new MongoProfileService(client, mongo.getAttributes());
         auth.setUsersCollection(mongo.getCollectionName());
         auth.setUsersDatabase(uri.getDatabase());
         auth.setUsernameAttribute(mongo.getUsernameAttribute());

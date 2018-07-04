@@ -5,7 +5,6 @@ import net.shibboleth.utilities.java.support.xml.ParserPool;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apereo.cas.authentication.Authentication;
 import org.apereo.cas.authentication.AuthenticationException;
-import org.apereo.cas.authentication.AuthenticationResult;
 import org.apereo.cas.authentication.AuthenticationSystemSupport;
 import org.apereo.cas.authentication.Credential;
 import org.apereo.cas.authentication.UsernamePasswordCredential;
@@ -18,24 +17,19 @@ import org.apereo.cas.support.saml.OpenSamlConfigBean;
 import org.apereo.cas.support.saml.SamlIdPConstants;
 import org.apereo.cas.support.saml.SamlIdPUtils;
 import org.apereo.cas.support.saml.SamlUtils;
-import org.apereo.cas.support.saml.services.SamlRegisteredService;
-import org.apereo.cas.support.saml.services.idp.metadata.SamlRegisteredServiceServiceProviderMetadataFacade;
 import org.apereo.cas.support.saml.services.idp.metadata.cache.SamlRegisteredServiceCachingMetadataResolver;
 import org.apereo.cas.support.saml.web.idp.profile.AbstractSamlProfileHandlerController;
 import org.apereo.cas.support.saml.web.idp.profile.builders.SamlProfileObjectBuilder;
 import org.apereo.cas.support.saml.web.idp.profile.builders.enc.SamlIdPObjectSigner;
 import org.apereo.cas.support.saml.web.idp.profile.builders.enc.SamlObjectSignatureValidator;
 import org.apereo.cas.util.Pac4jUtils;
-import org.jasig.cas.client.validation.Assertion;
 import org.opensaml.messaging.context.MessageContext;
 import org.opensaml.saml.common.SAMLObject;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.RequestAbstractType;
 import org.opensaml.soap.messaging.context.SOAP11Context;
-import org.opensaml.soap.soap11.Envelope;
 import org.pac4j.core.context.WebContext;
-import org.pac4j.core.credentials.UsernamePasswordCredentials;
 import org.pac4j.core.credentials.extractor.BasicAuthExtractor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -87,8 +81,8 @@ public class ECPProfileHandlerController extends AbstractSamlProfileHandlerContr
         produces = {MediaType.TEXT_XML_VALUE, SamlIdPConstants.ECP_SOAP_PAOS_CONTENT_TYPE})
     public void handleEcpRequest(final HttpServletResponse response,
                                  final HttpServletRequest request) {
-        final MessageContext soapContext = decodeSoapRequest(request);
-        final Credential credential = extractBasicAuthenticationCredential(request, response);
+        final var soapContext = decodeSoapRequest(request);
+        final var credential = extractBasicAuthenticationCredential(request, response);
 
         if (credential == null) {
             LOGGER.error("Credentials could not be extracted from the SAML ECP request");
@@ -115,31 +109,31 @@ public class ECPProfileHandlerController extends AbstractSamlProfileHandlerContr
                                     final String binding) {
         LOGGER.debug("Handling ECP request for SOAP context [{}]", soapContext);
 
-        final Envelope envelope = soapContext.getSubcontext(SOAP11Context.class).getEnvelope();
+        final var envelope = soapContext.getSubcontext(SOAP11Context.class).getEnvelope();
         SamlUtils.logSamlObject(configBean, envelope);
 
-        final AuthnRequest authnRequest = (AuthnRequest) soapContext.getMessage();
-        final Pair<AuthnRequest, MessageContext> authenticationContext = Pair.of(authnRequest, soapContext);
+        final var authnRequest = (AuthnRequest) soapContext.getMessage();
+        final var authenticationContext = Pair.of(authnRequest, soapContext);
         try {
             LOGGER.debug("Verifying ECP authentication request [{}]", authnRequest);
-            final Pair<SamlRegisteredService, SamlRegisteredServiceServiceProviderMetadataFacade> serviceRequest =
+            final var serviceRequest =
                 verifySamlAuthenticationRequest(authenticationContext, request);
 
             LOGGER.debug("Attempting to authenticate ECP request for credential id [{}]", credential.getId());
-            final Authentication authentication = authenticateEcpRequest(credential, authenticationContext);
+            final var authentication = authenticateEcpRequest(credential, authenticationContext);
             LOGGER.debug("Authenticated [{}] successfully with authenticated principal [{}]",
                 credential.getId(), authentication.getPrincipal());
 
             LOGGER.debug("Building ECP SAML response for [{}]", credential.getId());
-            final String issuer = SamlIdPUtils.getIssuerFromSamlRequest(authnRequest);
+            final var issuer = SamlIdPUtils.getIssuerFromSamlRequest(authnRequest);
             final Service service = webApplicationServiceFactory.createService(issuer);
-            final Assertion casAssertion = buildCasAssertion(authentication, service, serviceRequest.getKey(), new LinkedHashMap<>());
+            final var casAssertion = buildCasAssertion(authentication, service, serviceRequest.getKey(), new LinkedHashMap<>());
 
             LOGGER.debug("CAS assertion to use for building ECP SAML response is [{}]", casAssertion);
             buildSamlResponse(response, request, authenticationContext, casAssertion, binding);
         } catch (final AuthenticationException e) {
             LOGGER.error(e.getMessage(), e);
-            final String error = e.getHandlerErrors().values()
+            final var error = e.getHandlerErrors().values()
                 .stream()
                 .map(Throwable::getMessage)
                 .filter(Objects::nonNull)
@@ -176,12 +170,12 @@ public class ECPProfileHandlerController extends AbstractSamlProfileHandlerContr
      */
     protected Authentication authenticateEcpRequest(final Credential credential,
                                                     final Pair<AuthnRequest, MessageContext> authnRequest) {
-        final String issuer = SamlIdPUtils.getIssuerFromSamlRequest(authnRequest.getKey());
+        final var issuer = SamlIdPUtils.getIssuerFromSamlRequest(authnRequest.getKey());
         LOGGER.debug("Located issuer [{}] from request prior to authenticating [{}]", issuer, credential.getId());
 
         final Service service = webApplicationServiceFactory.createService(issuer);
         LOGGER.debug("Executing authentication request for service [{}] on behalf of credential id [{}]", service, credential.getId());
-        final AuthenticationResult authenticationResult = authenticationSystemSupport.handleAndFinalizeSingleAuthenticationTransaction(service, credential);
+        final var authenticationResult = authenticationSystemSupport.handleAndFinalizeSingleAuthenticationTransaction(service, credential);
         return authenticationResult.getAuthentication();
     }
 
@@ -189,9 +183,9 @@ public class ECPProfileHandlerController extends AbstractSamlProfileHandlerContr
     private Credential extractBasicAuthenticationCredential(final HttpServletRequest request,
                                                             final HttpServletResponse response) {
         try {
-            final BasicAuthExtractor extractor = new BasicAuthExtractor();
+            final var extractor = new BasicAuthExtractor();
             final WebContext webContext = Pac4jUtils.getPac4jJ2EContext(request, response);
-            final UsernamePasswordCredentials credentials = extractor.extract(webContext);
+            final var credentials = extractor.extract(webContext);
             if (credentials != null) {
                 LOGGER.debug("Received basic authentication ECP request from credentials [{}]", credentials);
                 return new UsernamePasswordCredential(credentials.getUsername(), credentials.getPassword());

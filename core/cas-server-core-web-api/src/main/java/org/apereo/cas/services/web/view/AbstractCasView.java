@@ -1,7 +1,7 @@
 package org.apereo.cas.services.web.view;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apereo.cas.CasProtocolConstants;
@@ -13,7 +13,6 @@ import org.apereo.cas.authentication.RememberMeCredential;
 import org.apereo.cas.authentication.principal.Principal;
 import org.apereo.cas.authentication.principal.Service;
 import org.apereo.cas.services.RegisteredService;
-import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.util.CollectionUtils;
 import org.apereo.cas.validation.Assertion;
@@ -23,9 +22,7 @@ import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -36,7 +33,7 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Getter
-@AllArgsConstructor
+@RequiredArgsConstructor
 public abstract class AbstractCasView extends AbstractView {
 
     /**
@@ -64,7 +61,7 @@ public abstract class AbstractCasView extends AbstractView {
      * Authentication attribute release policy.
      */
     protected final AuthenticationAttributeReleasePolicy authenticationAttributeReleasePolicy;
-    
+
 
     /**
      * Gets the assertion from the model.
@@ -144,7 +141,7 @@ public abstract class AbstractCasView extends AbstractView {
      * @return the authentication attribute
      */
     protected Map<String, Object> getAuthenticationAttributes(final Map<String, Object> model) {
-        final Authentication authn = getPrimaryAuthenticationFrom(model);
+        final var authn = getPrimaryAuthenticationFrom(model);
         return authn.getAttributes();
     }
 
@@ -156,7 +153,7 @@ public abstract class AbstractCasView extends AbstractView {
      * @return the authentication attribute
      */
     protected String getAuthenticationAttribute(final Map<String, Object> model, final String attributeName) {
-        final Authentication authn = getPrimaryAuthenticationFrom(model);
+        final var authn = getPrimaryAuthenticationFrom(model);
         return (String) authn.getAttributes().get(attributeName);
     }
 
@@ -208,8 +205,8 @@ public abstract class AbstractCasView extends AbstractView {
      * @return true if remember-me, false if otherwise.
      */
     protected boolean isRememberMeAuthentication(final Map<String, Object> model) {
-        final Map<String, Object> authnAttributes = getAuthenticationAttributesAsMultiValuedAttributes(model);
-        final Collection authnMethod = (Collection) authnAttributes.get(RememberMeCredential.AUTHENTICATION_ATTRIBUTE_REMEMBER_ME);
+        final var authnAttributes = getAuthenticationAttributesAsMultiValuedAttributes(model);
+        final var authnMethod = (Collection) authnAttributes.get(RememberMeCredential.AUTHENTICATION_ATTRIBUTE_REMEMBER_ME);
         return authnMethod != null && authnMethod.contains(Boolean.TRUE) && isAssertionBackedByNewLogin(model);
     }
 
@@ -243,9 +240,9 @@ public abstract class AbstractCasView extends AbstractView {
      * @return the map of attributes to return
      */
     private static Map<String, Object> convertAttributeValuesToMultiValuedObjects(final Map<String, Object> attributes) {
-        final Set<Map.Entry<String, Object>> entries = attributes.entrySet();
+        final var entries = attributes.entrySet();
         return entries.stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> {
-            final Object value = entry.getValue();
+            final var value = entry.getValue();
             if (value instanceof Collection || value instanceof Map || value instanceof Object[] || value instanceof Iterator || value instanceof Enumeration) {
                 return value;
             }
@@ -287,8 +284,8 @@ public abstract class AbstractCasView extends AbstractView {
      * @return the chained authentications
      */
     protected Collection<Authentication> getChainedAuthentications(final Map<String, Object> model) {
-        final Assertion assertion = getAssertionFrom(model);
-        final List<Authentication> chainedAuthentications = assertion.getChainedAuthentications();
+        final var assertion = getAssertionFrom(model);
+        final var chainedAuthentications = assertion.getChainedAuthentications();
         return chainedAuthentications.stream().limit(chainedAuthentications.size() - 1).collect(Collectors.toList());
     }
 
@@ -304,8 +301,8 @@ public abstract class AbstractCasView extends AbstractView {
      */
     protected void decideIfCredentialPasswordShouldBeReleasedAsAttribute(final Map<String, Object> attributes, final Map<String, Object> model,
                                                                          final RegisteredService service) {
-        final RegisteredServiceAttributeReleasePolicy policy = service.getAttributeReleasePolicy();
-        final boolean isAuthorized = policy != null && policy.isAuthorizedToReleaseCredentialPassword();
+        final var policy = service.getAttributeReleasePolicy();
+        final var isAuthorized = policy != null && policy.isAuthorizedToReleaseCredentialPassword();
         decideAttributeReleaseBasedOnServiceAttributePolicy(attributes, getAuthenticationAttribute(model,
             CasViewConstants.MODEL_ATTRIBUTE_NAME_PRINCIPAL_CREDENTIAL),
             CasViewConstants.MODEL_ATTRIBUTE_NAME_PRINCIPAL_CREDENTIAL, service, isAuthorized);
@@ -323,8 +320,8 @@ public abstract class AbstractCasView extends AbstractView {
      */
     protected void decideIfProxyGrantingTicketShouldBeReleasedAsAttribute(final Map<String, Object> attributes,
                                                                           final Map<String, Object> model, final RegisteredService service) {
-        final RegisteredServiceAttributeReleasePolicy policy = service.getAttributeReleasePolicy();
-        final boolean isAuthorized = policy != null && policy.isAuthorizedToReleaseProxyGrantingTicket();
+        final var policy = service.getAttributeReleasePolicy();
+        final var isAuthorized = policy != null && policy.isAuthorizedToReleaseProxyGrantingTicket();
         decideAttributeReleaseBasedOnServiceAttributePolicy(attributes, getProxyGrantingTicketId(model),
             CasViewConstants.MODEL_ATTRIBUTE_NAME_PROXY_GRANTING_TICKET, service, isAuthorized);
     }

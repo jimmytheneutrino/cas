@@ -8,8 +8,8 @@ import org.apereo.cas.services.RegisteredServiceTestUtils;
 import org.apereo.cas.ticket.ExpirationPolicy;
 import org.apereo.cas.ticket.TicketGrantingTicket;
 import org.apereo.cas.ticket.TicketGrantingTicketImpl;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.Before;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,7 +38,7 @@ public class MultiTimeUseOrTimeoutExpirationPolicyTests {
     private TicketGrantingTicket ticket;
 
     @Before
-    public void setUp() {
+    public void initialize() {
         this.expirationPolicy = new MultiTimeUseOrTimeoutExpirationPolicy(NUMBER_OF_USES, TIMEOUT_SECONDS);
         this.ticket = new TicketGrantingTicketImpl("test", CoreAuthenticationTestUtils.getAuthentication(), this.expirationPolicy);
     }

@@ -5,8 +5,6 @@ import org.apereo.cas.CipherExecutor;
 import org.apereo.cas.audit.AuditTrailRecordResolutionPlan;
 import org.apereo.cas.audit.AuditTrailRecordResolutionPlanConfigurer;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.core.util.EncryptionJwtSigningJwtCryptographyProperties;
-import org.apereo.cas.configuration.model.support.pm.PasswordManagementProperties;
 import org.apereo.cas.pm.PasswordManagementService;
 import org.apereo.cas.pm.PasswordResetTokenCipherExecutor;
 import org.apereo.cas.pm.PasswordValidationService;
@@ -16,6 +14,7 @@ import org.apereo.cas.pm.impl.NoOpPasswordManagementService;
 import org.apereo.cas.util.io.CommunicationsManager;
 import org.apereo.inspektr.audit.spi.support.BooleanAuditActionResolver;
 import org.apereo.inspektr.audit.spi.support.FirstParameterAuditResourceResolver;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -23,10 +22,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.Resource;
 import org.springframework.util.StringUtils;
-
-import javax.annotation.PostConstruct;
 
 /**
  * This is {@link PasswordManagementConfiguration}.
@@ -37,7 +33,7 @@ import javax.annotation.PostConstruct;
 @Configuration("passwordManagementConfiguration")
 @EnableConfigurationProperties(CasConfigurationProperties.class)
 @Slf4j
-public class PasswordManagementConfiguration implements AuditTrailRecordResolutionPlanConfigurer {
+public class PasswordManagementConfiguration implements AuditTrailRecordResolutionPlanConfigurer, InitializingBean {
     @Autowired
     private CasConfigurationProperties casProperties;
 
@@ -49,8 +45,8 @@ public class PasswordManagementConfiguration implements AuditTrailRecordResoluti
     @RefreshScope
     @Bean
     public CipherExecutor passwordManagementCipherExecutor() {
-        final PasswordManagementProperties pm = casProperties.getAuthn().getPm();
-        final EncryptionJwtSigningJwtCryptographyProperties crypto = pm.getReset().getCrypto();
+        final var pm = casProperties.getAuthn().getPm();
+        final var crypto = pm.getReset().getCrypto();
         if (pm.isEnabled() && crypto.isEnabled()) {
             return new PasswordResetTokenCipherExecutor(
                 crypto.getEncryption().getKey(),
@@ -64,7 +60,7 @@ public class PasswordManagementConfiguration implements AuditTrailRecordResoluti
     @RefreshScope
     @Bean
     public PasswordValidationService passwordValidationService() {
-        final String policyPattern = casProperties.getAuthn().getPm().getPolicyPattern();
+        final var policyPattern = casProperties.getAuthn().getPm().getPolicyPattern();
         return (credential, bean) -> StringUtils.hasText(bean.getPassword())
             && bean.getPassword().equals(bean.getConfirmedPassword())
             && bean.getPassword().matches(policyPattern);
@@ -74,9 +70,9 @@ public class PasswordManagementConfiguration implements AuditTrailRecordResoluti
     @RefreshScope
     @Bean
     public PasswordManagementService passwordChangeService() {
-        final PasswordManagementProperties pm = casProperties.getAuthn().getPm();
+        final var pm = casProperties.getAuthn().getPm();
         if (pm.isEnabled()) {
-            final Resource location = pm.getJson().getLocation();
+            final var location = pm.getJson().getLocation();
             if (location != null) {
                 LOGGER.debug("Configuring password management based on JSON resource [{}]", location);
                 return new JsonResourcePasswordManagementService(passwordManagementCipherExecutor(),
@@ -84,7 +80,7 @@ public class PasswordManagementConfiguration implements AuditTrailRecordResoluti
                     casProperties.getAuthn().getPm(), location);
             }
 
-            final Resource groovyScript = pm.getGroovy().getLocation();
+            final var groovyScript = pm.getGroovy().getLocation();
             if (groovyScript != null) {
                 LOGGER.debug("Configuring password management based on Groovy resource [{}]", groovyScript);
                 return new GroovyResourcePasswordManagementService(passwordManagementCipherExecutor(),
@@ -104,9 +100,9 @@ public class PasswordManagementConfiguration implements AuditTrailRecordResoluti
             casProperties.getAuthn().getPm());
     }
 
-    @PostConstruct
-    public void initialize() {
-        final PasswordManagementProperties pm = casProperties.getAuthn().getPm();
+    @Override
+    public void afterPropertiesSet() {
+        final var pm = casProperties.getAuthn().getPm();
         if (pm.isEnabled()) {
             communicationsManager.validate();
         }

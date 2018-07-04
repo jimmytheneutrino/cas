@@ -12,7 +12,6 @@ import org.apereo.cas.authentication.principal.PrincipalResolver;
 import org.apereo.cas.authentication.support.password.PasswordEncoderUtils;
 import org.apereo.cas.authentication.support.password.PasswordPolicyConfiguration;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.support.syncope.SyncopeAuthenticationProperties;
 import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.syncope.authentication.SyncopeAuthenticationHandler;
 import org.springframework.beans.factory.BeanCreationException;
@@ -36,10 +35,6 @@ public class SyncopeAuthenticationConfiguration {
     @Autowired
     private CasConfigurationProperties casProperties;
 
-    @Autowired(required = false)
-    @Qualifier("syncopePasswordPolicyConfiguration")
-    private PasswordPolicyConfiguration syncopePasswordPolicyConfiguration;
-
     @Autowired
     @Qualifier("servicesManager")
     private ServicesManager servicesManager;
@@ -47,7 +42,6 @@ public class SyncopeAuthenticationConfiguration {
     @Autowired
     @Qualifier("personDirectoryPrincipalResolver")
     private PrincipalResolver personDirectoryPrincipalResolver;
-
 
     @ConditionalOnMissingBean(name = "syncopePrincipalFactory")
     @Bean
@@ -58,17 +52,15 @@ public class SyncopeAuthenticationConfiguration {
     @ConditionalOnMissingBean(name = "syncopeAuthenticationHandler")
     @Bean
     public AuthenticationHandler syncopeAuthenticationHandler() {
-        final SyncopeAuthenticationProperties syncope = casProperties.getAuthn().getSyncope();
+        final var syncope = casProperties.getAuthn().getSyncope();
         if (StringUtils.isBlank(syncope.getUrl())) {
             throw new BeanCreationException("Syncope URL must be defined");
         }
-        final SyncopeAuthenticationHandler h = new SyncopeAuthenticationHandler(syncope.getName(), servicesManager,
+        final var h = new SyncopeAuthenticationHandler(syncope.getName(), servicesManager,
             syncopePrincipalFactory(), syncope.getUrl(), syncope.getDomain());
 
         h.setPasswordEncoder(PasswordEncoderUtils.newPasswordEncoder(syncope.getPasswordEncoder()));
-        if (syncopePasswordPolicyConfiguration != null) {
-            h.setPasswordPolicyConfiguration(syncopePasswordPolicyConfiguration);
-        }
+        h.setPasswordPolicyConfiguration(syncopePasswordPolicyConfiguration());
         h.setCredentialSelectionPredicate(CoreAuthenticationUtils.newCredentialSelectionPredicate(syncope.getCredentialCriteria()));
         h.setPrincipalNameTransformer(PrincipalNameTransformerUtils.newPrincipalNameTransformer(syncope.getPrincipalTransformation()));
 
@@ -81,4 +73,9 @@ public class SyncopeAuthenticationConfiguration {
         return plan -> plan.registerAuthenticationHandlerWithPrincipalResolver(syncopeAuthenticationHandler(), personDirectoryPrincipalResolver);
     }
 
+    @ConditionalOnMissingBean(name = "syncopePasswordPolicyConfiguration")
+    @Bean
+    public PasswordPolicyConfiguration syncopePasswordPolicyConfiguration() {
+        return new PasswordPolicyConfiguration();
+    }
 }

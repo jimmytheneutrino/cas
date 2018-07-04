@@ -1,13 +1,11 @@
 package org.apereo.cas.adaptors.duo.authn;
 
-import com.duosecurity.client.Http;
 import com.duosecurity.duoweb.DuoWeb;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apereo.cas.authentication.Credential;
-import org.apereo.cas.authentication.principal.Principal;
 import org.apereo.cas.configuration.model.support.mfa.DuoSecurityMultifactorProperties;
 import org.apereo.cas.util.http.HttpClient;
 import org.json.JSONObject;
@@ -54,11 +52,11 @@ public class BasicDuoSecurityAuthenticationService extends BaseDuoSecurityAuthen
 
     private Pair<Boolean, String> authenticateDuoCredentialDirect(final Credential crds) {
         try {
-            final DuoDirectCredential credential = DuoDirectCredential.class.cast(crds);
-            final Principal p = credential.getAuthentication().getPrincipal();
-            final Http request = buildHttpPostAuthRequest();
+            final var credential = DuoDirectCredential.class.cast(crds);
+            final var p = credential.getAuthentication().getPrincipal();
+            final var request = buildHttpPostAuthRequest();
             signHttpAuthRequest(request, p.getId());
-            final JSONObject result = (JSONObject) request.executeRequest();
+            final var result = (JSONObject) request.executeRequest();
             LOGGER.debug("Duo authentication response: [{}]", result);
             if ("allow".equalsIgnoreCase(result.getString("result"))) {
                 return Pair.of(Boolean.TRUE, crds.getId());
@@ -70,13 +68,13 @@ public class BasicDuoSecurityAuthenticationService extends BaseDuoSecurityAuthen
     }
 
     private Pair<Boolean, String> authenticateDuoCredential(final Credential creds) throws Exception {
-        final String signedRequestToken = DuoCredential.class.cast(creds).getSignedDuoResponse();
+        final var signedRequestToken = DuoCredential.class.cast(creds).getSignedDuoResponse();
         if (StringUtils.isBlank(signedRequestToken)) {
             throw new IllegalArgumentException("No signed request token was passed to verify");
         }
 
         LOGGER.debug("Calling DuoWeb.verifyResponse with signed request token '[{}]'", signedRequestToken);
-        final String result = DuoWeb.verifyResponse(duoProperties.getDuoIntegrationKey(),
+        final var result = DuoWeb.verifyResponse(duoProperties.getDuoIntegrationKey(),
                 duoProperties.getDuoSecretKey(),
                 duoProperties.getDuoApplicationKey(), signedRequestToken);
         return Pair.of(Boolean.TRUE, result);

@@ -3,13 +3,11 @@ package org.apereo.cas.couchbase.core;
 import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.CouchbaseCluster;
-import com.couchbase.client.java.bucket.BucketManager;
 import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.error.DesignDocumentDoesNotExistException;
 import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
 import com.couchbase.client.java.query.Select;
-import com.couchbase.client.java.query.SimpleN1qlQuery;
 import com.couchbase.client.java.query.Statement;
 import com.couchbase.client.java.query.dsl.Expression;
 import com.couchbase.client.java.view.DesignDocument;
@@ -139,17 +137,20 @@ public class CouchbaseClientFactory {
      * @throws GeneralSecurityException the general security exception
      */
     public N1qlQueryResult query(final String usernameAttribute, final String usernameValue) throws GeneralSecurityException {
-        final Bucket bucket = getBucket();
+        final var bucket = getBucket();
         final Statement statement = Select.select("*")
             .from(Expression.i(bucket.name()))
             .where(Expression.x(usernameAttribute).eq('\'' + usernameValue + '\''));
 
         LOGGER.debug("Running query [{}] on bucket [{}]", statement.toString(), bucket.name());
 
-        final SimpleN1qlQuery query = N1qlQuery.simple(statement);
-        final N1qlQueryResult result = bucket.query(query, timeout, TimeUnit.MILLISECONDS);
+        final var query = N1qlQuery.simple(statement);
+        final var result = bucket.query(query, timeout, TimeUnit.MILLISECONDS);
         if (!result.finalSuccess()) {
-            LOGGER.error("Couchbase query failed with [{}]", result.errors().stream().map(JsonObject::toString).collect(Collectors.joining(",")));
+            LOGGER.error("Couchbase query failed with [{}]", result.errors()
+                .stream()
+                .map(JsonObject::toString)
+                .collect(Collectors.joining(",")));
             throw new GeneralSecurityException("Could not locate account for user " + usernameValue);
         }
         return result;
@@ -163,7 +164,8 @@ public class CouchbaseClientFactory {
      * @return the map
      */
     public Map<String, Object> collectAttributesFromEntity(final JsonObject couchbaseEntity, final Predicate<String> filter) {
-        return couchbaseEntity.getNames().stream()
+        return couchbaseEntity.getNames()
+            .stream()
             .filter(filter)
             .map(name -> Pair.of(name, couchbaseEntity.get(name)))
             .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
@@ -177,8 +179,8 @@ public class CouchbaseClientFactory {
     private void createDesignDocumentAndViewIfNeeded() {
         if (this.views != null && this.designDocument != null) {
             LOGGER.debug("Ensure that indexes exist in bucket [{}]", this.bucket.name());
-            final BucketManager bucketManager = this.bucket.bucketManager();
-            final DesignDocument newDocument = DesignDocument.create(this.designDocument, new ArrayList<>(views));
+            final var bucketManager = this.bucket.bucketManager();
+            final var newDocument = DesignDocument.create(this.designDocument, new ArrayList<>(views));
             try {
                 if (!newDocument.equals(bucketManager.getDesignDocument(this.designDocument))) {
                     LOGGER.warn("Missing indexes in bucket [{}] for document [{}]", this.bucket.name(), this.designDocument);

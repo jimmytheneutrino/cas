@@ -9,8 +9,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apereo.cas.audit.spi.AuditActionContextJsonSerializer;
 import org.apereo.cas.configuration.model.core.audit.AuditRestProperties;
 import org.apereo.cas.util.CollectionUtils;
 import org.apereo.cas.util.HttpUtils;
@@ -49,7 +49,7 @@ public class RestAuditTrailManager implements AuditTrailManager {
     @Override
     public void record(final AuditActionContext audit) {
         final Runnable task = () -> {
-            final String auditJson = serializer.toString(audit);
+            final var auditJson = serializer.toString(audit);
             LOGGER.debug("Sending audit action context to REST endpoint [{}]", properties.getUrl());
             HttpUtils.executePost(properties.getUrl(), properties.getBasicAuthUsername(), properties.getBasicAuthPassword(), auditJson);
         };
@@ -65,11 +65,11 @@ public class RestAuditTrailManager implements AuditTrailManager {
     public Set<AuditActionContext> getAuditRecordsSince(final LocalDate localDate) {
         try {
             LOGGER.debug("Sending query to audit REST endpoint to fetch records from [{}]", localDate);
-            final HttpResponse response = HttpUtils.executeGet(properties.getUrl(), properties.getBasicAuthUsername(),
+            final var response = HttpUtils.executeGet(properties.getUrl(), properties.getBasicAuthUsername(),
                 properties.getBasicAuthPassword(), CollectionUtils.wrap("date", String.valueOf(localDate.toEpochDay())));
             if (response != null && response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                final String result = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
-                final TypeReference<Set<AuditActionContext>> values = new TypeReference<Set<AuditActionContext>>() {
+                final var result = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
+                final TypeReference<Set<AuditActionContext>> values = new TypeReference<>() {
                 };
                 return MAPPER.readValue(result, values);
             }

@@ -18,21 +18,21 @@ import java.util.Calendar;
 public class ScimV2PrincipalAttributeMapperTests {
     @Test
     public void verifyAction() throws Exception {
-        final UserResource user = new UserResource();
+        final var user = new UserResource();
         user.setActive(true);
         user.setDisplayName("CASUser");
         user.setId("casuser");
-        final Name name = new Name();
+        final var name = new Name();
         name.setGivenName("casuser");
         user.setName(name);
-        final Meta meta = new Meta();
+        final var meta = new Meta();
         meta.setResourceType("User");
         meta.setCreated(Calendar.getInstance());
         meta.setLocation(new URI("http://localhost:8218"));
         user.setMeta(meta);
 
         try {
-            final ScimV2PrincipalAttributeMapper mapper = new ScimV2PrincipalAttributeMapper();
+            final var mapper = new ScimV2PrincipalAttributeMapper();
             mapper.map(user, CoreAuthenticationTestUtils.getPrincipal(),
                 CoreAuthenticationTestUtils.getCredentialsWithSameUsernameAndPassword());
         } catch (final Exception e) {

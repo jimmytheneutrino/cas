@@ -15,7 +15,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.actuate.health.Status;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -57,7 +56,7 @@ public class EhCacheHealthIndicatorTests {
 
     @Test
     public void verifyObserve() {
-        Health status = monitor.health();
+        var status = monitor.health();
         assertEquals(Status.UP, status.getStatus());
 
         // Fill cache 95% full, which is above 10% free WARN threshold
@@ -70,7 +69,7 @@ public class EhCacheHealthIndicatorTests {
 
         // Exceed the capacity and force evictions which should report WARN status
         IntStream.range(95, 110).forEach(i -> {
-            final MockServiceTicket st = new MockServiceTicket("T" + i, RegisteredServiceTestUtils.getService(),
+            final var st = new MockServiceTicket("T" + i, RegisteredServiceTestUtils.getService(),
                 new MockTicketGrantingTicket("test"));
             this.ticketRegistry.addTicket(st);
         });

@@ -17,8 +17,8 @@ public class TicketGrantingCookieCipherExecutorTests {
 
     @Test
     public void verifyAction() {
-        final TicketGrantingCookieCipherExecutor cipher = new TicketGrantingCookieCipherExecutor();
-        final String encoded = cipher.encode("ST-1234567890");
+        final var cipher = new TicketGrantingCookieCipherExecutor();
+        final var encoded = cipher.encode("ST-1234567890");
         assertEquals("ST-1234567890", cipher.decode(encoded));
         assertNotNull(cipher.getName());
         assertNotNull(cipher.getSigningKeySetting());
@@ -30,7 +30,7 @@ public class TicketGrantingCookieCipherExecutorTests {
         final CipherExecutor cipherExecutor =
                 new TicketGrantingCookieCipherExecutor("1PbwSbnHeinpkZOSZjuSJ8yYpUrInm5aaV18J2Ar4rM",
                         "szxK-5_eJjs-aUj-64MpUZ-GPPzGLhYPLGl0wrYjYNVAGva2P0lLe6UGKGM7k8dWxsOVGutZWgvmY3l5oVPO3w");
-        final Object result = cipherExecutor.decode(cipherExecutor.encode("CAS Test"));
+        final var result = cipherExecutor.decode(cipherExecutor.encode("CAS Test"));
         assertEquals("CAS Test", result);
     }
 }

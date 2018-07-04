@@ -5,7 +5,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apereo.cas.authentication.Credential;
 import org.apereo.cas.authentication.adaptive.AdaptiveAuthenticationPolicy;
 import org.apereo.cas.authentication.principal.Service;
-import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceAccessStrategyUtils;
 import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.token.authentication.TokenCredential;
@@ -15,8 +14,6 @@ import org.apereo.cas.web.flow.resolver.CasDelegatingWebflowEventResolver;
 import org.apereo.cas.web.flow.resolver.CasWebflowEventResolver;
 import org.apereo.cas.web.support.WebUtils;
 import org.springframework.webflow.execution.RequestContext;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * This is {@link TokenAuthenticationAction}.  This class represents an action in the webflow to retrieve
@@ -44,13 +41,13 @@ public class TokenAuthenticationAction extends AbstractNonInteractiveCredentials
 
     @Override
     protected Credential constructCredentialsFromRequest(final RequestContext requestContext) {
-        final HttpServletRequest request = WebUtils.getHttpServletRequestFromExternalWebflowContext(requestContext);
-        final String authTokenValue = this.tokenRequestExtractor.extract(request);
+        final var request = WebUtils.getHttpServletRequestFromExternalWebflowContext(requestContext);
+        final var authTokenValue = this.tokenRequestExtractor.extract(request);
         final Service service = WebUtils.getService(requestContext);
 
         if (service != null && StringUtils.isNotBlank(authTokenValue)) {
             try {
-                final RegisteredService registeredService = this.servicesManager.findServiceBy(service);
+                final var registeredService = this.servicesManager.findServiceBy(service);
                 RegisteredServiceAccessStrategyUtils.ensureServiceAccessIsAllowed(service, registeredService);
 
                 final Credential credential = new TokenCredential(authTokenValue, service);

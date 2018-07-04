@@ -3,15 +3,12 @@ package org.apereo.cas.web.flow.resolver.impl.mfa;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apereo.cas.CentralAuthenticationService;
-import org.apereo.cas.authentication.Authentication;
 import org.apereo.cas.authentication.AuthenticationException;
 import org.apereo.cas.authentication.AuthenticationServiceSelectionPlan;
 import org.apereo.cas.authentication.AuthenticationSystemSupport;
 import org.apereo.cas.authentication.MultifactorAuthenticationUtils;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.services.MultifactorAuthenticationProvider;
 import org.apereo.cas.services.MultifactorAuthenticationProviderSelector;
-import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.ticket.registry.TicketRegistrySupport;
 import org.apereo.cas.util.CollectionUtils;
@@ -22,8 +19,6 @@ import org.springframework.web.util.CookieGenerator;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
-import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -53,8 +48,8 @@ public class GlobalMultifactorAuthenticationPolicyEventResolver extends BaseMult
 
     @Override
     public Set<Event> resolveInternal(final RequestContext context) {
-        final RegisteredService service = resolveRegisteredServiceInRequestContext(context);
-        final Authentication authentication = WebUtils.getAuthentication(context);
+        final var service = resolveRegisteredServiceInRequestContext(context);
+        final var authentication = WebUtils.getAuthentication(context);
 
         if (authentication == null) {
             LOGGER.debug("No authentication is available to determine event for principal");
@@ -66,20 +61,20 @@ public class GlobalMultifactorAuthenticationPolicyEventResolver extends BaseMult
         }
         LOGGER.debug("Attempting to globally activate [{}]", globalProviderId);
 
-        final Map<String, MultifactorAuthenticationProvider> providerMap =
+        final var providerMap =
                 MultifactorAuthenticationUtils.getAvailableMultifactorAuthenticationProviders(this.applicationContext);
         if (providerMap == null || providerMap.isEmpty()) {
             LOGGER.error("No multifactor authentication providers are available in the application context to handle [{}]", globalProviderId);
             throw new AuthenticationException();
         }
 
-        final Optional<MultifactorAuthenticationProvider> providerFound = resolveProvider(providerMap, globalProviderId);
+        final var providerFound = resolveProvider(providerMap, globalProviderId);
         if (providerFound.isPresent()) {
-            final MultifactorAuthenticationProvider provider = providerFound.get();
+            final var provider = providerFound.get();
             if (provider.isAvailable(service)) {
                 LOGGER.debug("Attempting to build an event based on the authentication provider [{}] and service [{}]", provider, service);
-                final Map<String, Object> attributes = buildEventAttributeMap(authentication.getPrincipal(), service, provider);
-                final Event event = validateEventIdForMatchingTransitionInContext(provider.getId(), context, attributes);
+                final var attributes = buildEventAttributeMap(authentication.getPrincipal(), service, provider);
+                final var event = validateEventIdForMatchingTransitionInContext(provider.getId(), context, attributes);
                 return CollectionUtils.wrapSet(event);
             }
             LOGGER.warn("Located multifactor provider [{}], yet the provider cannot be reached or verified", provider);

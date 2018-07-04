@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -35,11 +35,21 @@ import static org.apereo.cas.support.oauth.OAuth20Constants.BASE_OAUTH20_URL;
 @Slf4j
 @Configuration("oauthThrottleConfiguration")
 @EnableConfigurationProperties(CasConfigurationProperties.class)
-public class CasOAuthThrottleConfiguration extends WebMvcConfigurerAdapter implements AuthenticationThrottlingExecutionPlanConfigurer {
+public class CasOAuthThrottleConfiguration implements AuthenticationThrottlingExecutionPlanConfigurer {
 
-    @Autowired
-    @Qualifier("authenticationThrottlingExecutionPlan")
-    private ObjectProvider<AuthenticationThrottlingExecutionPlan> authenticationThrottlingExecutionPlan;
+    @Configuration("oauthThrottleWebMvcConfigurer")
+    static class CasOAuthThrottleWebMvcConfigurer implements WebMvcConfigurer {
+
+        @Autowired
+        @Qualifier("authenticationThrottlingExecutionPlan")
+        private AuthenticationThrottlingExecutionPlan authenticationThrottlingExecutionPlan;
+
+        @Override
+        public void addInterceptors(final InterceptorRegistry registry) {
+            authenticationThrottlingExecutionPlan.getAuthenticationThrottleInterceptors().forEach(handler ->
+                    registry.addInterceptor(handler).addPathPatterns(BASE_OAUTH20_URL.concat("/").concat("*")));
+        }
+    }
 
     @Autowired
     @Qualifier("oauthSecConfig")
@@ -58,7 +68,7 @@ public class CasOAuthThrottleConfiguration extends WebMvcConfigurerAdapter imple
     @ConditionalOnMissingBean(name = "requiresAuthenticationAccessTokenInterceptor")
     @Bean
     public SecurityInterceptor requiresAuthenticationAccessTokenInterceptor() {
-        final String clients = Stream.of(Authenticators.CAS_OAUTH_CLIENT_BASIC_AUTHN,
+        final var clients = Stream.of(Authenticators.CAS_OAUTH_CLIENT_BASIC_AUTHN,
             Authenticators.CAS_OAUTH_CLIENT_DIRECT_FORM,
             Authenticators.CAS_OAUTH_CLIENT_USER_FORM).collect(Collectors.joining(","));
         return new SecurityInterceptor(oauthSecConfig.getIfAvailable(), clients);
@@ -78,10 +88,4 @@ public class CasOAuthThrottleConfiguration extends WebMvcConfigurerAdapter imple
         plan.registerAuthenticationThrottleInterceptor(oauthHandlerInterceptorAdapter());
     }
 
-    @Override
-    public void addInterceptors(final InterceptorRegistry registry) {
-        final AuthenticationThrottlingExecutionPlan plan = authenticationThrottlingExecutionPlan.getIfAvailable();
-        plan.getAuthenticationThrottleInterceptors().forEach(handler ->
-            registry.addInterceptor(handler).addPathPatterns(BASE_OAUTH20_URL.concat("/").concat("*")));
-    }
 }

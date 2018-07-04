@@ -14,7 +14,6 @@ import org.apereo.cas.authentication.DefaultAuthenticationTransactionManager;
 import org.apereo.cas.authentication.PolicyBasedAuthenticationManager;
 import org.apereo.cas.authentication.RememberMeCredential;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.core.authentication.AuthenticationAttributeReleaseProperties;
 import org.apereo.cas.util.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -26,7 +25,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * This is {@link CasCoreAuthenticationConfiguration}.
@@ -68,9 +66,9 @@ public class CasCoreAuthenticationConfiguration {
     @Autowired
     @Bean
     public AuthenticationEventExecutionPlan authenticationEventExecutionPlan(final List<AuthenticationEventExecutionPlanConfigurer> configurers) {
-        final DefaultAuthenticationEventExecutionPlan plan = new DefaultAuthenticationEventExecutionPlan();
+        final var plan = new DefaultAuthenticationEventExecutionPlan();
         configurers.forEach(c -> {
-            final String name = StringUtils.removePattern(c.getClass().getSimpleName(), "\\$.+");
+            final var name = StringUtils.removePattern(c.getClass().getSimpleName(), "\\$.+");
             LOGGER.debug("Configuring authentication execution plan [{}]", name);
             c.configureAuthenticationExecutionPlan(plan);
         });
@@ -81,11 +79,11 @@ public class CasCoreAuthenticationConfiguration {
     @RefreshScope
     @Bean
     public AuthenticationAttributeReleasePolicy authenticationAttributeReleasePolicy() {
-        final AuthenticationAttributeReleaseProperties authenticationAttributeRelease =
+        final var authenticationAttributeRelease =
             casProperties.getAuthn().getAuthenticationAttributeRelease();
-        final DefaultAuthenticationAttributeReleasePolicy policy = new DefaultAuthenticationAttributeReleasePolicy();
+        final var policy = new DefaultAuthenticationAttributeReleasePolicy();
         policy.setAttributesToRelease(authenticationAttributeRelease.getOnlyRelease());
-        final Set<String> attributesToNeverRelease = CollectionUtils.wrapSet(CasViewConstants.MODEL_ATTRIBUTE_NAME_PRINCIPAL_CREDENTIAL,
+        final var attributesToNeverRelease = CollectionUtils.wrapSet(CasViewConstants.MODEL_ATTRIBUTE_NAME_PRINCIPAL_CREDENTIAL,
             RememberMeCredential.AUTHENTICATION_ATTRIBUTE_REMEMBER_ME);
         attributesToNeverRelease.addAll(authenticationAttributeRelease.getNeverRelease());
         policy.setAttributesToNeverRelease(attributesToNeverRelease);

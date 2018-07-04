@@ -8,8 +8,8 @@ import org.apereo.cas.web.support.CookieRetrievingCookieGenerator;
 import org.apereo.cas.web.support.WebUtils;
 import org.apereo.inspektr.common.web.ClientInfo;
 import org.apereo.inspektr.common.web.ClientInfoHolder;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Import;
@@ -62,14 +62,14 @@ public class SendTicketGrantingTicketActionTests extends AbstractCentralAuthenti
 
     @Test
     public void verifyTgtToSet() throws Exception {
-        final MockHttpServletRequest request = new MockHttpServletRequest();
+        final var request = new MockHttpServletRequest();
         request.setRemoteAddr(LOCALHOST_IP);
         request.setLocalAddr(LOCALHOST_IP);
         ClientInfoHolder.setClientInfo(new ClientInfo(request));
 
-        final MockHttpServletResponse response = new MockHttpServletResponse();
+        final var response = new MockHttpServletResponse();
         request.addHeader("User-Agent", "Test");
-        final TicketGrantingTicket tgt = mock(TicketGrantingTicket.class);
+        final var tgt = mock(TicketGrantingTicket.class);
         when(tgt.getId()).thenReturn(TEST_STRING);
 
         WebUtils.putTicketGrantingTicketInScopes(this.context, tgt);
@@ -82,15 +82,15 @@ public class SendTicketGrantingTicketActionTests extends AbstractCentralAuthenti
 
     @Test
     public void verifyTgtToSetRemovingOldTgt() throws Exception {
-        final MockHttpServletRequest request = new MockHttpServletRequest();
+        final var request = new MockHttpServletRequest();
         request.setRemoteAddr(LOCALHOST_IP);
         request.setLocalAddr(LOCALHOST_IP);
         ClientInfoHolder.setClientInfo(new ClientInfo(request));
 
-        final MockHttpServletResponse response = new MockHttpServletResponse();
+        final var response = new MockHttpServletResponse();
         request.addHeader("User-Agent", "Test");
 
-        final TicketGrantingTicket tgt = mock(TicketGrantingTicket.class);
+        final var tgt = mock(TicketGrantingTicket.class);
         when(tgt.getId()).thenReturn(TEST_STRING);
 
         request.setCookies(new Cookie("TGT", "test5"));

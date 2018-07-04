@@ -1,10 +1,9 @@
 package org.apereo.cas.authentication.policy;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apereo.cas.authentication.Authentication;
 import org.apereo.cas.authentication.AuthenticationPolicy;
-import org.apereo.cas.authentication.principal.Principal;
 import org.apereo.cas.ticket.TicketGrantingTicket;
 import org.apereo.cas.ticket.registry.TicketRegistry;
 
@@ -21,18 +20,18 @@ import java.security.GeneralSecurityException;
  * @since 5.2.0
  */
 @Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UniquePrincipalAuthenticationPolicy implements AuthenticationPolicy {
     private final TicketRegistry ticketRegistry;
 
     @Override
     public boolean isSatisfiedBy(final Authentication authentication) throws Exception {
         try {
-            final Principal authPrincipal = authentication.getPrincipal();
-            final long count = this.ticketRegistry.getTickets(t -> {
-                boolean pass = TicketGrantingTicket.class.isInstance(t) && !t.isExpired();
+            final var authPrincipal = authentication.getPrincipal();
+            final var count = this.ticketRegistry.getTickets(t -> {
+                var pass = TicketGrantingTicket.class.isInstance(t) && !t.isExpired();
                 if (pass) {
-                    final Principal principal = TicketGrantingTicket.class.cast(t).getAuthentication().getPrincipal();
+                    final var principal = TicketGrantingTicket.class.cast(t).getAuthentication().getPrincipal();
                     pass = principal.getId().equalsIgnoreCase(authPrincipal.getId());
                 }
                 return pass;
@@ -42,7 +41,7 @@ public class UniquePrincipalAuthenticationPolicy implements AuthenticationPolicy
                 return true;
             }
             LOGGER.warn("Authentication policy cannot be satisfied for principal [{}] because [{}] sessions currently exist",
-                    authPrincipal.getId(), count);
+                authPrincipal.getId(), count);
             return false;
         } catch (final Exception e) {
             throw new GeneralSecurityException(e);

@@ -30,7 +30,7 @@ public class RedisServiceRegistry extends AbstractServiceRegistry {
     @Override
     public RegisteredService save(final RegisteredService rs) {
         try {
-            final String redisKey = getRegisteredServiceRedisKey(rs);
+            final var redisKey = getRegisteredServiceRedisKey(rs);
             this.template.boundValueOps(redisKey).set(rs);
         } catch (final Exception e) {
             LOGGER.error(e.getMessage(), e);
@@ -41,7 +41,7 @@ public class RedisServiceRegistry extends AbstractServiceRegistry {
     @Override
     public boolean delete(final RegisteredService registeredService) {
         try {
-            final String redisKey = getRegisteredServiceRedisKey(registeredService);
+            final var redisKey = getRegisteredServiceRedisKey(registeredService);
             this.template.delete(redisKey);
             return true;
         } catch (final Exception e) {
@@ -76,7 +76,7 @@ public class RedisServiceRegistry extends AbstractServiceRegistry {
     @Override
     public RegisteredService findServiceById(final long id) {
         try {
-            final String redisKey = getRegisteredServiceRedisKey(id);
+            final var redisKey = getRegisteredServiceRedisKey(id);
             return this.template.boundValueOps(redisKey).get();
         } catch (final Exception e) {
             LOGGER.error(e.getMessage(), e);
@@ -98,6 +98,6 @@ public class RedisServiceRegistry extends AbstractServiceRegistry {
     }
 
     private static String getPatternRegisteredServiceRedisKey() {
-        return CAS_SERVICE_PREFIX + "*";
+        return CAS_SERVICE_PREFIX + '*';
     }
 }

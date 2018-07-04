@@ -54,7 +54,7 @@ public class DefaultCasConfigurationPropertiesSourceLocatorTests {
         final PropertySource source = casConfigurationPropertiesSourceLocator.locate(environment, resourceLoader);
         assertTrue(source instanceof CompositePropertySource);
 
-        final CompositePropertySource composite = (CompositePropertySource) source;
+        final var composite = (CompositePropertySource) source;
         assertEquals("https://cas.example.org:9999", composite.getProperty("cas.server.name"));
         assertEquals("https://cas.example.org/something", composite.getProperty("cas.server.prefix"));
     }
@@ -70,7 +70,7 @@ public class DefaultCasConfigurationPropertiesSourceLocatorTests {
         // 3. dir app.props
         // 4. classpath app.yml
 
-        final CompositePropertySource composite = (CompositePropertySource) source;
+        final var composite = (CompositePropertySource) source;
         assertEquals("file", composite.getProperty("test.file"));
         assertEquals("dirCasProp", composite.getProperty("test.dir.cas"));
         assertEquals("dirAppYml", composite.getProperty("test.dir.app"));

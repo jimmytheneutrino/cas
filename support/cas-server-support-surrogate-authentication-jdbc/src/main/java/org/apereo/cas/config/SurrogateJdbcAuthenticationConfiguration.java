@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apereo.cas.authentication.surrogate.SurrogateAuthenticationService;
 import org.apereo.cas.authentication.surrogate.SurrogateJdbcAuthenticationService;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.support.surrogate.SurrogateAuthenticationProperties;
 import org.apereo.cas.configuration.support.JpaBeans;
 import org.apereo.cas.services.ServicesManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +35,7 @@ public class SurrogateJdbcAuthenticationConfiguration {
     @RefreshScope
     @Bean
     public SurrogateAuthenticationService surrogateAuthenticationService() {
-        final SurrogateAuthenticationProperties su = casProperties.getAuthn().getSurrogate();
+        final var su = casProperties.getAuthn().getSurrogate();
         return new SurrogateJdbcAuthenticationService(su.getJdbc().getSurrogateSearchQuery(),
             surrogateAuthenticationJdbcDataSource(),
             su.getJdbc().getSurrogateAccountQuery(),
@@ -45,7 +44,7 @@ public class SurrogateJdbcAuthenticationConfiguration {
 
     @Bean
     public DataSource surrogateAuthenticationJdbcDataSource() {
-        final SurrogateAuthenticationProperties su = casProperties.getAuthn().getSurrogate();
+        final var su = casProperties.getAuthn().getSurrogate();
         return JpaBeans.newDataSource(su.getJdbc());
     }
 }

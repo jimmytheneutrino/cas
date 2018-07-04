@@ -3,9 +3,7 @@ package org.apereo.cas.web.flow.action;
 import lombok.SneakyThrows;
 import org.apereo.cas.authentication.CoreAuthenticationTestUtils;
 import org.apereo.cas.authentication.PrincipalException;
-import org.apereo.cas.authentication.principal.Principal;
 import org.apereo.cas.authentication.surrogate.SurrogateAuthenticationService;
-import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.SurrogateRegisteredServiceAccessStrategy;
 import org.apereo.cas.util.CollectionUtils;
 import org.apereo.cas.web.support.WebUtils;
@@ -45,14 +43,14 @@ public class SurrogateAuthorizationActionTests extends BaseSurrogateInitialAuthe
     @Test
     public void verifyAuthorized() {
         try {
-            final MockRequestContext context = new MockRequestContext();
+            final var context = new MockRequestContext();
             WebUtils.putService(context, CoreAuthenticationTestUtils.getWebApplicationService());
             WebUtils.putAuthentication(CoreAuthenticationTestUtils.getAuthentication(), context);
-            final RegisteredService registeredService = CoreAuthenticationTestUtils.getRegisteredService();
-            final SurrogateRegisteredServiceAccessStrategy strategy = new SurrogateRegisteredServiceAccessStrategy();
+            final var registeredService = CoreAuthenticationTestUtils.getRegisteredService();
+            final var strategy = new SurrogateRegisteredServiceAccessStrategy();
             when(registeredService.getAccessStrategy()).thenReturn(strategy);
             WebUtils.putRegisteredService(context, registeredService);
-            final MockHttpServletRequest request = new MockHttpServletRequest();
+            final var request = new MockHttpServletRequest();
             context.setExternalContext(new ServletExternalContext(new MockServletContext(), request, new MockHttpServletResponse()));
             assertEquals("success", surrogateAuthorizationCheck.execute(context).getId());
         } catch (final Exception e) {
@@ -63,22 +61,22 @@ public class SurrogateAuthorizationActionTests extends BaseSurrogateInitialAuthe
     @Test
     @SneakyThrows
     public void verifyNotAuthorized() {
-        final MockRequestContext context = new MockRequestContext();
+        final var context = new MockRequestContext();
         WebUtils.putService(context, CoreAuthenticationTestUtils.getWebApplicationService());
 
         final Map attributes = new LinkedHashMap<>();
         attributes.put(SurrogateAuthenticationService.AUTHENTICATION_ATTR_SURROGATE_ENABLED, true);
         attributes.putAll(CoreAuthenticationTestUtils.getAttributeRepository().getBackingMap());
 
-        final Principal p = CoreAuthenticationTestUtils.getPrincipal("casuser", attributes);
+        final var p = CoreAuthenticationTestUtils.getPrincipal("casuser", attributes);
         WebUtils.putAuthentication(CoreAuthenticationTestUtils.getAuthentication(p), context);
-        final RegisteredService registeredService = CoreAuthenticationTestUtils.getRegisteredService();
-        final SurrogateRegisteredServiceAccessStrategy strategy = new SurrogateRegisteredServiceAccessStrategy();
+        final var registeredService = CoreAuthenticationTestUtils.getRegisteredService();
+        final var strategy = new SurrogateRegisteredServiceAccessStrategy();
         strategy.setSurrogateEnabled(true);
         strategy.setSurrogateRequiredAttributes(CollectionUtils.wrap("surrogateAttribute", CollectionUtils.wrapSet("someValue")));
         when(registeredService.getAccessStrategy()).thenReturn(strategy);
         WebUtils.putRegisteredService(context, registeredService);
-        final MockHttpServletRequest request = new MockHttpServletRequest();
+        final var request = new MockHttpServletRequest();
         context.setExternalContext(new ServletExternalContext(new MockServletContext(), request, new MockHttpServletResponse()));
         thrown.expect(PrincipalException.class);
         surrogateAuthorizationCheck.execute(context);

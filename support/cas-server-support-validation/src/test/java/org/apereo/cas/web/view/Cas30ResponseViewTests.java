@@ -12,7 +12,6 @@ import org.apereo.cas.authentication.DefaultAuthenticationServiceSelectionStrate
 import org.apereo.cas.authentication.DefaultMultifactorAuthenticationContextValidator;
 import org.apereo.cas.authentication.DefaultMultifactorTriggerSelectionStrategy;
 import org.apereo.cas.authentication.ProtocolAttributeEncoder;
-import org.apereo.cas.authentication.UsernamePasswordCredential;
 import org.apereo.cas.authentication.support.DefaultCasProtocolAttributeEncoder;
 import org.apereo.cas.configuration.model.support.mfa.MultifactorAuthenticationProperties;
 import org.apereo.cas.services.ServicesManager;
@@ -36,7 +35,6 @@ import org.springframework.mock.web.MockServletContext;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.context.support.GenericWebApplicationContext;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.support.RequestContext;
 
@@ -44,7 +42,6 @@ import javax.crypto.Cipher;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.nio.charset.StandardCharsets;
-import java.security.PrivateKey;
 import java.util.Map;
 
 import static org.junit.Assert.*;
@@ -99,10 +96,10 @@ public class Cas30ResponseViewTests extends AbstractServiceValidateControllerTes
     }
 
     protected Map<?, ?> renderView() throws Exception {
-        final ModelAndView modelAndView = this.getModelAndViewUponServiceValidationWithSecurePgtUrl();
+        final var modelAndView = this.getModelAndViewUponServiceValidationWithSecurePgtUrl();
         LOGGER.debug("Retrieved model and view [{}]", modelAndView.getModel());
 
-        final MockHttpServletRequest req = new MockHttpServletRequest(new MockServletContext());
+        final var req = new MockHttpServletRequest(new MockServletContext());
         req.setAttribute(RequestContext.WEB_APPLICATION_CONTEXT_ATTRIBUTE, new GenericWebApplicationContext(req.getServletContext()));
 
         final ProtocolAttributeEncoder encoder = new DefaultCasProtocolAttributeEncoder(this.servicesManager, CipherExecutor.noOpOfStringToString());
@@ -119,8 +116,8 @@ public class Cas30ResponseViewTests extends AbstractServiceValidateControllerTes
             }
         };
 
-        final AbstractCasView view = getCasViewToRender(encoder, viewDelegated);
-        final MockHttpServletResponse resp = new MockHttpServletResponse();
+        final var view = getCasViewToRender(encoder, viewDelegated);
+        final var resp = new MockHttpServletResponse();
         view.render(modelAndView.getModel(), req, resp);
         return getRenderedViewModelMap(req);
     }
@@ -150,9 +147,9 @@ public class Cas30ResponseViewTests extends AbstractServiceValidateControllerTes
         final Map<?, ?> attributes = renderView();
         assertTrue(attributes.containsKey(CasViewConstants.MODEL_ATTRIBUTE_NAME_PRINCIPAL_CREDENTIAL));
 
-        final String encodedPsw = (String) attributes.get(CasViewConstants.MODEL_ATTRIBUTE_NAME_PRINCIPAL_CREDENTIAL);
-        final String password = decryptCredential(encodedPsw);
-        final UsernamePasswordCredential creds = CoreAuthenticationTestUtils.getCredentialsWithSameUsernameAndPassword();
+        final var encodedPsw = (String) attributes.get(CasViewConstants.MODEL_ATTRIBUTE_NAME_PRINCIPAL_CREDENTIAL);
+        final var password = decryptCredential(encodedPsw);
+        final var creds = CoreAuthenticationTestUtils.getCredentialsWithSameUsernameAndPassword();
         assertEquals(password, creds.getPassword());
     }
 
@@ -162,29 +159,29 @@ public class Cas30ResponseViewTests extends AbstractServiceValidateControllerTes
         LOGGER.warn("Attributes are [{}]", attributes.keySet());
         assertTrue(attributes.containsKey(CasViewConstants.MODEL_ATTRIBUTE_NAME_PROXY_GRANTING_TICKET));
 
-        final String encodedPgt = (String) attributes.get(CasViewConstants.MODEL_ATTRIBUTE_NAME_PROXY_GRANTING_TICKET);
-        final String pgt = decryptCredential(encodedPgt);
+        final var encodedPgt = (String) attributes.get(CasViewConstants.MODEL_ATTRIBUTE_NAME_PROXY_GRANTING_TICKET);
+        final var pgt = decryptCredential(encodedPgt);
         assertNotNull(pgt);
     }
 
     @SneakyThrows
     private String decryptCredential(final String cred) {
-        final PrivateKeyFactoryBean factory = new PrivateKeyFactoryBean();
+        final var factory = new PrivateKeyFactoryBean();
         factory.setAlgorithm("RSA");
         factory.setLocation(new ClassPathResource("keys/RSA4096Private.p8"));
         factory.setSingleton(false);
-        final PrivateKey privateKey = factory.getObject();
+        final var privateKey = factory.getObject();
 
         LOGGER.debug("Initializing cipher based on [{}]", privateKey.getAlgorithm());
-        final Cipher cipher = Cipher.getInstance(privateKey.getAlgorithm());
+        final var cipher = Cipher.getInstance(privateKey.getAlgorithm());
 
         LOGGER.debug("Decoding value [{}]", cred);
-        final byte[] cred64 = EncodingUtils.decodeBase64(cred);
+        final var cred64 = EncodingUtils.decodeBase64(cred);
 
         LOGGER.debug("Initializing decrypt-mode via private key [{}]", privateKey.getAlgorithm());
         cipher.init(Cipher.DECRYPT_MODE, privateKey);
 
-        final byte[] cipherData = cipher.doFinal(cred64);
+        final var cipherData = cipher.doFinal(cred64);
         return new String(cipherData, StandardCharsets.UTF_8);
     }
 }

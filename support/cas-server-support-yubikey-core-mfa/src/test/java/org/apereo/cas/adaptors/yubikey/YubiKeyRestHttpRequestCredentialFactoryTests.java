@@ -14,7 +14,7 @@ import static org.junit.Assert.*;
 public class YubiKeyRestHttpRequestCredentialFactoryTests {
     @Test
     public void verifyAction() {
-        final YubiKeyRestHttpRequestCredentialFactory f = new YubiKeyRestHttpRequestCredentialFactory();
+        final var f = new YubiKeyRestHttpRequestCredentialFactory();
         final LinkedMultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add(YubiKeyRestHttpRequestCredentialFactory.PARAMETER_NAME_YUBIKEY_OTP, "token");
         assertFalse(f.fromRequestBody(body).isEmpty());

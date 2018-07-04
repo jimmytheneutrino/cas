@@ -10,11 +10,8 @@ import org.apereo.cas.services.UnauthorizedServiceException;
 import org.apereo.cas.util.io.CommunicationsManager;
 import org.apereo.cas.web.support.WebUtils;
 import org.springframework.webflow.action.AbstractAction;
-import org.springframework.webflow.core.collection.AttributeMap;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
-
-import java.util.Optional;
 
 /**
  * This is {@link DisplayBeforePasswordlessAuthenticationAction}.
@@ -31,25 +28,25 @@ public class DisplayBeforePasswordlessAuthenticationAction extends AbstractActio
 
     @Override
     protected Event doExecute(final RequestContext requestContext) {
-        final AttributeMap<Object> attributes = requestContext.getCurrentEvent().getAttributes();
+        final var attributes = requestContext.getCurrentEvent().getAttributes();
         if (attributes.contains(CasWebflowConstants.TRANSITION_ID_ERROR)) {
-            final Exception e = attributes.get(CasWebflowConstants.TRANSITION_ID_ERROR, Exception.class);
+            final var e = attributes.get("error", Exception.class);
             requestContext.getFlowScope().put(CasWebflowConstants.TRANSITION_ID_ERROR, e);
-            final PasswordlessUserAccount user = WebUtils.getPasswordlessAuthenticationAccount(requestContext, PasswordlessUserAccount.class);
+            final var user = WebUtils.getPasswordlessAuthenticationAccount(requestContext, PasswordlessUserAccount.class);
             WebUtils.putPasswordlessAuthenticationAccount(requestContext, user);
             return success();
         }
-        final String username = requestContext.getRequestParameters().get("username");
+        final var username = requestContext.getRequestParameters().get("username");
         if (StringUtils.isBlank(username)) {
             throw new UnauthorizedServiceException(UnauthorizedServiceException.CODE_UNAUTHZ_SERVICE, StringUtils.EMPTY);
         }
-        final Optional<PasswordlessUserAccount> account = passwordlessUserAccountStore.findUser(username);
+        final var account = passwordlessUserAccountStore.findUser(username);
         if (!account.isPresent()) {
             throw new UnauthorizedServiceException(UnauthorizedServiceException.CODE_UNAUTHZ_SERVICE, StringUtils.EMPTY);
         }
-        final PasswordlessUserAccount user = account.get();
+        final var user = account.get();
         WebUtils.putPasswordlessAuthenticationAccount(requestContext, user);
-        final String token = passwordlessTokenRepository.createToken(user.getUsername());
+        final var token = passwordlessTokenRepository.createToken(user.getUsername());
 
         communicationsManager.validate();
         if (communicationsManager.isMailSenderDefined() && StringUtils.isNotBlank(user.getEmail())) {

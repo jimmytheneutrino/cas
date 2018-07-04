@@ -48,7 +48,7 @@ public class BindModeSearchDatabaseAuthenticationHandlerTests {
 
     @Test
     public void verifyAction() throws Exception {
-        final BindModeSearchDatabaseAuthenticationHandler h = new BindModeSearchDatabaseAuthenticationHandler(null, mock(ServicesManager.class),
+        final var h = new BindModeSearchDatabaseAuthenticationHandler(null, mock(ServicesManager.class),
             PrincipalFactoryUtils.newPrincipalFactory(), 0, this.dataSource);
         assertNotNull(h.authenticate(CoreAuthenticationTestUtils.getCredentialsWithDifferentUsernameAndPassword("casuser", "Mellon")));
     }

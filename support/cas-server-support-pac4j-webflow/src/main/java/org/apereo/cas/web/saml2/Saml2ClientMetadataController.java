@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apereo.cas.support.saml.OpenSamlConfigBean;
 import org.apereo.cas.support.saml.SamlUtils;
-import org.opensaml.core.xml.XMLObject;
 import org.pac4j.core.client.Clients;
 import org.pac4j.saml.client.SAML2Client;
 import org.springframework.http.HttpHeaders;
@@ -38,7 +37,7 @@ public class Saml2ClientMetadataController {
      */
     @GetMapping("/sp/metadata")
     public ResponseEntity<String> getFirstServiceProviderMetadata() {
-        final SAML2Client saml2Client = builtClients.findClient(SAML2Client.class);
+        final var saml2Client = builtClients.findClient(SAML2Client.class);
         if (saml2Client != null) {
             return getSaml2ClientServiceProviderMetadataResponseEntity(saml2Client);
         }
@@ -52,7 +51,7 @@ public class Saml2ClientMetadataController {
      */
     @GetMapping("/sp/idp/metadata")
     public ResponseEntity<String> getFirstIdentityProviderMetadata() {
-        final SAML2Client saml2Client = builtClients.findClient(SAML2Client.class);
+        final var saml2Client = builtClients.findClient(SAML2Client.class);
         if (saml2Client != null) {
             return getSaml2ClientIdentityProviderMetadataResponseEntity(saml2Client);
         }
@@ -67,7 +66,7 @@ public class Saml2ClientMetadataController {
      */
     @GetMapping("/sp/{client}/metadata")
     public ResponseEntity<String> getServiceProviderMetadataByName(@PathVariable("client") final String client) {
-        final SAML2Client saml2Client = (SAML2Client) builtClients.findClient(client);
+        final var saml2Client = (SAML2Client) builtClients.findClient(client);
         if (saml2Client != null) {
             return getSaml2ClientServiceProviderMetadataResponseEntity(saml2Client);
         }
@@ -82,7 +81,7 @@ public class Saml2ClientMetadataController {
      */
     @GetMapping("/sp/{client}/idp/metadata")
     public ResponseEntity<String> getIdentityProviderMetadataByName(@PathVariable("client") final String client) {
-        final SAML2Client saml2Client = (SAML2Client) builtClients.findClient(client);
+        final var saml2Client = (SAML2Client) builtClients.findClient(client);
         if (saml2Client != null) {
             return getSaml2ClientIdentityProviderMetadataResponseEntity(saml2Client);
         }
@@ -90,17 +89,17 @@ public class Saml2ClientMetadataController {
     }
 
     private ResponseEntity<String> getSaml2ClientServiceProviderMetadataResponseEntity(final SAML2Client saml2Client) {
-        final HttpHeaders headers = new HttpHeaders();
+        final var headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_XML);
         return new ResponseEntity<>(saml2Client.getServiceProviderMetadataResolver().getMetadata(), headers, HttpStatus.OK);
     }
 
     private ResponseEntity<String> getSaml2ClientIdentityProviderMetadataResponseEntity(final SAML2Client saml2Client) {
-        final HttpHeaders headers = new HttpHeaders();
+        final var headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_XML);
         saml2Client.getIdentityProviderMetadataResolver().resolve();
-        final XMLObject entity = saml2Client.getIdentityProviderMetadataResolver().getEntityDescriptorElement();
-        final String metadata = SamlUtils.transformSamlObject(openSamlConfigBean, entity).toString();
+        final var entity = saml2Client.getIdentityProviderMetadataResolver().getEntityDescriptorElement();
+        final var metadata = SamlUtils.transformSamlObject(openSamlConfigBean, entity).toString();
         return new ResponseEntity<>(metadata, headers, HttpStatus.OK);
     }
 

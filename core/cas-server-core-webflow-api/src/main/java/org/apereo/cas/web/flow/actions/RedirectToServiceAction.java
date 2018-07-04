@@ -2,9 +2,7 @@ package org.apereo.cas.web.flow.actions;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apereo.cas.authentication.Authentication;
 import org.apereo.cas.authentication.principal.Response;
-import org.apereo.cas.authentication.principal.ResponseBuilder;
 import org.apereo.cas.authentication.principal.ResponseBuilderLocator;
 import org.apereo.cas.authentication.principal.WebApplicationService;
 import org.apereo.cas.web.support.WebUtils;
@@ -26,19 +24,19 @@ public class RedirectToServiceAction extends AbstractAction {
 
     @Override
     protected Event doExecute(final RequestContext requestContext) {
-        final WebApplicationService service = WebUtils.getService(requestContext);
+        final var service = WebUtils.getService(requestContext);
         LOGGER.debug("Located service [{}] from the context", service);
 
-        final Authentication auth = WebUtils.getAuthentication(requestContext);
+        final var auth = WebUtils.getAuthentication(requestContext);
         LOGGER.debug("Located authentication [{}] from the context", auth);
 
-        final String serviceTicketId = WebUtils.getServiceTicketFromRequestScope(requestContext);
+        final var serviceTicketId = WebUtils.getServiceTicketFromRequestScope(requestContext);
         LOGGER.debug("Located service ticket [{}] from the context", serviceTicketId);
 
-        final ResponseBuilder builder = responseBuilderLocator.locate(service);
+        final var builder = responseBuilderLocator.locate(service);
         LOGGER.debug("Located service response builder [{}] for [{}]", builder, service);
 
-        final Response response = builder.build(service, serviceTicketId, auth);
+        final var response = builder.build(service, serviceTicketId, auth);
         LOGGER.debug("Built response [{}] for [{}]", response, service);
 
         return finalizeResponseEvent(requestContext, service, response);
@@ -55,7 +53,7 @@ public class RedirectToServiceAction extends AbstractAction {
     protected Event finalizeResponseEvent(final RequestContext requestContext, final WebApplicationService service, final Response response) {
         WebUtils.putServiceResponseIntoRequestScope(requestContext, response);
         WebUtils.putServiceOriginalUrlIntoRequestScope(requestContext, service);
-        final String eventId = getFinalResponseEventId(service, response, requestContext);
+        final var eventId = getFinalResponseEventId(service, response, requestContext);
         return new EventFactorySupport().event(this, eventId);
     }
 
@@ -68,7 +66,7 @@ public class RedirectToServiceAction extends AbstractAction {
      * @return the final response event id
      */
     protected String getFinalResponseEventId(final WebApplicationService service, final Response response, final RequestContext requestContext) {
-        final String eventId = response.getResponseType().name().toLowerCase();
+        final var eventId = response.getResponseType().name().toLowerCase();
         LOGGER.debug("Signaling flow to redirect to service [{}] via event [{}]", service, eventId);
         return eventId;
     }

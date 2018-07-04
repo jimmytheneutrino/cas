@@ -5,7 +5,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apereo.cas.audit.AuditTrailExecutionPlanConfigurer;
 import org.apereo.cas.audit.entity.AuditTrailEntity;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.core.audit.AuditJdbcProperties;
 import org.apereo.cas.configuration.model.support.jpa.JpaConfigDataHolder;
 import org.apereo.cas.configuration.support.JpaBeans;
 import org.apereo.cas.util.CollectionUtils;
@@ -46,13 +45,13 @@ public class CasSupportJdbcAuditConfiguration {
 
     @Bean
     public AuditTrailManager jdbcAuditTrailManager() {
-        final AuditJdbcProperties jdbc = casProperties.getAudit().getJdbc();
-        final JdbcAuditTrailManager t = new JdbcAuditTrailManager(inspektrAuditTransactionTemplate());
+        final var jdbc = casProperties.getAudit().getJdbc();
+        final var t = new JdbcAuditTrailManager(inspektrAuditTransactionTemplate());
         t.setCleanupCriteria(auditCleanupCriteria());
         t.setDataSource(inspektrAuditTrailDataSource());
         t.setAsynchronous(jdbc.isAsynchronous());
         t.setColumnLength(jdbc.getColumnLength());
-        String tableName = AuditTrailEntity.AUDIT_TRAIL_TABLE_NAME;
+        var tableName = AuditTrailEntity.AUDIT_TRAIL_TABLE_NAME;
         if (StringUtils.isNotBlank(jdbc.getDefaultSchema())) {
             tableName = jdbc.getDefaultSchema().concat(".").concat(tableName);
         }
@@ -98,7 +97,7 @@ public class CasSupportJdbcAuditConfiguration {
 
     @Bean
     public TransactionTemplate inspektrAuditTransactionTemplate() {
-        final TransactionTemplate t = new TransactionTemplate(inspektrAuditTransactionManager());
+        final var t = new TransactionTemplate(inspektrAuditTransactionManager());
         t.setIsolationLevelName(casProperties.getAudit().getJdbc().getIsolationLevelName());
         t.setPropagationBehaviorName(casProperties.getAudit().getJdbc().getPropagationBehaviorName());
         return t;

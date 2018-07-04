@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
 
     <title>Service UI Fragment</title>
-    <link href="../../static/css/cas.css" rel="stylesheet" th:href="@{${#themes.code('cas.standard.css.file')}}"/>
+    <link href="../../static/css/cas.css" rel="stylesheet" th:remove="tag" />
 </head>
 <body>
 <main role="main" class="container mt-3 mb-3">
@@ -29,6 +29,8 @@
                          th:width="${serviceUIMetadata.logoWidth}"
                          th:height="${serviceUIMetadata.logoHeight}"/>
                 </td>
+            </tr>
+            <tr>
                 <td id="servicedesc">
                     <h2 th:text="${serviceUIMetadata.displayName}">serviceUIMetadata.displayName</h2>
                     <p th:text="${serviceUIMetadata.description}">serviceUIMetadata.description</p>

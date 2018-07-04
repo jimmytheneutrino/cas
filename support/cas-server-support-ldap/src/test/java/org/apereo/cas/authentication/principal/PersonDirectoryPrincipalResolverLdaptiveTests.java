@@ -44,8 +44,8 @@ public class PersonDirectoryPrincipalResolverLdaptiveTests {
 
     @Test
     public void verifyResolver() {
-        final PersonDirectoryPrincipalResolver resolver = new PersonDirectoryPrincipalResolver(this.attributeRepository);
-        final Principal p = resolver.resolve(new UsernamePasswordCredential("castest1", "castest1"),
+        final var resolver = new PersonDirectoryPrincipalResolver(this.attributeRepository);
+        final var p = resolver.resolve(new UsernamePasswordCredential("castest1", "castest1"),
             Optional.of(CoreAuthenticationTestUtils.getPrincipal()),
             Optional.of(new SimpleTestUsernamePasswordAuthenticationHandler()));
         assertNotNull(p);
@@ -54,13 +54,13 @@ public class PersonDirectoryPrincipalResolverLdaptiveTests {
 
     @Test
     public void verifyChainedResolver() {
-        final PersonDirectoryPrincipalResolver resolver = new PersonDirectoryPrincipalResolver(this.attributeRepository);
-        final ChainingPrincipalResolver chain = new ChainingPrincipalResolver();
-        chain.setChain(Arrays.asList(resolver, new EchoingPrincipalResolver()));
+        final var resolver = new PersonDirectoryPrincipalResolver(this.attributeRepository);
+        final var chain = new ChainingPrincipalResolver();
+        chain.setChain(Arrays.asList(new EchoingPrincipalResolver(), resolver));
         final Map<String, Object> attributes = new HashMap<>(2);
         attributes.put("a1", "v1");
         attributes.put("a2", "v2");
-        final Principal p = chain.resolve(new UsernamePasswordCredential("castest1", "castest1"),
+        final var p = chain.resolve(new UsernamePasswordCredential("castest1", "castest1"),
             Optional.of(CoreAuthenticationTestUtils.getPrincipal("castest1", attributes)),
                 Optional.of(new SimpleTestUsernamePasswordAuthenticationHandler()));
         assertNotNull(p);

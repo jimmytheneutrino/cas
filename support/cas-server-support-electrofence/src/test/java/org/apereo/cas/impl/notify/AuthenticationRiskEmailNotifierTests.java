@@ -1,9 +1,7 @@
 package org.apereo.cas.impl.notify;
 
 import org.apereo.cas.api.AuthenticationRiskScore;
-import org.apereo.cas.authentication.Authentication;
 import org.apereo.cas.authentication.CoreAuthenticationTestUtils;
-import org.apereo.cas.authentication.principal.Principal;
 import org.apereo.cas.impl.calcs.BaseAuthenticationRequestRiskCalculatorTests;
 import org.apereo.cas.util.CollectionUtils;
 import org.apereo.cas.util.junit.ConditionalIgnore;
@@ -29,8 +27,8 @@ public class AuthenticationRiskEmailNotifierTests extends BaseAuthenticationRequ
     public void verifyOperation() {
         try {
             authenticationRiskEmailNotifier.setRegisteredService(CoreAuthenticationTestUtils.getRegisteredService());
-            final Principal principal = CoreAuthenticationTestUtils.getPrincipal(CollectionUtils.wrap("mail", "cas@example.org"));
-            final Authentication authentication = CoreAuthenticationTestUtils.getAuthentication(principal);
+            final var principal = CoreAuthenticationTestUtils.getPrincipal(CollectionUtils.wrap("mail", "cas@example.org"));
+            final var authentication = CoreAuthenticationTestUtils.getAuthentication(principal);
             authenticationRiskEmailNotifier.setAuthentication(authentication);
             authenticationRiskEmailNotifier.setAuthenticationRiskScore(new AuthenticationRiskScore(BigDecimal.ONE));
             authenticationRiskEmailNotifier.publish();

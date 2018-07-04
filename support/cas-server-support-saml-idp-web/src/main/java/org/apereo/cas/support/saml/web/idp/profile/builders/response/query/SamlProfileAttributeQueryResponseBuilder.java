@@ -17,7 +17,6 @@ import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AttributeQuery;
 import org.opensaml.saml.saml2.core.RequestAbstractType;
-import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.soap.soap11.Body;
 import org.opensaml.soap.soap11.Envelope;
 import org.opensaml.soap.soap11.Header;
@@ -49,16 +48,16 @@ public class SamlProfileAttributeQueryResponseBuilder extends SamlProfileSamlSoa
     public Envelope build(final RequestAbstractType authnRequest, final HttpServletRequest request,
                           final HttpServletResponse response, final Object casAssertion, final SamlRegisteredService service,
                           final SamlRegisteredServiceServiceProviderMetadataFacade adaptor,
-                          final String binding, final MessageContext messageContext) throws SamlException {
-        final AttributeQuery query = (AttributeQuery) authnRequest;
-        final Header header = newSoapObject(Header.class);
-
-        final Body body = newSoapObject(Body.class);
-        final Response saml2Response = buildSaml2Response(casAssertion, query, service,
+                          final String binding,
+                          final MessageContext messageContext) throws SamlException {
+        final var header = newSoapObject(Header.class);
+        final var body = newSoapObject(Body.class);
+        final var query = (AttributeQuery) authnRequest;
+        final var saml2Response = buildSaml2Response(casAssertion, query, service,
             adaptor, request, SAMLConstants.SAML2_POST_BINDING_URI, messageContext);
         body.getUnknownXMLObjects().add(saml2Response);
 
-        final Envelope envelope = newSoapObject(Envelope.class);
+        final var envelope = newSoapObject(Envelope.class);
         envelope.setHeader(header);
         envelope.setBody(body);
         SamlUtils.logSamlObject(this.configBean, envelope);

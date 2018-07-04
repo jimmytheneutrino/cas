@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * This is {@link DefaultCas30ProtocolAttributesRenderer}.
@@ -25,9 +24,9 @@ public class DefaultCas30ProtocolAttributesRenderer implements CasProtocolAttrib
         final List<String> formattedAttributes = new ArrayList<>(attributes.size());
         LOGGER.debug("Beginning to format/render attributes for the response");
         attributes.forEach((k, v) -> {
-            final Set<Object> values = CollectionUtils.toCollection(v);
+            final var values = CollectionUtils.toCollection(v);
             values.forEach(value -> {
-                final String fmt = buildSingleAttributeDefinitionLine(k, value);
+                final var fmt = buildSingleAttributeDefinitionLine(k, value);
                 LOGGER.debug("Formatted attribute for the response: [{}]", fmt);
                 formattedAttributes.add(fmt);
             });

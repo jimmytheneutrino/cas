@@ -3,7 +3,6 @@ package org.apereo.cas.scim.v1;
 import com.unboundid.scim.data.UserResource;
 import com.unboundid.scim.schema.CoreSchema;
 import com.unboundid.scim.sdk.OAuthToken;
-import com.unboundid.scim.sdk.Resources;
 import com.unboundid.scim.sdk.SCIMEndpoint;
 import com.unboundid.scim.sdk.SCIMService;
 import lombok.SneakyThrows;
@@ -34,7 +33,7 @@ public class ScimV1PrincipalProvisioner implements PrincipalProvisioner {
                                       final ScimV1PrincipalAttributeMapper mapper) {
         this.mapper = mapper;
 
-        final URI uri = URI.create(target);
+        final var uri = URI.create(target);
         final SCIMService scimService;
 
         if (StringUtils.isNotBlank(oauthToken)) {
@@ -49,13 +48,13 @@ public class ScimV1PrincipalProvisioner implements PrincipalProvisioner {
     @Override
     public boolean create(final Authentication auth, final Principal p, final Credential credential) {
         try {
-            final Resources<UserResource> resources = endpoint.query("userName eq \"" + p.getId() + "\"");
+            final var resources = endpoint.query("userName eq \"" + p.getId() + '"');
             if (resources.getTotalResults() <= 0) {
                 LOGGER.debug("User [{}] not found", p.getId());
                 return false;
             }
 
-            final UserResource user = resources.iterator().next();
+            final var user = resources.iterator().next();
             if (user != null) {
                 return updateUserResource(user, p, credential);
             }
@@ -75,7 +74,7 @@ public class ScimV1PrincipalProvisioner implements PrincipalProvisioner {
      */
     @SneakyThrows
     protected boolean createUserResource(final Principal p, final Credential credential) {
-        final UserResource user = new UserResource(CoreSchema.USER_DESCRIPTOR);
+        final var user = new UserResource(CoreSchema.USER_DESCRIPTOR);
         this.mapper.map(user, p, credential);
         return endpoint.create(user) != null;
     }

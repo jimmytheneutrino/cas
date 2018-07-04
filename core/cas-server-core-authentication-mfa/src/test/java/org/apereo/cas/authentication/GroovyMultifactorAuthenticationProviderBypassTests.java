@@ -25,17 +25,17 @@ public class GroovyMultifactorAuthenticationProviderBypassTests {
     }
 
     private boolean runGroovyBypassFor(final String username) {
-        final MockHttpServletRequest request = new MockHttpServletRequest();
-        final MultifactorAuthenticationProviderBypassProperties properties = new MultifactorAuthenticationProviderBypassProperties();
+        final var request = new MockHttpServletRequest();
+        final var properties = new MultifactorAuthenticationProviderBypassProperties();
         properties.getGroovy().setLocation(new ClassPathResource("GroovyBypass.groovy"));
-        final GroovyMultifactorAuthenticationProviderBypass groovy = new GroovyMultifactorAuthenticationProviderBypass(properties);
-        final TestMultifactorAuthenticationProvider provider = new TestMultifactorAuthenticationProvider();
+        final var groovy = new GroovyMultifactorAuthenticationProviderBypass(properties);
+        final var provider = new TestMultifactorAuthenticationProvider();
 
-        final Authentication authentication = mock(Authentication.class);
-        final Principal principal = mock(Principal.class);
+        final var authentication = mock(Authentication.class);
+        final var principal = mock(Principal.class);
         when(principal.getId()).thenReturn(username);
         when(authentication.getPrincipal()).thenReturn(principal);
-        final RegisteredService registeredService = mock(RegisteredService.class);
+        final var registeredService = mock(RegisteredService.class);
         when(registeredService.getName()).thenReturn("Service");
         when(registeredService.getServiceId()).thenReturn("http://app.org");
         when(registeredService.getId()).thenReturn(1000L);

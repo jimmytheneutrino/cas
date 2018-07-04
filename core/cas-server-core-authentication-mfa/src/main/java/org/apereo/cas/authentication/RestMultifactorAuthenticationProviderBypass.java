@@ -1,8 +1,6 @@
 package org.apereo.cas.authentication;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.HttpResponse;
-import org.apereo.cas.authentication.principal.Principal;
 import org.apereo.cas.configuration.model.support.mfa.MultifactorAuthenticationProviderBypassProperties;
 import org.apereo.cas.services.MultifactorAuthenticationProvider;
 import org.apereo.cas.services.RegisteredService;
@@ -12,7 +10,6 @@ import org.springframework.http.HttpStatus;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * This is {@link RestMultifactorAuthenticationProviderBypass}.
@@ -34,18 +31,18 @@ public class RestMultifactorAuthenticationProviderBypass extends DefaultMultifac
                                                                   final MultifactorAuthenticationProvider provider,
                                                                   final HttpServletRequest request) {
         try {
-            final Principal principal = authentication.getPrincipal();
-            final MultifactorAuthenticationProviderBypassProperties.Rest rest = bypassProperties.getRest();
+            final var principal = authentication.getPrincipal();
+            final var rest = bypassProperties.getRest();
             LOGGER.debug("Evaluating multifactor authentication bypass properties for principal [{}], "
                     + "service [{}] and provider [{}] via REST endpoint [{}]",
                 principal.getId(), registeredService, provider, rest.getUrl());
 
-            final Map<String, Object> parameters = CollectionUtils.wrap("principal", principal.getId(), "provider", provider.getId());
+            final var parameters = CollectionUtils.wrap("principal", principal.getId(), "provider", provider.getId());
             if (registeredService != null) {
                 parameters.put("service", registeredService.getServiceId());
             }
 
-            final HttpResponse response = HttpUtils.execute(rest.getUrl(), rest.getMethod(),
+            final var response = HttpUtils.execute(rest.getUrl(), rest.getMethod(),
                 rest.getBasicAuthUsername(), rest.getBasicAuthPassword(), parameters, new HashMap<>());
             return response.getStatusLine().getStatusCode() == HttpStatus.ACCEPTED.value();
         } catch (final Exception e) {

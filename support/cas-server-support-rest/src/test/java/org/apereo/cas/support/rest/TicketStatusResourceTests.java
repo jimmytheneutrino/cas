@@ -5,8 +5,8 @@ import org.apereo.cas.CentralAuthenticationService;
 import org.apereo.cas.mock.MockTicketGrantingTicket;
 import org.apereo.cas.support.rest.resources.TicketStatusResource;
 import org.apereo.cas.ticket.InvalidTicketException;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -15,7 +15,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -40,7 +39,7 @@ public class TicketStatusResourceTests {
     private MockMvc mockMvc;
 
     @Before
-    public void setUp() {
+    public void initialize() {
         this.ticketStatusResource = new TicketStatusResource(casMock);
 
         this.mockMvc = MockMvcBuilders.standaloneSetup(this.ticketStatusResource)
@@ -52,7 +51,7 @@ public class TicketStatusResourceTests {
 
     @Test
     public void verifyStatus() throws Exception {
-        final MockTicketGrantingTicket tgt = new MockTicketGrantingTicket("casuser");
+        final var tgt = new MockTicketGrantingTicket("casuser");
         when(casMock.getTicket(anyString())).thenReturn(tgt);
         this.mockMvc.perform(get(TICKETS_RESOURCE_URL + "/TGT-1"))
             .andExpect(status().isOk())

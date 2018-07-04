@@ -4,11 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apereo.cas.util.CollectionUtils;
 import org.apereo.cas.util.LdapUtils;
 import org.ldaptive.ConnectionFactory;
-import org.ldaptive.LdapAttribute;
 import org.ldaptive.LdapEntry;
-import org.ldaptive.Response;
 import org.ldaptive.SearchExecutor;
-import org.ldaptive.SearchResult;
 import org.pac4j.core.authorization.generator.AuthorizationGenerator;
 import org.pac4j.core.profile.CommonProfile;
 
@@ -62,15 +59,15 @@ public class LdapUserGroupsToRolesAuthorizationGenerator extends BaseUseAttribut
     protected CommonProfile generateAuthorizationForLdapEntry(final CommonProfile profile, final LdapEntry userEntry) {
         try {
             LOGGER.debug("Attempting to get roles for user [{}].", userEntry.getDn());
-            final Response<SearchResult> response = this.groupSearchExecutor.search(
+            final var response = this.groupSearchExecutor.search(
                     this.connectionFactory,
                     LdapUtils.newLdaptiveSearchFilter(this.groupSearchExecutor.getSearchFilter().getFilter(),
                             LdapUtils.LDAP_SEARCH_FILTER_DEFAULT_PARAM_NAME, CollectionUtils.wrap(userEntry.getDn())));
             LOGGER.debug("LDAP role search response: [{}]", response);
-            final SearchResult groupResult = response.getResult();
+            final var groupResult = response.getResult();
 
-            for (final LdapEntry entry : groupResult.getEntries()) {
-                final LdapAttribute groupAttribute = entry.getAttribute(this.groupAttributeName);
+            for (final var entry : groupResult.getEntries()) {
+                final var groupAttribute = entry.getAttribute(this.groupAttributeName);
                 if (groupAttribute == null) {
                     LOGGER.warn("Role attribute not found on entry [{}]", entry);
                     continue;

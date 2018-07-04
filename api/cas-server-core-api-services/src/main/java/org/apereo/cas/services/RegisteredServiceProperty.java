@@ -8,8 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
-import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -20,7 +18,7 @@ import java.util.function.Predicate;
  * @author Misagh Moayyed
  * @since 4.2
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 public interface RegisteredServiceProperty extends Serializable {
 
     /**
@@ -118,7 +116,7 @@ public interface RegisteredServiceProperty extends Serializable {
          */
         public RegisteredServiceProperty getPropertyValue(final RegisteredService service) {
             if (isAssignedTo(service)) {
-                final Optional<Map.Entry<String, RegisteredServiceProperty>> property = service.getProperties().entrySet()
+                final var property = service.getProperties().entrySet()
                     .stream().filter(entry -> entry.getKey().equalsIgnoreCase(getPropertyName())
                         && StringUtils.isNotBlank(entry.getValue().getValue()))
                     .distinct().findFirst();
@@ -139,7 +137,7 @@ public interface RegisteredServiceProperty extends Serializable {
          */
         public <T> T getPropertyValue(final RegisteredService service, final Class<T> clazz) {
             if (isAssignedTo(service)) {
-                final RegisteredServiceProperty prop = getPropertyValue(service);
+                final var prop = getPropertyValue(service);
                 if (prop != null) {
                     return clazz.cast(prop.getValue());
                 }

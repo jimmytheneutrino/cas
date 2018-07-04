@@ -4,14 +4,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apereo.cas.audit.AuditTrailExecutionPlanConfigurer;
 import org.apereo.cas.audit.MongoDbAuditTrailManager;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.core.audit.AuditMongoDbProperties;
 import org.apereo.cas.mongo.MongoDbConnectionFactory;
 import org.apereo.inspektr.audit.AuditTrailManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.mongodb.core.MongoTemplate;
 
 /**
  * This is {@link CasSupportMongoDbAuditConfiguration}.
@@ -29,11 +27,11 @@ public class CasSupportMongoDbAuditConfiguration {
 
     @Bean
     public AuditTrailManager mongoDbAuditTrailManager() {
-        final AuditMongoDbProperties mongo = casProperties.getAudit().getMongo();
-        final MongoDbConnectionFactory factory = new MongoDbConnectionFactory();
-        final MongoTemplate mongoTemplate = factory.buildMongoTemplate(mongo);
+        final var mongo = casProperties.getAudit().getMongo();
+        final var factory = new MongoDbConnectionFactory();
+        final var mongoTemplate = factory.buildMongoTemplate(mongo);
         factory.createCollection(mongoTemplate, mongo.getCollection(), mongo.isDropCollection());
-        final MongoDbAuditTrailManager mgmr = new MongoDbAuditTrailManager(mongoTemplate, mongo.getCollection());
+        final var mgmr = new MongoDbAuditTrailManager(mongoTemplate, mongo.getCollection());
         mgmr.setAsynchronous(mongo.isAsynchronous());
         return mgmr;
     }

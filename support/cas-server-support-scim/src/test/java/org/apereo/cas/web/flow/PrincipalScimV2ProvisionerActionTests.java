@@ -64,27 +64,27 @@ public class PrincipalScimV2ProvisionerActionTests {
 
     @Test
     public void verifyAction() throws Exception {
-        final MockRequestContext context = new MockRequestContext();
-        final MockHttpServletRequest request = new MockHttpServletRequest();
+        final var context = new MockRequestContext();
+        final var request = new MockHttpServletRequest();
         context.setExternalContext(new ServletExternalContext(new MockServletContext(), request, new MockHttpServletResponse()));
         WebUtils.putAuthentication(CoreAuthenticationTestUtils.getAuthentication(), context);
         WebUtils.putCredential(context, CoreAuthenticationTestUtils.getCredentialsWithSameUsernameAndPassword());
 
-        final UserResource user = new UserResource();
+        final var user = new UserResource();
         user.setActive(true);
         user.setDisplayName("CASUser");
         user.setId("casuser");
-        final Name name = new Name();
+        final var name = new Name();
         name.setGivenName("casuser");
         user.setName(name);
-        final Meta meta = new Meta();
+        final var meta = new Meta();
         meta.setResourceType("User");
         meta.setCreated(Calendar.getInstance());
         meta.setLocation(new URI("http://localhost:8218"));
         user.setMeta(meta);
         
-        final String data = MAPPER.writeValueAsString(user);
-        try (MockWebServer webServer = new MockWebServer(8218,
+        final var data = MAPPER.writeValueAsString(user);
+        try (var webServer = new MockWebServer(8218,
             new ByteArrayResource(data.getBytes(StandardCharsets.UTF_8), "REST Output"), MediaType.APPLICATION_JSON_VALUE)) {
             webServer.start();
             assertEquals(CasWebflowConstants.TRANSITION_ID_SUCCESS, principalScimProvisionerAction.execute(context).getId());

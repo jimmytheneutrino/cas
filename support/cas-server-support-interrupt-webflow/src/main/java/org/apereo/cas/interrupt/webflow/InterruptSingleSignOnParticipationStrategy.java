@@ -1,7 +1,6 @@
 package org.apereo.cas.interrupt.webflow;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apereo.cas.interrupt.InterruptResponse;
 import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.web.flow.DefaultSingleSignOnParticipationStrategy;
 import org.springframework.webflow.execution.RequestContext;
@@ -21,7 +20,7 @@ public class InterruptSingleSignOnParticipationStrategy extends DefaultSingleSig
 
     @Override
     public boolean isParticipating(final RequestContext ctx) {
-        final InterruptResponse response = InterruptUtils.getInterruptFrom(ctx);
+        final var response = InterruptUtils.getInterruptFrom(ctx);
         if (response != null && !response.isSsoEnabled()) {
             return false;
         }

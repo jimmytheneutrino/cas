@@ -25,7 +25,7 @@ public class ReturnAllAttributeReleasePolicyTests {
 
     @Test
     public void verifySerializeAReturnAllAttributeReleasePolicyToJson() throws IOException {
-        final ReturnAllAttributeReleasePolicy policyWritten = new ReturnAllAttributeReleasePolicy();
+        final var policyWritten = new ReturnAllAttributeReleasePolicy();
         MAPPER.writeValue(JSON_FILE, policyWritten);
         final RegisteredServiceAttributeReleasePolicy policyRead = MAPPER.readValue(JSON_FILE, ReturnAllAttributeReleasePolicy.class);
         assertEquals(policyWritten, policyRead);

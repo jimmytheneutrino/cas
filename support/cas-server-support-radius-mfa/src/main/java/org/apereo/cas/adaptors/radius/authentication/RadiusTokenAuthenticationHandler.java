@@ -1,14 +1,11 @@
 package org.apereo.cas.adaptors.radius.authentication;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apereo.cas.adaptors.radius.RadiusServer;
 import org.apereo.cas.adaptors.radius.RadiusUtils;
-import org.apereo.cas.authentication.Authentication;
 import org.apereo.cas.authentication.AuthenticationHandlerExecutionResult;
 import org.apereo.cas.authentication.Credential;
 import org.apereo.cas.authentication.handler.support.AbstractPreAndPostProcessingAuthenticationHandler;
-import org.apereo.cas.authentication.principal.Principal;
 import org.apereo.cas.authentication.principal.PrincipalFactory;
 import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.web.support.WebUtils;
@@ -17,8 +14,6 @@ import javax.security.auth.login.FailedLoginException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 /**
  * This is {@link RadiusTokenAuthenticationHandler}.
@@ -55,21 +50,21 @@ public class RadiusTokenAuthenticationHandler extends AbstractPreAndPostProcessi
     @Override
     protected AuthenticationHandlerExecutionResult doAuthentication(final Credential credential) throws GeneralSecurityException {
         try {
-            final RadiusTokenCredential radiusCredential = (RadiusTokenCredential) credential;
-            final String password = radiusCredential.getToken();
+            final var radiusCredential = (RadiusTokenCredential) credential;
+            final var password = radiusCredential.getToken();
 
-            final Authentication authentication = WebUtils.getInProgressAuthentication();
+            final var authentication = WebUtils.getInProgressAuthentication();
             if (authentication == null) {
                 throw new IllegalArgumentException("CAS has no reference to an authentication event to locate a principal");
             }
-            final Principal principal = authentication.getPrincipal();
-            final String username = principal.getId();
+            final var principal = authentication.getPrincipal();
+            final var username = principal.getId();
 
-            final Pair<Boolean, Optional<Map<String, Object>>> result =
+            final var result =
                 RadiusUtils.authenticate(username, password, this.servers,
                     this.failoverOnAuthenticationFailure, this.failoverOnException);
             if (result.getKey()) {
-                final Principal finalPrincipal = this.principalFactory.createPrincipal(username, result.getValue().get());
+                final var finalPrincipal = this.principalFactory.createPrincipal(username, result.getValue().get());
                 return createHandlerResult(credential, finalPrincipal, new ArrayList<>());
             }
             throw new FailedLoginException("Radius authentication failed for user " + username);

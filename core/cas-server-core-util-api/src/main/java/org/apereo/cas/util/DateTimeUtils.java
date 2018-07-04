@@ -83,7 +83,7 @@ public class DateTimeUtils {
 
         if (result == null) {
             try {
-                final LocalDate ld = LocalDate.parse(value, DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+                final var ld = LocalDate.parse(value, DateTimeFormatter.ofPattern("MM/dd/yyyy"));
                 result = LocalDateTime.of(ld, LocalTime.now());
             } catch (final Exception e) {
                 result = null;
@@ -92,7 +92,7 @@ public class DateTimeUtils {
 
         if (result == null) {
             try {
-                final LocalDate ld = LocalDate.parse(value);
+                final var ld = LocalDate.parse(value);
                 result = LocalDateTime.of(ld, LocalTime.now());
             } catch (final Exception e) {
                 result = null;
@@ -109,7 +109,7 @@ public class DateTimeUtils {
      * @return the local date time
      */
     public static LocalDateTime localDateTimeOf(final long time) {
-        return LocalDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneOffset.systemDefault());
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneId.systemDefault());
     }
 
     /**

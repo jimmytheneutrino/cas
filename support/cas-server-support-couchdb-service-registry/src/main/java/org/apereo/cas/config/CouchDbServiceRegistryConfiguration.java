@@ -1,7 +1,6 @@
 package org.apereo.cas.config;
 
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.support.couchdb.CouchDbServiceRegistryProperties;
 import org.apereo.cas.configuration.support.RequiresModule;
 import org.apereo.cas.couchdb.core.CouchDbConnectorFactory;
 import org.apereo.cas.couchdb.services.RegisteredServiceRepository;
@@ -46,9 +45,9 @@ public class CouchDbServiceRegistryConfiguration implements ServiceRegistryExecu
     @Bean
     @RefreshScope
     public RegisteredServiceRepository serviceRegistryCouchDbRepository() {
-        final CouchDbServiceRegistryProperties couchDbProperties = casProperties.getServiceRegistry().getCouchDb();
+        final var couchDbProperties = casProperties.getServiceRegistry().getCouchDb();
 
-        final RegisteredServiceRepository serviceRepository = new RegisteredServiceRepository(couchDbFactory.create(), couchDbProperties.isCreateIfNotExists());
+        final var serviceRepository = new RegisteredServiceRepository(couchDbFactory.create(), couchDbProperties.isCreateIfNotExists());
         serviceRepository.initStandardDesignDocument();
         return serviceRepository;
     }

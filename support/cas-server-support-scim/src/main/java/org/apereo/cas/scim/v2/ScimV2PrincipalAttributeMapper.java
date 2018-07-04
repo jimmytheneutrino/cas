@@ -11,8 +11,6 @@ import org.apereo.cas.authentication.UsernamePasswordCredential;
 import org.apereo.cas.authentication.principal.Principal;
 import org.apereo.cas.util.CollectionUtils;
 
-import java.util.Map;
-
 /**
  * This is {@link ScimV2PrincipalAttributeMapper}.
  *
@@ -30,7 +28,7 @@ public class ScimV2PrincipalAttributeMapper {
      * @return the principal attribute value
      */
     public String getPrincipalAttributeValue(final Principal p, final String attributeName) {
-        final Map<String, Object> attributes = p.getAttributes();
+        final var attributes = p.getAttributes();
         if (attributes.containsKey(attributeName)) {
             return CollectionUtils.toCollection(attributes.get(attributeName)).iterator().next().toString();
         }
@@ -52,12 +50,12 @@ public class ScimV2PrincipalAttributeMapper {
         }
         user.setActive(Boolean.TRUE);
 
-        String attr = getPrincipalAttributeValue(p, "nickName");
+        var attr = getPrincipalAttributeValue(p, "nickName");
         user.setNickName(attr);
         attr = getPrincipalAttributeValue(p, "displayName");
         user.setDisplayName(attr);
 
-        final Name name = new Name();
+        final var name = new Name();
         attr = getPrincipalAttributeValue(p, "givenName");
         name.setGivenName(attr);
         attr = getPrincipalAttributeValue(p, "familyName");
@@ -67,7 +65,7 @@ public class ScimV2PrincipalAttributeMapper {
 
         user.setName(name);
 
-        final Email email = new Email();
+        final var email = new Email();
         email.setPrimary(Boolean.TRUE);
         attr = getPrincipalAttributeValue(p, "mail");
         if (StringUtils.isBlank(attr)) {
@@ -76,7 +74,7 @@ public class ScimV2PrincipalAttributeMapper {
         email.setValue(attr);
         user.setEmails(CollectionUtils.wrap(email));
 
-        final PhoneNumber phone = new PhoneNumber();
+        final var phone = new PhoneNumber();
         phone.setPrimary(Boolean.TRUE);
         attr = getPrincipalAttributeValue(p, "phone");
         if (StringUtils.isBlank(attr)) {

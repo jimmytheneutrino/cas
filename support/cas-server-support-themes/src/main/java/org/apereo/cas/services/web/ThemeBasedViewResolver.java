@@ -42,13 +42,13 @@ public class ThemeBasedViewResolver implements ViewResolver, Ordered {
     @Override
     @SuppressFBWarnings("PRMC_POSSIBLY_REDUNDANT_METHOD_CALLS")
     public View resolveViewName(final String viewName, final Locale locale) {
-        final Optional<String> theme = Optional.of(RequestContextHolder.currentRequestAttributes())
+        final var theme = Optional.of(RequestContextHolder.currentRequestAttributes())
             .filter(ServletRequestAttributes.class::isInstance)
             .map(ServletRequestAttributes.class::cast)
             .map(ServletRequestAttributes::getRequest)
             .map(themeResolver::resolveThemeName);
         try {
-            final Optional<ViewResolver> delegate = theme.map(this::getViewResolver);
+            final var delegate = theme.map(this::getViewResolver);
             if (delegate.isPresent()) {
                 return delegate.get().resolveViewName(viewName, locale);
             }

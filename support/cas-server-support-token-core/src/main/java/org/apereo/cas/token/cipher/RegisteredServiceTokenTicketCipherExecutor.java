@@ -22,12 +22,12 @@ public class RegisteredServiceTokenTicketCipherExecutor extends TokenTicketCiphe
     @Override
     public String decode(final String data, final Optional<RegisteredService> service) {
         if (service.isPresent()) {
-            final RegisteredService registeredService = service.get();
+            final var registeredService = service.get();
             if (supports(registeredService)) {
                 LOGGER.debug("Found signing and/or encryption keys for [{}] in service registry to decode", registeredService.getServiceId());
-                final String encryptionKey = getEncryptionKey(registeredService).get();
-                final String signingKey = getSigningKey(registeredService).get();
-                final TokenTicketCipherExecutor cipher = new TokenTicketCipherExecutor(encryptionKey, signingKey,
+                final var encryptionKey = getEncryptionKey(registeredService).get();
+                final var signingKey = getSigningKey(registeredService).get();
+                final var cipher = new TokenTicketCipherExecutor(encryptionKey, signingKey,
                     StringUtils.isNotBlank(encryptionKey), StringUtils.isNotBlank(signingKey));
                 if (cipher.isEnabled()) {
                     return cipher.decode(data);
@@ -40,12 +40,12 @@ public class RegisteredServiceTokenTicketCipherExecutor extends TokenTicketCiphe
     @Override
     public String encode(final String data, final Optional<RegisteredService> service) {
         if (service.isPresent()) {
-            final RegisteredService registeredService = service.get();
+            final var registeredService = service.get();
             if (supports(registeredService)) {
                 LOGGER.debug("Found signing and/or encryption keys for [{}] in service registry to encode", registeredService.getServiceId());
-                final String encryptionKey = getEncryptionKey(registeredService).get();
-                final String signingKey = getSigningKey(registeredService).get();
-                final TokenTicketCipherExecutor cipher = new TokenTicketCipherExecutor(encryptionKey, signingKey,
+                final var encryptionKey = getEncryptionKey(registeredService).get();
+                final var signingKey = getSigningKey(registeredService).get();
+                final var cipher = new TokenTicketCipherExecutor(encryptionKey, signingKey,
                     StringUtils.isNotBlank(encryptionKey), StringUtils.isNotBlank(signingKey));
                 if (cipher.isEnabled()) {
                     return cipher.encode(data);
@@ -68,7 +68,7 @@ public class RegisteredServiceTokenTicketCipherExecutor extends TokenTicketCiphe
      */
     public Optional<String> getSigningKey(final RegisteredService registeredService) {
         if (RegisteredServiceProperties.TOKEN_AS_SERVICE_TICKET_SIGNING_KEY.isAssignedTo(registeredService)) {
-            final String signingKey = RegisteredServiceProperties.TOKEN_AS_SERVICE_TICKET_SIGNING_KEY.getPropertyValue(registeredService).getValue();
+            final var signingKey = RegisteredServiceProperties.TOKEN_AS_SERVICE_TICKET_SIGNING_KEY.getPropertyValue(registeredService).getValue();
             return Optional.of(signingKey);
         }
         return Optional.empty();
@@ -82,7 +82,7 @@ public class RegisteredServiceTokenTicketCipherExecutor extends TokenTicketCiphe
      */
     public Optional<String> getEncryptionKey(final RegisteredService registeredService) {
         if (RegisteredServiceProperties.TOKEN_AS_SERVICE_TICKET_ENCRYPTION_KEY.isAssignedTo(registeredService)) {
-            final String key = RegisteredServiceProperties.TOKEN_AS_SERVICE_TICKET_ENCRYPTION_KEY.getPropertyValue(registeredService).getValue();
+            final var key = RegisteredServiceProperties.TOKEN_AS_SERVICE_TICKET_ENCRYPTION_KEY.getPropertyValue(registeredService).getValue();
             return Optional.of(key);
         }
         return Optional.empty();

@@ -1,5 +1,8 @@
 package org.apereo.cas.support.geo.config;
 
+import com.maxmind.db.CHMCache;
+import com.maxmind.geoip2.DatabaseReader;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apereo.cas.authentication.adaptive.geo.GeoLocationService;
 import org.apereo.cas.configuration.CasConfigurationProperties;
@@ -26,7 +29,31 @@ public class CasGeoLocationConfiguration {
 
     @Bean
     @RefreshScope
+    @SneakyThrows
     public GeoLocationService geoLocationService() {
-        return new MaxmindDatabaseGeoLocationService(casProperties.getMaxmind());
+        final var properties = casProperties.getMaxmind();
+
+        final DatabaseReader cityDatabase;
+        final DatabaseReader countryDatabase;
+
+        if (properties.getCityDatabase().exists()) {
+            cityDatabase = new DatabaseReader.Builder(properties.getCityDatabase().getFile()).withCache(new CHMCache()).build();
+        } else {
+            cityDatabase = null;
+        }
+
+        if (properties.getCountryDatabase().exists()) {
+            countryDatabase = new DatabaseReader.Builder(properties.getCountryDatabase().getFile()).withCache(new CHMCache()).build();
+        } else {
+            countryDatabase = null;
+        }
+
+        if (cityDatabase == null && countryDatabase == null) {
+            throw new IllegalArgumentException("No geolocation services have been defined for Maxmind");
+        }
+
+        final var svc = new MaxmindDatabaseGeoLocationService(cityDatabase, countryDatabase);
+        svc.setIpStackAccessKey(properties.getIpStackApiAccessKey());
+        return svc;
     }
 }

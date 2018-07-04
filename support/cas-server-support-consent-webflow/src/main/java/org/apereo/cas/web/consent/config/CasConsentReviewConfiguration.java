@@ -40,13 +40,13 @@ public class CasConsentReviewConfiguration implements ServiceRegistryExecutionPl
 
     @Override
     public void configureServiceRegistry(final ServiceRegistryExecutionPlan plan) {
-        final RegexRegisteredService service = new RegexRegisteredService();
+        final var service = new RegexRegisteredService();
         service.setEvaluationOrder(0);
         service.setName("CAS Consent Review");
         service.setDescription("Review consent decisions for attribute release");
         service.setServiceId(consentCallbackService().getId());
-        final ReturnAllowedAttributeReleasePolicy policy = new ReturnAllowedAttributeReleasePolicy();
-        final DefaultRegisteredServiceConsentPolicy consentPolicy = new DefaultRegisteredServiceConsentPolicy();
+        final var policy = new ReturnAllowedAttributeReleasePolicy();
+        final var consentPolicy = new DefaultRegisteredServiceConsentPolicy();
         consentPolicy.setEnabled(false);
         policy.setConsentPolicy(consentPolicy);
         service.setAttributeReleasePolicy(policy);

@@ -11,8 +11,6 @@ import org.apereo.cas.authentication.principal.PrincipalNameTransformerUtils;
 import org.apereo.cas.authentication.principal.PrincipalResolver;
 import org.apereo.cas.authentication.support.password.PasswordEncoderUtils;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.core.authentication.CouchbasePrincipalAttributesProperties;
-import org.apereo.cas.configuration.model.support.couchbase.authentication.CouchbaseAuthenticationProperties;
 import org.apereo.cas.couchbase.core.CouchbaseClientFactory;
 import org.apereo.cas.persondir.PersonDirectoryAttributeRepositoryPlan;
 import org.apereo.cas.persondir.PersonDirectoryAttributeRepositoryPlanConfigurer;
@@ -26,8 +24,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.Set;
 
 /**
  * This is {@link CouchbaseAuthenticationConfiguration}.
@@ -62,8 +58,8 @@ public class CouchbaseAuthenticationConfiguration {
     @RefreshScope
     @Bean
     public CouchbaseClientFactory authenticationCouchbaseClientFactory() {
-        final CouchbaseAuthenticationProperties couchbase = casProperties.getAuthn().getCouchbase();
-        final Set<String> nodes = org.springframework.util.StringUtils.commaDelimitedListToSet(couchbase.getNodeSet());
+        final var couchbase = casProperties.getAuthn().getCouchbase();
+        final var nodes = org.springframework.util.StringUtils.commaDelimitedListToSet(couchbase.getNodeSet());
         return new CouchbaseClientFactory(nodes, couchbase.getBucket(), couchbase.getPassword());
     }
 
@@ -71,8 +67,8 @@ public class CouchbaseAuthenticationConfiguration {
     @Bean
     @RefreshScope
     public AuthenticationHandler couchbaseAuthenticationHandler() {
-        final CouchbaseAuthenticationProperties couchbase = casProperties.getAuthn().getCouchbase();
-        final CouchbaseAuthenticationHandler handler = new CouchbaseAuthenticationHandler(
+        final var couchbase = casProperties.getAuthn().getCouchbase();
+        final var handler = new CouchbaseAuthenticationHandler(
             servicesManager, couchbasePrincipalFactory(),
             authenticationCouchbaseClientFactory(),
             couchbase);
@@ -85,7 +81,7 @@ public class CouchbaseAuthenticationConfiguration {
     @Bean
     public AuthenticationEventExecutionPlanConfigurer couchbaseAuthenticationEventExecutionPlanConfigurer() {
         return plan -> {
-            final CouchbaseAuthenticationProperties couchbase = casProperties.getAuthn().getCouchbase();
+            final var couchbase = casProperties.getAuthn().getCouchbase();
             if (StringUtils.isNotBlank(couchbase.getPasswordAttribute()) && StringUtils.isNotBlank(couchbase.getUsernameAttribute())) {
                 plan.registerAuthenticationHandlerWithPrincipalResolver(couchbaseAuthenticationHandler(), personDirectoryPrincipalResolver);
             } else {
@@ -97,8 +93,8 @@ public class CouchbaseAuthenticationConfiguration {
     @ConditionalOnMissingBean(name = "couchbasePersonAttributeDao")
     @Bean
     public IPersonAttributeDao couchbasePersonAttributeDao() {
-        final CouchbasePrincipalAttributesProperties couchbase = casProperties.getAuthn().getAttributeRepository().getCouchbase();
-        final CouchbasePersonAttributeDao cb = new CouchbasePersonAttributeDao(couchbase, authenticationCouchbaseClientFactory());
+        final var couchbase = casProperties.getAuthn().getAttributeRepository().getCouchbase();
+        final var cb = new CouchbasePersonAttributeDao(couchbase, authenticationCouchbaseClientFactory());
         cb.setOrder(couchbase.getOrder());
         return cb;
     }
@@ -106,7 +102,7 @@ public class CouchbaseAuthenticationConfiguration {
     @ConditionalOnMissingBean(name = "couchbaseAttributeRepositoryPlanConfigurer")
     @Bean
     public PersonDirectoryAttributeRepositoryPlanConfigurer couchbaseAttributeRepositoryPlanConfigurer() {
-        final CouchbasePrincipalAttributesProperties couchbase = casProperties.getAuthn().getAttributeRepository().getCouchbase();
+        final var couchbase = casProperties.getAuthn().getAttributeRepository().getCouchbase();
         return new PersonDirectoryAttributeRepositoryPlanConfigurer() {
             @Override
             public void configureAttributeRepositoryPlan(final PersonDirectoryAttributeRepositoryPlan plan) {

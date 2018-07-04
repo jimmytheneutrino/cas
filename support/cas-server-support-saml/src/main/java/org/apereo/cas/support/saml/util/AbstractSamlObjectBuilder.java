@@ -14,7 +14,6 @@ import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
-import org.opensaml.core.xml.schema.XSAny;
 import org.opensaml.core.xml.schema.impl.XSAnyBuilder;
 import org.opensaml.saml.common.SAMLObject;
 import org.opensaml.saml.common.SAMLObjectBuilder;
@@ -23,21 +22,14 @@ import org.opensaml.soap.common.SOAPObject;
 import org.opensaml.soap.common.SOAPObjectBuilder;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import javax.xml.XMLConstants;
 import javax.xml.crypto.dsig.CanonicalizationMethod;
 import javax.xml.crypto.dsig.DigestMethod;
-import javax.xml.crypto.dsig.Reference;
 import javax.xml.crypto.dsig.SignatureMethod;
-import javax.xml.crypto.dsig.SignedInfo;
 import javax.xml.crypto.dsig.Transform;
-import javax.xml.crypto.dsig.XMLSignature;
 import javax.xml.crypto.dsig.XMLSignatureFactory;
 import javax.xml.crypto.dsig.dom.DOMSignContext;
-import javax.xml.crypto.dsig.keyinfo.KeyInfo;
-import javax.xml.crypto.dsig.keyinfo.KeyInfoFactory;
-import javax.xml.crypto.dsig.keyinfo.KeyValue;
 import javax.xml.crypto.dsig.spec.C14NMethodParameterSpec;
 import javax.xml.crypto.dsig.spec.TransformParameterSpec;
 import javax.xml.namespace.QName;
@@ -45,7 +37,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.io.StringWriter;
-import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 import java.security.PrivateKey;
 import java.security.Provider;
@@ -60,7 +51,7 @@ import java.util.List;
  * @author Misagh Moayyed
  * @since 4.1
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 @Slf4j
 @AllArgsConstructor
 public abstract class AbstractSamlObjectBuilder implements Serializable {
@@ -95,8 +86,8 @@ public abstract class AbstractSamlObjectBuilder implements Serializable {
      */
     @SneakyThrows
     public <T extends SAMLObject> T newSamlObject(final Class<T> objectType) {
-        final QName qName = getSamlObjectQName(objectType);
-        final SAMLObjectBuilder<T> builder = (SAMLObjectBuilder<T>)
+        final var qName = getSamlObjectQName(objectType);
+        final var builder = (SAMLObjectBuilder<T>)
             XMLObjectProviderRegistrySupport.getBuilderFactory().getBuilder(qName);
         if (builder == null) {
             throw new IllegalStateException("No SAML object builder is registered for class " + objectType.getName());
@@ -113,8 +104,8 @@ public abstract class AbstractSamlObjectBuilder implements Serializable {
      */
     @SneakyThrows
     public <T extends SOAPObject> T newSoapObject(final Class<T> objectType) {
-        final QName qName = getSamlObjectQName(objectType);
-        final SOAPObjectBuilder<T> builder = (SOAPObjectBuilder<T>)
+        final var qName = getSamlObjectQName(objectType);
+        final var builder = (SOAPObjectBuilder<T>)
             XMLObjectProviderRegistrySupport.getBuilderFactory().getBuilder(qName);
         if (builder == null) {
             throw new IllegalStateException("No SAML object builder is registered for class " + objectType.getName());
@@ -130,7 +121,7 @@ public abstract class AbstractSamlObjectBuilder implements Serializable {
      */
     public QName getSamlObjectQName(final Class objectType) {
         try {
-            final Field f = objectType.getField(DEFAULT_ELEMENT_NAME_FIELD);
+            final var f = objectType.getField(DEFAULT_ELEMENT_NAME_FIELD);
             return (QName) f.get(null);
         } catch (final NoSuchFieldException e) {
             throw new IllegalStateException("Cannot find field " + objectType.getName() + '.' + DEFAULT_ELEMENT_NAME_FIELD, e);
@@ -148,8 +139,8 @@ public abstract class AbstractSamlObjectBuilder implements Serializable {
      */
     protected XMLObject newAttributeValue(final Object value, final QName elementName) {
         //final XSStringBuilder attrValueBuilder = new XSStringBuilder();
-        final XSAnyBuilder attrValueBuilder = new XSAnyBuilder();
-        final XSAny stringValue = attrValueBuilder.buildObject(elementName);
+        final var attrValueBuilder = new XSAnyBuilder();
+        final var stringValue = attrValueBuilder.buildObject(elementName);
         stringValue.setTextContent(value.toString());
         return stringValue;
     }
@@ -161,12 +152,12 @@ public abstract class AbstractSamlObjectBuilder implements Serializable {
      */
     public String generateSecureRandomId() {
         try {
-            final HexRandomStringGenerator random = new HexRandomStringGenerator(RANDOM_ID_SIZE);
-            final String hex = random.getNewString();
+            final var random = new HexRandomStringGenerator(RANDOM_ID_SIZE);
+            final var hex = random.getNewString();
             if (StringUtils.isBlank(hex)) {
                 throw new IllegalArgumentException("Could not generate a secure random id based on " + random.getAlgorithm());
             }
-            return "_" + hex;
+            return '_' + hex;
         } catch (final Exception e) {
             throw new IllegalStateException("Cannot create secure random ID generator for SAML message IDs.", e);
         }
@@ -209,10 +200,10 @@ public abstract class AbstractSamlObjectBuilder implements Serializable {
      * @return the response
      */
     public static String signSamlResponse(final String samlResponse, final PrivateKey privateKey, final PublicKey publicKey) {
-        final Document doc = constructDocumentFromXml(samlResponse);
+        final var doc = constructDocumentFromXml(samlResponse);
 
         if (doc != null) {
-            final org.jdom.Element signedElement = signSamlElement(doc.getRootElement(),
+            final var signedElement = signSamlElement(doc.getRootElement(),
                 privateKey, publicKey);
             doc.setRootElement((org.jdom.Element) signedElement.detach());
             return new XMLOutputter().outputString(doc);
@@ -228,7 +219,7 @@ public abstract class AbstractSamlObjectBuilder implements Serializable {
      */
     public static Document constructDocumentFromXml(final String xmlString) {
         try {
-            final SAXBuilder builder = new SAXBuilder();
+            final var builder = new SAXBuilder();
             builder.setFeature("http://xml.org/sax/features/external-general-entities", false);
             builder.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
             return builder.build(new ByteArrayInputStream(xmlString.getBytes(Charset.defaultCharset())));
@@ -247,20 +238,20 @@ public abstract class AbstractSamlObjectBuilder implements Serializable {
      */
     private static org.jdom.Element signSamlElement(final org.jdom.Element element, final PrivateKey privKey, final PublicKey pubKey) {
         try {
-            final String providerName = System.getProperty("jsr105Provider", SIGNATURE_FACTORY_PROVIDER_CLASS);
+            final var providerName = System.getProperty("jsr105Provider", SIGNATURE_FACTORY_PROVIDER_CLASS);
 
             final Class<?> clazz = Class.forName(providerName);
-            final XMLSignatureFactory sigFactory = XMLSignatureFactory
+            final var sigFactory = XMLSignatureFactory
                 .getInstance("DOM", (Provider) clazz.getDeclaredConstructor().newInstance());
 
-            final List<Transform> envelopedTransform = CollectionUtils.wrap(sigFactory.newTransform(Transform.ENVELOPED, (TransformParameterSpec) null));
+            final var envelopedTransform = CollectionUtils.wrap(sigFactory.newTransform(Transform.ENVELOPED, (TransformParameterSpec) null));
 
-            final Reference ref = sigFactory.newReference(StringUtils.EMPTY, sigFactory
+            final var ref = sigFactory.newReference(StringUtils.EMPTY, sigFactory
                 .newDigestMethod(DigestMethod.SHA1, null), envelopedTransform, null, null);
 
             // Create the SignatureMethod based on the type of key
             final SignatureMethod signatureMethod;
-            final String algorithm = pubKey.getAlgorithm();
+            final var algorithm = pubKey.getAlgorithm();
             switch (algorithm) {
                 case "DSA":
                     signatureMethod = sigFactory.newSignatureMethod(SignatureMethod.DSA_SHA1, null);
@@ -272,32 +263,32 @@ public abstract class AbstractSamlObjectBuilder implements Serializable {
                     throw new IllegalArgumentException("Error signing SAML element: Unsupported type of key");
             }
 
-            final CanonicalizationMethod canonicalizationMethod = sigFactory
+            final var canonicalizationMethod = sigFactory
                 .newCanonicalizationMethod(
                     CanonicalizationMethod.INCLUSIVE_WITH_COMMENTS,
                     (C14NMethodParameterSpec) null);
 
             // Create the SignedInfo
-            final SignedInfo signedInfo = sigFactory.newSignedInfo(canonicalizationMethod, signatureMethod, CollectionUtils.wrap(ref));
+            final var signedInfo = sigFactory.newSignedInfo(canonicalizationMethod, signatureMethod, CollectionUtils.wrap(ref));
 
             // Create a KeyValue containing the DSA or RSA PublicKey
-            final KeyInfoFactory keyInfoFactory = sigFactory.getKeyInfoFactory();
-            final KeyValue keyValuePair = keyInfoFactory.newKeyValue(pubKey);
+            final var keyInfoFactory = sigFactory.getKeyInfoFactory();
+            final var keyValuePair = keyInfoFactory.newKeyValue(pubKey);
 
             // Create a KeyInfo and add the KeyValue to it
-            final KeyInfo keyInfo = keyInfoFactory.newKeyInfo(CollectionUtils.wrap(keyValuePair));
+            final var keyInfo = keyInfoFactory.newKeyInfo(CollectionUtils.wrap(keyValuePair));
             // Convert the JDOM document to w3c (Java XML signature API requires w3c representation)
-            final Element w3cElement = toDom(element);
+            final var w3cElement = toDom(element);
 
             // Create a DOMSignContext and specify the DSA/RSA PrivateKey and
             // location of the resulting XMLSignature's parent element
-            final DOMSignContext dsc = new DOMSignContext(privKey, w3cElement);
+            final var dsc = new DOMSignContext(privKey, w3cElement);
 
-            final Node xmlSigInsertionPoint = getXmlSignatureInsertLocation(w3cElement);
+            final var xmlSigInsertionPoint = getXmlSignatureInsertLocation(w3cElement);
             dsc.setNextSibling(xmlSigInsertionPoint);
 
             // Marshal, generate (and sign) the enveloped signature
-            final XMLSignature signature = sigFactory.newXMLSignature(signedInfo, keyInfo);
+            final var signature = sigFactory.newXMLSignature(signedInfo, keyInfo);
             signature.sign(dsc);
 
             return toJdom(w3cElement);
@@ -315,7 +306,7 @@ public abstract class AbstractSamlObjectBuilder implements Serializable {
      */
     private static Node getXmlSignatureInsertLocation(final Element elem) {
         final Node insertLocation;
-        NodeList nodeList = elem.getElementsByTagNameNS(SAMLConstants.SAML20P_NS, "Extensions");
+        var nodeList = elem.getElementsByTagNameNS(SAMLConstants.SAML20P_NS, "Extensions");
         if (nodeList.getLength() != 0) {
             insertLocation = nodeList.item(nodeList.getLength() - 1);
         } else {
@@ -343,11 +334,11 @@ public abstract class AbstractSamlObjectBuilder implements Serializable {
      */
     private static org.w3c.dom.Document toDom(final Document doc) {
         try {
-            final XMLOutputter xmlOutputter = new XMLOutputter();
-            final StringWriter elemStrWriter = new StringWriter();
+            final var xmlOutputter = new XMLOutputter();
+            final var elemStrWriter = new StringWriter();
             xmlOutputter.output(doc, elemStrWriter);
-            final byte[] xmlBytes = elemStrWriter.toString().getBytes(Charset.defaultCharset());
-            final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            final var xmlBytes = elemStrWriter.toString().getBytes(Charset.defaultCharset());
+            final var dbf = DocumentBuilderFactory.newInstance();
             dbf.setNamespaceAware(true);
             dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
             dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);

@@ -14,8 +14,8 @@ import org.apereo.cas.web.flow.login.InitialFlowSetupAction;
 import org.apereo.cas.web.support.ArgumentExtractor;
 import org.apereo.cas.web.support.CookieRetrievingCookieGenerator;
 import org.apereo.cas.web.support.DefaultArgumentExtractor;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -56,7 +56,7 @@ public class InitialFlowSetupActionCookieTests extends AbstractCentralAuthentica
     private CookieRetrievingCookieGenerator tgtCookieGenerator;
 
     @Before
-    public void setUp() throws Exception {
+    public void initialize() throws Exception {
         this.warnCookieGenerator = new CookieRetrievingCookieGenerator("warn", "", 2,
                 false, null, false);
         this.warnCookieGenerator.setCookiePath(StringUtils.EMPTY);
@@ -65,7 +65,7 @@ public class InitialFlowSetupActionCookieTests extends AbstractCentralAuthentica
         this.tgtCookieGenerator.setCookiePath(StringUtils.EMPTY);
 
         final List<ArgumentExtractor> argExtractors = Collections.singletonList(new DefaultArgumentExtractor(new WebApplicationServiceFactory()));
-        final ServicesManager servicesManager = mock(ServicesManager.class);
+        final var servicesManager = mock(ServicesManager.class);
         when(servicesManager.findServiceBy(any(Service.class))).thenReturn(RegisteredServiceTestUtils.getRegisteredService("test"));
         this.action = new InitialFlowSetupAction(argExtractors, servicesManager, authenticationRequestServiceSelectionStrategies, tgtCookieGenerator,
                 warnCookieGenerator, casProperties);
@@ -75,9 +75,9 @@ public class InitialFlowSetupActionCookieTests extends AbstractCentralAuthentica
 
     @Test
     public void verifySettingContextPath() {
-        final MockHttpServletRequest request = new MockHttpServletRequest();
+        final var request = new MockHttpServletRequest();
         request.setContextPath(CONST_CONTEXT_PATH);
-        final MockRequestContext context = new MockRequestContext();
+        final var context = new MockRequestContext();
         context.setExternalContext(new ServletExternalContext(new MockServletContext(), request, new MockHttpServletResponse()));
 
         this.action.doExecute(context);
@@ -88,9 +88,9 @@ public class InitialFlowSetupActionCookieTests extends AbstractCentralAuthentica
 
     @Test
     public void verifyResettingContextPath() {
-        final MockHttpServletRequest request = new MockHttpServletRequest();
+        final var request = new MockHttpServletRequest();
         request.setContextPath(CONST_CONTEXT_PATH);
-        final MockRequestContext context = new MockRequestContext();
+        final var context = new MockRequestContext();
         context.setExternalContext(new ServletExternalContext(new MockServletContext(), request, new MockHttpServletResponse()));
 
         this.action.doExecute(context);

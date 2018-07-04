@@ -43,10 +43,7 @@ import org.springframework.webflow.context.servlet.ServletExternalContext;
 import org.springframework.webflow.engine.Transition;
 import org.springframework.webflow.engine.support.DefaultTargetStateResolver;
 import org.springframework.webflow.engine.support.DefaultTransitionCriteria;
-import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.test.MockRequestContext;
-
-import java.util.Set;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -89,18 +86,18 @@ public class GrouperMultifactorAuthenticationPolicyEventResolverTests {
 
     @Test
     public void verifyOperation() {
-        final MockRequestContext context = new MockRequestContext();
-        final MockHttpServletRequest request = new MockHttpServletRequest();
+        final var context = new MockRequestContext();
+        final var request = new MockHttpServletRequest();
         context.setExternalContext(new ServletExternalContext(new MockServletContext(), request, new MockHttpServletResponse()));
 
         WebUtils.putService(context, CoreAuthenticationTestUtils.getWebApplicationService());
         TestMultifactorAuthenticationProvider.registerProviderIntoApplicationContext(applicationContext);
         WebUtils.putAuthentication(CoreAuthenticationTestUtils.getAuthentication(), context);
 
-        final DefaultTargetStateResolver targetResolver = new DefaultTargetStateResolver(TestMultifactorAuthenticationProvider.ID);
-        final Transition transition = new Transition(new DefaultTransitionCriteria(new LiteralExpression(TestMultifactorAuthenticationProvider.ID)), targetResolver);
+        final var targetResolver = new DefaultTargetStateResolver(TestMultifactorAuthenticationProvider.ID);
+        final var transition = new Transition(new DefaultTransitionCriteria(new LiteralExpression(TestMultifactorAuthenticationProvider.ID)), targetResolver);
         context.getRootFlow().getGlobalTransitionSet().add(transition);
-        final Set<Event> event = resolver.resolve(context);
+        final var event = resolver.resolve(context);
         assertEquals(1, event.size());
         assertEquals(TestMultifactorAuthenticationProvider.ID, event.iterator().next().getId());
     }
@@ -109,13 +106,13 @@ public class GrouperMultifactorAuthenticationPolicyEventResolverTests {
     public static class GrouperTestConfiguration {
         @Bean
         public GrouperFacade grouperFacade() {
-            final WsGroup group = new WsGroup();
+            final var group = new WsGroup();
             group.setName(TestMultifactorAuthenticationProvider.ID);
             group.setDisplayName("Apereo CAS");
             group.setDescription("CAS Authentication with Apereo");
-            final WsGetGroupsResult result = new WsGetGroupsResult();
+            final var result = new WsGetGroupsResult();
             result.setWsGroups(new WsGroup[]{group});
-            final GrouperFacade facade = mock(GrouperFacade.class);
+            final var facade = mock(GrouperFacade.class);
             when(facade.getGroupsForSubjectId(anyString())).thenReturn(CollectionUtils.wrapList(result));
             return facade;
         }

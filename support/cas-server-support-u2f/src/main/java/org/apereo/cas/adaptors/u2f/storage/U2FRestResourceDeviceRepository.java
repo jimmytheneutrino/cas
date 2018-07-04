@@ -6,7 +6,6 @@ import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.HttpResponse;
 import org.apereo.cas.configuration.model.support.mfa.U2FMultifactorProperties;
 import org.apereo.cas.util.HttpUtils;
 import org.springframework.http.HttpStatus;
@@ -43,7 +42,7 @@ public class U2FRestResourceDeviceRepository extends BaseResourceU2FDeviceReposi
     @Override
     public Map<String, List<U2FDeviceRegistration>> readDevicesFromResource() {
         try {
-            final HttpResponse response = HttpUtils.executeGet(restProperties.getUrl(), 
+            final var response = HttpUtils.executeGet(restProperties.getUrl(),
                     restProperties.getBasicAuthUsername(), restProperties.getBasicAuthPassword());
             if (response.getStatusLine().getStatusCode() == HttpStatus.OK.value()) {
                 final Map<String, List<U2FDeviceRegistration>> result = mapper.readValue(response.getEntity().getContent(),
@@ -59,7 +58,7 @@ public class U2FRestResourceDeviceRepository extends BaseResourceU2FDeviceReposi
 
     @Override
     public void writeDevicesBackToResource(final List<U2FDeviceRegistration> list) {
-        try (StringWriter writer = new StringWriter()) {
+        try (var writer = new StringWriter()) {
             final Map<String, List<U2FDeviceRegistration>> newDevices = new HashMap<>();
             newDevices.put(MAP_KEY_DEVICES, list);
             mapper.writer(new MinimalPrettyPrinter()).writeValue(writer, newDevices);

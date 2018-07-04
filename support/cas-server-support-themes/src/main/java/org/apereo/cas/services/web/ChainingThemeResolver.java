@@ -6,7 +6,6 @@ import org.springframework.web.servlet.theme.AbstractThemeResolver;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -35,11 +34,11 @@ public class ChainingThemeResolver extends AbstractThemeResolver {
 
     @Override
     public String resolveThemeName(final HttpServletRequest httpServletRequest) {
-        final Iterator<ThemeResolver> it = chain.iterator();
+        final var it = chain.iterator();
         while (it.hasNext()) {
-            final ThemeResolver r = it.next();
+            final var r = it.next();
             LOGGER.trace("Attempting to resolve theme via [{}]", r.getClass().getSimpleName());
-            final String resolverTheme = r.resolveThemeName(httpServletRequest);
+            final var resolverTheme = r.resolveThemeName(httpServletRequest);
             if (!resolverTheme.equalsIgnoreCase(getDefaultThemeName())) {
                 LOGGER.trace("Resolved theme [{}]", resolverTheme);
                 return resolverTheme;

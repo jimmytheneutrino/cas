@@ -1,15 +1,15 @@
 package org.apereo.cas.services;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-import lombok.extern.slf4j.Slf4j;
 import org.apereo.cas.support.events.service.CasRegisteredServiceLoadedEvent;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Default In Memory Service Registry Dao for test/demonstration purposes.
@@ -43,8 +43,12 @@ public class InMemoryServiceRegistry extends AbstractServiceRegistry {
 
     @Override
     public List<RegisteredService> load() {
-        this.registeredServices.forEach(s -> publishEvent(new CasRegisteredServiceLoadedEvent(this, s)));
-        return this.registeredServices;
+        final List<RegisteredService> services = new ArrayList<>();
+        this.registeredServices.forEach(s -> {
+            publishEvent(new CasRegisteredServiceLoadedEvent(this, s));
+            services.add(s);
+        });
+        return services;
     }
 
     @Override
@@ -52,7 +56,7 @@ public class InMemoryServiceRegistry extends AbstractServiceRegistry {
         if (registeredService.getId() == RegisteredService.INITIAL_IDENTIFIER_VALUE) {
             registeredService.setId(findHighestId() + 1);
         }
-        final RegisteredService svc = findServiceById(registeredService.getId());
+        final var svc = findServiceById(registeredService.getId());
         if (svc != null) {
             this.registeredServices.remove(svc);
         }

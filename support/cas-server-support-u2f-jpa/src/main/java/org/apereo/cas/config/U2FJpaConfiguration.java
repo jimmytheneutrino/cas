@@ -10,7 +10,6 @@ import org.apereo.cas.adaptors.u2f.storage.U2FDeviceRepository;
 import org.apereo.cas.adaptors.u2f.storage.U2FJpaDeviceRepository;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.configuration.model.support.jpa.JpaConfigDataHolder;
-import org.apereo.cas.configuration.model.support.mfa.U2FMultifactorProperties;
 import org.apereo.cas.configuration.support.JpaBeans;
 import org.apereo.cas.util.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,7 +66,7 @@ public class U2FJpaConfiguration {
     @Lazy
     @Bean
     public LocalContainerEntityManagerFactoryBean u2fEntityManagerFactory() {
-        final LocalContainerEntityManagerFactoryBean bean =
+        final var bean =
                 JpaBeans.newHibernateEntityManagerFactoryBean(
                         new JpaConfigDataHolder(
                                 jpaU2fVendorAdapter(),
@@ -82,19 +81,19 @@ public class U2FJpaConfiguration {
     @Autowired
     @Bean
     public PlatformTransactionManager transactionManagerU2f(@Qualifier("u2fEntityManagerFactory") final EntityManagerFactory emf) {
-        final JpaTransactionManager mgmr = new JpaTransactionManager();
+        final var mgmr = new JpaTransactionManager();
         mgmr.setEntityManagerFactory(emf);
         return mgmr;
     }
 
     @Bean
     public U2FDeviceRepository u2fDeviceRepository() {
-        final U2FMultifactorProperties u2f = casProperties.getAuthn().getMfa().getU2f();
+        final var u2f = casProperties.getAuthn().getMfa().getU2f();
         final LoadingCache<String, String> requestStorage =
                 Caffeine.newBuilder()
                         .expireAfterWrite(u2f.getExpireRegistrations(), u2f.getExpireRegistrationsTimeUnit())
                         .build(key -> StringUtils.EMPTY);
-        final U2FJpaDeviceRepository repo = new U2FJpaDeviceRepository(requestStorage,
+        final var repo = new U2FJpaDeviceRepository(requestStorage,
                 u2f.getExpireRegistrations(),
                 u2f.getExpireDevicesTimeUnit());
         repo.setCipherExecutor(this.u2fRegistrationRecordCipherExecutor);

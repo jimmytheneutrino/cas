@@ -3,14 +3,11 @@ package org.apereo.cas.web.flow.resolver.impl.mfa;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apereo.cas.CentralAuthenticationService;
-import org.apereo.cas.authentication.Authentication;
 import org.apereo.cas.authentication.AuthenticationServiceSelectionPlan;
 import org.apereo.cas.authentication.AuthenticationSystemSupport;
 import org.apereo.cas.authentication.MultifactorAuthenticationUtils;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.services.MultifactorAuthenticationProvider;
 import org.apereo.cas.services.MultifactorAuthenticationProviderSelector;
-import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.ticket.registry.TicketRegistrySupport;
 import org.apereo.cas.web.flow.authentication.BaseMultifactorAuthenticationProviderEventResolver;
@@ -20,8 +17,6 @@ import org.springframework.web.util.CookieGenerator;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
-import java.util.Collection;
-import java.util.Map;
 import java.util.Set;
 
 import static org.springframework.util.StringUtils.commaDelimitedListToSet;
@@ -60,8 +55,8 @@ public class AuthenticationAttributeMultifactorAuthenticationPolicyEventResolver
 
     @Override
     public Set<Event> resolveInternal(final RequestContext context) {
-        final RegisteredService service = resolveRegisteredServiceInRequestContext(context);
-        final Authentication authentication = WebUtils.getAuthentication(context);
+        final var service = resolveRegisteredServiceInRequestContext(context);
+        final var authentication = WebUtils.getAuthentication(context);
 
         if (authentication == null) {
             LOGGER.debug("No authentication is available to determine event for principal");
@@ -73,16 +68,16 @@ public class AuthenticationAttributeMultifactorAuthenticationPolicyEventResolver
             return null;
         }
 
-        final Map<String, MultifactorAuthenticationProvider> providerMap =
+        final var providerMap =
                 MultifactorAuthenticationUtils.getAvailableMultifactorAuthenticationProviders(this.applicationContext);
         if (providerMap == null || providerMap.isEmpty()) {
             LOGGER.error("No multifactor authentication providers are available in the application context");
             return null;
         }
 
-        final Collection<MultifactorAuthenticationProvider> providers = flattenProviders(providerMap.values());
+        final var providers = flattenProviders(providerMap.values());
         if (providers.size() == 1 && StringUtils.isNotBlank(globalAuthenticationAttributeValueRegex)) {
-            final MultifactorAuthenticationProvider provider = providers.iterator().next();
+            final var provider = providers.iterator().next();
             LOGGER.debug("Found a single multifactor provider [{}] in the application context", provider);
             return resolveEventViaAuthenticationAttribute(authentication, attributeNames, service, context, providers,
                 input -> input != null && input.matches(globalAuthenticationAttributeValueRegex));

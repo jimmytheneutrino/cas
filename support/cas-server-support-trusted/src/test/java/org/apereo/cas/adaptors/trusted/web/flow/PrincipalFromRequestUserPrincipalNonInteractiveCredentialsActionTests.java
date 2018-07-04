@@ -30,10 +30,10 @@ public class PrincipalFromRequestUserPrincipalNonInteractiveCredentialsActionTes
 
     @Test
     public void verifyRemoteUserExists() throws Exception {
-        final MockHttpServletRequest request = new MockHttpServletRequest();
+        final var request = new MockHttpServletRequest();
         request.setUserPrincipal(() -> "test");
 
-        final MockRequestContext context = new MockRequestContext();
+        final var context = new MockRequestContext();
         context.setExternalContext(new ServletExternalContext(
             new MockServletContext(), request, new MockHttpServletResponse()));
 
@@ -42,7 +42,7 @@ public class PrincipalFromRequestUserPrincipalNonInteractiveCredentialsActionTes
 
     @Test
     public void verifyRemoteUserDoesntExists() throws Exception {
-        final MockRequestContext context = new MockRequestContext();
+        final var context = new MockRequestContext();
         context.setExternalContext(new ServletExternalContext(
             new MockServletContext(), new MockHttpServletRequest(), new MockHttpServletResponse()));
 

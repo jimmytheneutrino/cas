@@ -13,11 +13,9 @@ import org.apereo.cas.web.flow.resolver.CasWebflowEventResolver;
 import org.apereo.cas.web.support.WebUtils;
 import org.pac4j.core.context.HttpConstants;
 import org.pac4j.core.context.WebContext;
-import org.pac4j.http.credentials.DigestCredentials;
 import org.pac4j.http.credentials.extractor.DigestAuthExtractor;
 import org.springframework.webflow.execution.RequestContext;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
@@ -48,13 +46,13 @@ public class DigestAuthenticationAction extends AbstractNonInteractiveCredential
     @Override
     protected Credential constructCredentialsFromRequest(final RequestContext requestContext) {
         try {
-            final HttpServletRequest request = WebUtils.getHttpServletRequestFromExternalWebflowContext(requestContext);
-            final HttpServletResponse response = WebUtils.getHttpServletResponseFromExternalWebflowContext(requestContext);
+            final var request = WebUtils.getHttpServletRequestFromExternalWebflowContext(requestContext);
+            final var response = WebUtils.getHttpServletResponseFromExternalWebflowContext(requestContext);
 
-            final DigestAuthExtractor extractor = new DigestAuthExtractor();
+            final var extractor = new DigestAuthExtractor();
             final WebContext webContext = Pac4jUtils.getPac4jJ2EContext(request, response);
 
-            final DigestCredentials credentials = extractor.extract(webContext);
+            final var credentials = extractor.extract(webContext);
             if (credentials == null) {
                 response.addHeader(HttpConstants.AUTHENTICATE_HEADER,
                     DigestAuthenticationUtils.createAuthenticateHeader(this.realm, this.authenticationMethod, this.nonce));
@@ -63,10 +61,10 @@ public class DigestAuthenticationAction extends AbstractNonInteractiveCredential
             }
 
             LOGGER.debug("Received digest authentication request from credentials [{}] ", credentials);
-            final String serverResponse = credentials.calculateServerDigest(true,
+            final var serverResponse = credentials.calculateServerDigest(true,
                 this.credentialRetriever.findCredential(credentials.getUsername(), this.realm));
 
-            final String clientResponse = credentials.getToken();
+            final var clientResponse = credentials.getToken();
             if (!serverResponse.equals(clientResponse)) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 return null;

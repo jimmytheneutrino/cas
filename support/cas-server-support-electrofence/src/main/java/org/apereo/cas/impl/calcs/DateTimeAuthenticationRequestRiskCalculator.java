@@ -8,7 +8,6 @@ import org.apereo.cas.support.events.dao.CasEvent;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.chrono.ChronoZonedDateTime;
@@ -33,17 +32,17 @@ public class DateTimeAuthenticationRequestRiskCalculator extends BaseAuthenticat
     @Override
     protected BigDecimal calculateScore(final HttpServletRequest request, final Authentication authentication,
                                         final RegisteredService service, final Collection<CasEvent> events) {
-        final ZonedDateTime timestamp = ZonedDateTime.now(ZoneOffset.UTC);
+        final var timestamp = ZonedDateTime.now(ZoneOffset.UTC);
         LOGGER.debug("Filtering authentication events for timestamp [{}]", timestamp);
         
-        final int hoursFromNow = timestamp.plusHours(windowInHours).getHour();
-        final int hoursBeforeNow = timestamp.minusHours(windowInHours).getHour();
+        final var hoursFromNow = timestamp.plusHours(windowInHours).getHour();
+        final var hoursBeforeNow = timestamp.minusHours(windowInHours).getHour();
 
-        final long count = events
+        final var count = events
             .stream()
             .map(time -> {
-                final Instant instant = ChronoZonedDateTime.from(time.getCreationTime()).toInstant();
-                final ZonedDateTime zdt = ZonedDateTime.ofInstant(instant, ZoneOffset.UTC);
+                final var instant = ChronoZonedDateTime.from(time.getCreationTime()).toInstant();
+                final var zdt = ZonedDateTime.ofInstant(instant, ZoneOffset.UTC);
                 return zdt.getHour();
             })
             .filter(hour -> hour <= hoursFromNow && hour >= hoursBeforeNow)

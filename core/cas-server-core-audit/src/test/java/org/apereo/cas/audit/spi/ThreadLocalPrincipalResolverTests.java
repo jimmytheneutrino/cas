@@ -4,8 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apereo.cas.authentication.AuthenticationCredentialsThreadLocalBinder;
 import org.apereo.cas.authentication.CoreAuthenticationTestUtils;
 import org.apereo.inspektr.common.spi.PrincipalResolver;
-import org.junit.After;
 import org.junit.Test;
+import org.junit.After;
 
 import static org.junit.Assert.*;
 

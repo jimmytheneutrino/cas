@@ -12,7 +12,6 @@ import org.jose4j.jwe.JsonWebEncryption;
 import org.jose4j.jwe.KeyManagementAlgorithmIdentifiers;
 import org.jose4j.jwk.JsonWebKey;
 import org.jose4j.jwk.OctJwkGenerator;
-import org.jose4j.jwk.OctetSequenceJsonWebKey;
 import org.jose4j.jws.AlgorithmIdentifiers;
 import org.jose4j.jws.JsonWebSignature;
 
@@ -69,7 +68,7 @@ public class EncodingUtils {
      */
     public static String hexDecode(final char[] data) {
         try {
-            final byte[] result = Hex.decodeHex(data);
+            final var result = Hex.decodeHex(data);
             return new String(result, StandardCharsets.UTF_8);
         } catch (final Exception e) {
             return null;
@@ -84,7 +83,7 @@ public class EncodingUtils {
      */
     public static String hexEncode(final String data) {
         try {
-            final char[] result = Hex.encodeHex(data.getBytes(StandardCharsets.UTF_8));
+            final var result = Hex.encodeHex(data.getBytes(StandardCharsets.UTF_8));
             return new String(result);
         } catch (final Exception e) {
             return null;
@@ -99,7 +98,7 @@ public class EncodingUtils {
      */
     public static String hexEncode(final byte[] data) {
         try {
-            final char[] result = Hex.encodeHex(data);
+            final var result = Hex.encodeHex(data);
             return new String(result);
         } catch (final Exception e) {
             return null;
@@ -267,14 +266,14 @@ public class EncodingUtils {
      */
     @SneakyThrows
     public static byte[] verifyJwsSignature(final Key signingKey, final byte[] value) {
-        final String asString = new String(value, StandardCharsets.UTF_8);
-        final JsonWebSignature jws = new JsonWebSignature();
+        final var asString = new String(value, StandardCharsets.UTF_8);
+        final var jws = new JsonWebSignature();
         jws.setCompactSerialization(asString);
         jws.setKey(signingKey);
 
-        final boolean verified = jws.verifySignature();
+        final var verified = jws.verifySignature();
         if (verified) {
-            final String payload = jws.getEncodedPayload();
+            final var payload = jws.getEncodedPayload();
             LOGGER.trace("Successfully decoded value. Result in Base64-encoding is [{}]", payload);
             return EncodingUtils.decodeBase64(payload);
         }
@@ -289,8 +288,8 @@ public class EncodingUtils {
      * @return the key
      */
     public static String generateJsonWebKey(final int size) {
-        final OctetSequenceJsonWebKey octetKey = OctJwkGenerator.generateJwk(size);
-        final Map<String, Object> params = octetKey.toParams(JsonWebKey.OutputControlLevel.INCLUDE_SYMMETRIC);
+        final var octetKey = OctJwkGenerator.generateJwk(size);
+        final var params = octetKey.toParams(JsonWebKey.OutputControlLevel.INCLUDE_SYMMETRIC);
         return params.get(JSON_WEB_KEY).toString();
     }
 
@@ -305,7 +304,7 @@ public class EncodingUtils {
         final Map<String, Object> keys = new HashMap<>(2);
         keys.put("kty", "oct");
         keys.put(EncodingUtils.JSON_WEB_KEY, secret);
-        final JsonWebKey jwk = JsonWebKey.Factory.newJwk(keys);
+        final var jwk = JsonWebKey.Factory.newJwk(keys);
         return jwk.getKey();
     }
 
@@ -341,11 +340,12 @@ public class EncodingUtils {
      */
     @SneakyThrows
     public static byte[] signJws(final Key key, final byte[] value, final String algHeaderValue) {
-        final String base64 = EncodingUtils.encodeBase64(value);
-        final JsonWebSignature jws = new JsonWebSignature();
+        final var base64 = EncodingUtils.encodeBase64(value);
+        final var jws = new JsonWebSignature();
         jws.setEncodedPayload(base64);
         jws.setAlgorithmHeaderValue(algHeaderValue);
         jws.setKey(key);
+        jws.setHeader("typ", "JWT");
         return jws.getCompactSerialization().getBytes(StandardCharsets.UTF_8);
     }
 
@@ -388,12 +388,13 @@ public class EncodingUtils {
                                            final String algorithmHeaderValue,
                                            final String contentEncryptionAlgorithmIdentifier) {
         try {
-            final JsonWebEncryption jwe = new JsonWebEncryption();
+            final var jwe = new JsonWebEncryption();
             jwe.setPayload(value.toString());
             jwe.enableDefaultCompression();
             jwe.setAlgorithmHeaderValue(algorithmHeaderValue);
             jwe.setEncryptionMethodHeaderParameter(contentEncryptionAlgorithmIdentifier);
             jwe.setKey(secretKeyEncryptionKey);
+            jwe.setHeader("typ", "JWT");
             LOGGER.debug("Encrypting via [{}]", contentEncryptionAlgorithmIdentifier);
             return jwe.getCompactSerialization();
         } catch (final Exception e) {
@@ -410,7 +411,7 @@ public class EncodingUtils {
      */
     @SneakyThrows
     public static String decryptJwtValue(final Key secretKeyEncryptionKey, final String value) {
-        final JsonWebEncryption jwe = new JsonWebEncryption();
+        final var jwe = new JsonWebEncryption();
         jwe.setKey(secretKeyEncryptionKey);
         jwe.setCompactSerialization(value);
         LOGGER.debug("Decrypting value...");
@@ -424,7 +425,7 @@ public class EncodingUtils {
      */
     public static boolean isJceInstalled() {
         try {
-            final int maxKeyLen = Cipher.getMaxAllowedKeyLength("AES");
+            final var maxKeyLen = Cipher.getMaxAllowedKeyLength("AES");
             return maxKeyLen == Integer.MAX_VALUE;
         } catch (final Exception e) {
             return false;

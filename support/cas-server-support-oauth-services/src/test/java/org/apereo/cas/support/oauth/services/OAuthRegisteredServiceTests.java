@@ -9,8 +9,8 @@ import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.ServiceRegistry;
 import org.apereo.cas.services.replication.NoOpRegisteredServiceReplicationStrategy;
 import org.apereo.cas.services.resource.DefaultRegisteredServiceResourceNamingStrategy;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.BeforeClass;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.ClassPathResource;
 
@@ -46,7 +46,7 @@ public class OAuthRegisteredServiceTests {
 
     @Test
     public void checkSaveMethod() {
-        final OAuthRegisteredService r = new OAuthRegisteredService();
+        final var r = new OAuthRegisteredService();
         r.setName("checkSaveMethod");
         r.setServiceId("testId");
         r.setTheme("theme");
@@ -54,10 +54,10 @@ public class OAuthRegisteredServiceTests {
         r.setClientId("clientid");
         r.setServiceId("secret");
         r.setBypassApprovalPrompt(true);
-        final RegisteredService r2 = this.dao.save(r);
+        final var r2 = this.dao.save(r);
         assertTrue(r2 instanceof OAuthRegisteredService);
         this.dao.load();
-        final RegisteredService r3 = this.dao.findServiceById(r2.getId());
+        final var r3 = this.dao.findServiceById(r2.getId());
         assertTrue(r3 instanceof OAuthRegisteredService);
         assertEquals(r, r2);
         assertEquals(r2, r3);
@@ -65,7 +65,7 @@ public class OAuthRegisteredServiceTests {
 
     @Test
     public void verifySerializeAOAuthRegisteredServiceToJson() throws IOException {
-        final OAuthRegisteredService serviceWritten = new OAuthRegisteredService();
+        final var serviceWritten = new OAuthRegisteredService();
         serviceWritten.setName("checkSaveMethod");
         serviceWritten.setServiceId("testId");
         serviceWritten.setTheme("theme");

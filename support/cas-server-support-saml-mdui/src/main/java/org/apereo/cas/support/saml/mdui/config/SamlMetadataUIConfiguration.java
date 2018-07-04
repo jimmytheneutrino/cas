@@ -3,10 +3,7 @@ package org.apereo.cas.support.saml.mdui.config;
 import com.google.common.base.Splitter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apereo.cas.authentication.principal.ServiceFactory;
-import org.apereo.cas.authentication.principal.WebApplicationService;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.support.saml.OpenSamlConfigBean;
 import org.apereo.cas.support.saml.SamlUtils;
 import org.apereo.cas.support.saml.mdui.AbstractMetadataResolverAdapter;
@@ -20,18 +17,14 @@ import org.jooq.lambda.Unchecked;
 import org.opensaml.saml.metadata.resolver.filter.MetadataFilter;
 import org.opensaml.saml.metadata.resolver.filter.MetadataFilterChain;
 import org.opensaml.saml.metadata.resolver.filter.impl.RequiredValidUntilFilter;
-import org.opensaml.saml.metadata.resolver.filter.impl.SignatureValidationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.webflow.definition.registry.FlowDefinitionRegistry;
-import org.springframework.webflow.engine.builder.support.FlowBuilderServices;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,9 +42,6 @@ import java.util.Map;
 @EnableConfigurationProperties(CasConfigurationProperties.class)
 @Slf4j
 public class SamlMetadataUIConfiguration {
-
-
-
     private static final String DEFAULT_SEPARATOR = "::";
 
     @Autowired
@@ -64,24 +54,6 @@ public class SamlMetadataUIConfiguration {
     @Autowired
     private ResourceLoader resourceLoader;
 
-    @Autowired(required = false)
-    @Qualifier("loginFlowRegistry")
-    private FlowDefinitionRegistry loginFlowDefinitionRegistry;
-
-    @Autowired(required = false)
-    private FlowBuilderServices flowBuilderServices;
-
-    @Autowired
-    @Qualifier("servicesManager")
-    private ServicesManager servicesManager;
-
-    @Autowired
-    @Qualifier("webApplicationServiceFactory")
-    private ServiceFactory<WebApplicationService> serviceFactory;
-
-    @Autowired
-    private ApplicationContext applicationContext;
-
     @ConditionalOnMissingBean(name = "chainingSamlMetadataUIMetadataResolverAdapter")
     @Bean
     public MetadataResolverAdapter chainingSamlMetadataUIMetadataResolverAdapter() {
@@ -90,7 +62,7 @@ public class SamlMetadataUIConfiguration {
 
     private MetadataResolverAdapter configureAdapter(final AbstractMetadataResolverAdapter adapter) {
         final Map<Resource, MetadataFilterChain> resources = new HashMap<>();
-        final MetadataFilterChain chain = new MetadataFilterChain();
+        final var chain = new MetadataFilterChain();
         casProperties.getSamlMetadataUi().getResources().forEach(Unchecked.consumer(r -> configureResource(resources, chain, r)));
         adapter.setRequireValidMetadata(casProperties.getSamlMetadataUi().isRequireValidMetadata());
         adapter.setMetadataResources(resources);
@@ -100,21 +72,21 @@ public class SamlMetadataUIConfiguration {
 
     private void configureResource(final Map<Resource, MetadataFilterChain> resources,
                                    final MetadataFilterChain chain, final String r) {
-        final String[] splitArray = org.springframework.util.StringUtils.commaDelimitedListToStringArray(r);
+        final var splitArray = org.springframework.util.StringUtils.commaDelimitedListToStringArray(r);
 
         Arrays.stream(splitArray).forEach(Unchecked.consumer(entry -> {
-            final List<String> arr = Splitter.on(DEFAULT_SEPARATOR).splitToList(entry);
-            final String metadataFile = arr.get(0);
-            final String signingKey = arr.size() > 1 ? arr.get(1) : null;
+            final var arr = Splitter.on(DEFAULT_SEPARATOR).splitToList(entry);
+            final var metadataFile = arr.get(0);
+            final var signingKey = arr.size() > 1 ? arr.get(1) : null;
 
             final List<MetadataFilter> filters = new ArrayList<>();
             if (casProperties.getSamlMetadataUi().getMaxValidity() > 0) {
                 filters.add(new RequiredValidUntilFilter(casProperties.getSamlMetadataUi().getMaxValidity()));
             }
 
-            boolean addResource = true;
+            var addResource = true;
             if (StringUtils.isNotBlank(signingKey)) {
-                final SignatureValidationFilter sigFilter = SamlUtils.buildSignatureValidationFilter(this.resourceLoader, signingKey);
+                final var sigFilter = SamlUtils.buildSignatureValidationFilter(this.resourceLoader, signingKey);
                 if (sigFilter != null) {
                     sigFilter.setRequireSignedRoot(casProperties.getSamlMetadataUi().isRequireSignedRoot());
                     filters.add(sigFilter);
@@ -125,7 +97,7 @@ public class SamlMetadataUIConfiguration {
             }
             chain.setFilters(filters);
 
-            final Resource resource = this.resourceLoader.getResource(metadataFile);
+            final var resource = this.resourceLoader.getResource(metadataFile);
             if (addResource && ResourceUtils.doesResourceExist(resource)) {
                 resources.put(resource, chain);
             } else {
@@ -135,13 +107,13 @@ public class SamlMetadataUIConfiguration {
     }
 
     private MetadataResolverAdapter getDynamicMetadataResolverAdapter() {
-        final DynamicMetadataResolverAdapter adapter = new DynamicMetadataResolverAdapter();
+        final var adapter = new DynamicMetadataResolverAdapter();
         configureAdapter(adapter);
         return adapter;
     }
 
     private MetadataResolverAdapter getStaticMetadataResolverAdapter() {
-        final StaticMetadataResolverAdapter adapter = new StaticMetadataResolverAdapter();
+        final var adapter = new StaticMetadataResolverAdapter();
         configureAdapter(adapter);
         adapter.buildMetadataResolverAggregate();
         return adapter;

@@ -4,9 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apereo.cas.CipherExecutor;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.core.util.EncryptionJwtSigningJwtCryptographyProperties;
-import org.apereo.cas.configuration.model.support.cookie.TicketGrantingCookieProperties;
-import org.apereo.cas.configuration.model.support.cookie.WarningCookieProperties;
 import org.apereo.cas.configuration.support.Beans;
 import org.apereo.cas.util.cipher.TicketGrantingCookieCipherExecutor;
 import org.apereo.cas.web.WarningCookieRetrievingCookieGenerator;
@@ -40,7 +37,7 @@ public class CasCookieConfiguration {
     @Bean
     @RefreshScope
     public CookieRetrievingCookieGenerator warnCookieGenerator() {
-        final WarningCookieProperties props = casProperties.getWarningCookie();
+        final var props = casProperties.getWarningCookie();
         return new WarningCookieRetrievingCookieGenerator(props.getName(), props.getPath(),
             props.getMaxAge(), props.isSecure(), props.isHttpOnly());
     }
@@ -58,8 +55,8 @@ public class CasCookieConfiguration {
     @RefreshScope
     @Bean
     public CipherExecutor cookieCipherExecutor() {
-        final EncryptionJwtSigningJwtCryptographyProperties crypto = casProperties.getTgc().getCrypto();
-        boolean enabled = crypto.isEnabled();
+        final var crypto = casProperties.getTgc().getCrypto();
+        var enabled = crypto.isEnabled();
         if (!enabled && (StringUtils.isNotBlank(crypto.getEncryption().getKey())) && StringUtils.isNotBlank(crypto.getSigning().getKey())) {
             LOGGER.warn("Token encryption/signing is not enabled explicitly in the configuration, yet signing/encryption keys "
                 + "are defined for operations. CAS will proceed to enable the cookie encryption/signing functionality.");
@@ -81,8 +78,8 @@ public class CasCookieConfiguration {
     @Bean
     @RefreshScope
     public CookieRetrievingCookieGenerator ticketGrantingTicketCookieGenerator() {
-        final TicketGrantingCookieProperties tgc = casProperties.getTgc();
-        final int rememberMeMaxAge = (int) Beans.newDuration(tgc.getRememberMeMaxAge()).getSeconds();
+        final var tgc = casProperties.getTgc();
+        final var rememberMeMaxAge = (int) Beans.newDuration(tgc.getRememberMeMaxAge()).getSeconds();
         return new TGCCookieRetrievingCookieGenerator(cookieValueManager(),
             tgc.getName(),
             tgc.getPath(),

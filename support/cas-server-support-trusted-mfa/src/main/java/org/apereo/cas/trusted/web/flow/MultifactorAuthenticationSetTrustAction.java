@@ -3,7 +3,6 @@ package org.apereo.cas.trusted.web.flow;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apereo.cas.authentication.Authentication;
 import org.apereo.cas.authentication.AuthenticationCredentialsThreadLocalBinder;
 import org.apereo.cas.configuration.model.support.mfa.TrustedDevicesMultifactorProperties;
 import org.apereo.cas.trusted.authentication.api.MultifactorAuthenticationTrustRecord;
@@ -32,7 +31,7 @@ public class MultifactorAuthenticationSetTrustAction extends AbstractAction {
 
     @Override
     public Event doExecute(final RequestContext requestContext) {
-        final Authentication c = WebUtils.getAuthentication(requestContext);
+        final var c = WebUtils.getAuthentication(requestContext);
         if (c == null) {
             LOGGER.error("Could not determine authentication from the request context");
             return error();
@@ -40,15 +39,15 @@ public class MultifactorAuthenticationSetTrustAction extends AbstractAction {
 
         AuthenticationCredentialsThreadLocalBinder.bindCurrent(c);
 
-        final String principal = c.getPrincipal().getId();
+        final var principal = c.getPrincipal().getId();
         if (!MultifactorAuthenticationTrustUtils.isMultifactorAuthenticationTrustedInScope(requestContext)) {
             LOGGER.debug("Attempt to store trusted authentication record for [{}]", principal);
-            final MultifactorAuthenticationTrustRecord record = MultifactorAuthenticationTrustRecord.newInstance(principal,
+            final var record = MultifactorAuthenticationTrustRecord.newInstance(principal,
                     MultifactorAuthenticationTrustUtils.generateGeography(),
                     deviceFingerprintStrategy.determineFingerprint(principal, requestContext, true));
 
             if (requestContext.getRequestParameters().contains(PARAM_NAME_DEVICE_NAME)) {
-                final String deviceName = requestContext.getRequestParameters().get(PARAM_NAME_DEVICE_NAME);
+                final var deviceName = requestContext.getRequestParameters().get(PARAM_NAME_DEVICE_NAME);
                 if (StringUtils.isNotBlank(deviceName)) {
                     record.setName(deviceName);
                 }

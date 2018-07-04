@@ -31,24 +31,24 @@ public abstract class AbstractMapBasedTicketRegistry extends AbstractTicketRegis
 
     @Override
     public void addTicket(@NonNull final Ticket ticket) {
-        final Ticket encTicket = encodeTicket(ticket);
+        final var encTicket = encodeTicket(ticket);
         LOGGER.debug("Added ticket [{}] to registry.", ticket.getId());
         getMapInstance().put(encTicket.getId(), encTicket);
     }
 
     @Override
     public Ticket getTicket(final String ticketId) {
-        final String encTicketId = encodeTicketId(ticketId);
+        final var encTicketId = encodeTicketId(ticketId);
         if (StringUtils.isBlank(ticketId)) {
             return null;
         }
-        final Ticket found = getMapInstance().get(encTicketId);
+        final var found = getMapInstance().get(encTicketId);
         if (found == null) {
             LOGGER.debug("Ticket  [{}] could not be found", encTicketId);
             return null;
         }
 
-        final Ticket result = decodeTicket(found);
+        final var result = decodeTicket(found);
         if (result != null && result.isExpired()) {
             LOGGER.debug("Ticket [{}] has expired and is now removed from the cache", result.getId());
             getMapInstance().remove(encTicketId);
@@ -59,8 +59,8 @@ public abstract class AbstractMapBasedTicketRegistry extends AbstractTicketRegis
 
     @Override
     public boolean deleteSingleTicket(final String ticketId) {
-        final String encTicketId = encodeTicketId(ticketId);
-        if (encTicketId == null) {
+        final var encTicketId = encodeTicketId(ticketId);
+        if (StringUtils.isBlank(encTicketId)) {
             return false;
         }
         return getMapInstance().remove(encTicketId) != null;
@@ -68,7 +68,7 @@ public abstract class AbstractMapBasedTicketRegistry extends AbstractTicketRegis
 
     @Override
     public long deleteAll() {
-        final int size = getMapInstance().size();
+        final var size = getMapInstance().size();
         getMapInstance().clear();
         return size;
     }

@@ -16,8 +16,8 @@ import static org.junit.Assert.*;
 public class RsaKeyPairCipherExecutorTests {
     @Test
     public void verifyActionOneWay() {
-        final String secretKeyEncryption = "classpath:keys/RSA2048Public.key";
-        final String secretKeySigning = "classpath:keys/RSA2048Private.key";
+        final var secretKeyEncryption = "classpath:keys/RSA2048Public.key";
+        final var secretKeySigning = "classpath:keys/RSA2048Private.key";
         CipherExecutor cipher = new TicketGrantingCookieCipherExecutor(secretKeyEncryption, secretKeySigning);
         assertNotNull(cipher.encode("TestValue"));
 
@@ -27,43 +27,43 @@ public class RsaKeyPairCipherExecutorTests {
 
     @Test
     public void verifyRsaKeyPairResource() {
-        final String publicKey = "classpath:keys/RSA2048Public.key";
-        final String privateKey = "classpath:keys/RSA2048Private.key";
+        final var publicKey = "classpath:keys/RSA2048Public.key";
+        final var privateKey = "classpath:keys/RSA2048Private.key";
         final CipherExecutor cipher = new RsaKeyPairCipherExecutor(privateKey, publicKey, privateKey, publicKey);
-        final Object testValue = cipher.encode("TestValue");
+        final var testValue = cipher.encode("TestValue");
         assertNotNull(testValue);
         assertEquals("TestValue", cipher.decode(testValue));
     }
 
     @Test
     public void verifyRsaKeyPair() {
-        final String publicKey = "classpath:keys/RSA2048Public.key";
-        final String privateKey = "classpath:keys/RSA2048Private.key";
-        final KeyPair kp = new KeyPair(RsaKeyPairCipherExecutor.extractPublicKeyFromResource(publicKey),
-            RsaKeyPairCipherExecutor.extractPrivateKeyFromResource(privateKey));
+        final var publicKey = "classpath:keys/RSA2048Public.key";
+        final var privateKey = "classpath:keys/RSA2048Private.key";
+        final var kp = new KeyPair(AbstractCipherExecutor.extractPublicKeyFromResource(publicKey),
+            AbstractCipherExecutor.extractPrivateKeyFromResource(privateKey));
         final CipherExecutor cipher = new RsaKeyPairCipherExecutor(kp, kp);
-        final Object testValue = cipher.encode("TestValue");
+        final var testValue = cipher.encode("TestValue");
         assertNotNull(testValue);
         assertEquals("TestValue", cipher.decode(testValue));
     }
 
     @Test
     public void verifyRsaKeyPairSigning() {
-        final String publicKey = "classpath:keys/RSA2048Public.key";
-        final String privateKey = "classpath:keys/RSA2048Private.key";
-        final KeyPair kp = new KeyPair(RsaKeyPairCipherExecutor.extractPublicKeyFromResource(publicKey),
-            RsaKeyPairCipherExecutor.extractPrivateKeyFromResource(privateKey));
+        final var publicKey = "classpath:keys/RSA2048Public.key";
+        final var privateKey = "classpath:keys/RSA2048Private.key";
+        final var kp = new KeyPair(AbstractCipherExecutor.extractPublicKeyFromResource(publicKey),
+            AbstractCipherExecutor.extractPrivateKeyFromResource(privateKey));
         final CipherExecutor cipher = new RsaKeyPairCipherExecutor(kp);
-        final Object testValue = cipher.encode("Value");
+        final var testValue = cipher.encode("Value");
         assertEquals("Value", cipher.decode(testValue));
     }
 
     @Test
     public void verifyRsaKeyPairSigningOnly() {
-        final String publicKey = "classpath:keys/RSA2048Public.key";
-        final String privateKey = "classpath:keys/RSA2048Private.key";
+        final var publicKey = "classpath:keys/RSA2048Public.key";
+        final var privateKey = "classpath:keys/RSA2048Private.key";
         final CipherExecutor cipher = new RsaKeyPairCipherExecutor(privateKey, publicKey);
-        final Object testValue = cipher.encode("TestValue");
+        final var testValue = cipher.encode("TestValue");
         assertNotNull(testValue);
         assertEquals("TestValue", cipher.decode(testValue));
     }
@@ -71,7 +71,7 @@ public class RsaKeyPairCipherExecutorTests {
     @Test
     public void verifyRsaKeyPairDoesNothing() {
         final CipherExecutor cipher = new RsaKeyPairCipherExecutor();
-        final Object testValue = cipher.encode("TestValue");
+        final var testValue = cipher.encode("TestValue");
         assertNotNull(testValue);
         assertEquals("TestValue", cipher.decode(testValue));
     }

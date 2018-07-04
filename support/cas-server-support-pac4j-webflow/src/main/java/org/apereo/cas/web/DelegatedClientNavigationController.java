@@ -3,14 +3,12 @@ package org.apereo.cas.web;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apereo.cas.services.UnauthorizedServiceException;
-import org.apereo.cas.ticket.Ticket;
 import org.apereo.cas.util.Pac4jUtils;
 import org.apereo.cas.web.pac4j.DelegatedSessionCookieManager;
 import org.apereo.cas.web.view.DynamicHtmlView;
 import org.jasig.cas.client.util.URIBuilder;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.client.IndirectClient;
-import org.pac4j.core.context.J2EContext;
 import org.pac4j.core.context.Pac4jConstants;
 import org.pac4j.core.credentials.Credentials;
 import org.pac4j.core.exception.HttpAction;
@@ -57,19 +55,19 @@ public class DelegatedClientNavigationController {
      */
     @GetMapping(ENDPOINT_REDIRECT)
     public View redirectToProvider(final HttpServletRequest request, final HttpServletResponse response) {
-        final String clientName = request.getParameter(Pac4jConstants.DEFAULT_CLIENT_NAME_PARAMETER);
+        final var clientName = request.getParameter(Pac4jConstants.DEFAULT_CLIENT_NAME_PARAMETER);
         try {
             final IndirectClient client = (IndirectClient<Credentials, CommonProfile>) this.clients.findClient(clientName);
-            final J2EContext webContext = Pac4jUtils.getPac4jJ2EContext(request, response);
-            final Ticket ticket = delegatedClientWebflowManager.store(webContext, client);
+            final var webContext = Pac4jUtils.getPac4jJ2EContext(request, response);
+            final var ticket = delegatedClientWebflowManager.store(webContext, client);
 
             final View result;
-            final RedirectAction action = client.getRedirectAction(webContext);
+            final var action = client.getRedirectAction(webContext);
             if (RedirectAction.RedirectType.SUCCESS.equals(action.getType())) {
                 result = new DynamicHtmlView(action.getContent());
             } else {
-                final URIBuilder builder = new URIBuilder(action.getLocation());
-                final String url = builder.toString();
+                final var builder = new URIBuilder(action.getLocation());
+                final var url = builder.toString();
                 LOGGER.debug("Redirecting client [{}] to [{}] based on identifier [{}]", client.getName(), url, ticket.getId());
                 result = new RedirectView(url);
             }

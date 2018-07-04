@@ -16,7 +16,7 @@ import static org.junit.Assert.*;
 public class DefaultCas30ProtocolAttributesRendererTests {
     @Test
     public void verifyAction() {
-        final DefaultCas30ProtocolAttributesRenderer r = new DefaultCas30ProtocolAttributesRenderer();
+        final var r = new DefaultCas30ProtocolAttributesRenderer();
         final Map results = CoreAuthenticationTestUtils.getAttributeRepository().getBackingMap();
         assertFalse(r.render(results).isEmpty());
     }

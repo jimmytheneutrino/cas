@@ -7,7 +7,6 @@ import org.springframework.boot.actuate.health.Health;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -33,8 +32,8 @@ public abstract class AbstractPoolHealthIndicator extends AbstractHealthIndicato
 
     @Override
     protected void doHealthCheck(final Health.Builder builder) {
-        Health.Builder poolBuilder = builder.up();
-        final Future<Health.Builder> result = this.executor.submit(new Validator(this, builder));
+        var poolBuilder = builder.up();
+        final var result = this.executor.submit(new Validator(this, builder));
         String message;
         try {
             poolBuilder = result.get(this.maxWait, TimeUnit.MILLISECONDS);

@@ -6,7 +6,6 @@ import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
 import org.apache.commons.lang3.StringUtils;
-import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.support.saml.services.SamlRegisteredService;
 import org.apereo.cas.support.saml.services.idp.metadata.SamlRegisteredServiceServiceProviderMetadataFacade;
@@ -27,12 +26,9 @@ import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.RequestAbstractType;
 import org.opensaml.saml.saml2.metadata.AssertionConsumerService;
 import org.opensaml.saml.saml2.metadata.Endpoint;
-import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml.saml2.metadata.SPSSODescriptor;
 import org.opensaml.saml.saml2.metadata.impl.AssertionConsumerServiceBuilder;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -49,35 +45,70 @@ public class SamlIdPUtils {
     /**
      * Prepare peer entity saml endpoint.
      *
+     * @param authnRequest    the authn request
      * @param outboundContext the outbound context
      * @param adaptor         the adaptor
      * @param binding         the binding
      * @throws SamlException the saml exception
      */
-    public static void preparePeerEntitySamlEndpointContext(final MessageContext outboundContext,
+    public static void preparePeerEntitySamlEndpointContext(final RequestAbstractType authnRequest,
+                                                            final MessageContext outboundContext,
                                                             final SamlRegisteredServiceServiceProviderMetadataFacade adaptor,
                                                             final String binding) throws SamlException {
-        final String entityId = adaptor.getEntityId();
+        final var entityId = adaptor.getEntityId();
         if (!adaptor.containsAssertionConsumerServices()) {
             throw new SamlException("No assertion consumer service could be found for entity " + entityId);
         }
 
-        final SAMLPeerEntityContext peerEntityContext = outboundContext.getSubcontext(SAMLPeerEntityContext.class, true);
+        final var peerEntityContext = outboundContext.getSubcontext(SAMLPeerEntityContext.class, true);
         if (peerEntityContext == null) {
             throw new SamlException("SAMLPeerEntityContext could not be defined for entity " + entityId);
         }
         peerEntityContext.setEntityId(entityId);
 
-        final SAMLEndpointContext endpointContext = peerEntityContext.getSubcontext(SAMLEndpointContext.class, true);
+        final var endpointContext = peerEntityContext.getSubcontext(SAMLEndpointContext.class, true);
         if (endpointContext == null) {
             throw new SamlException("SAMLEndpointContext could not be defined for entity " + entityId);
         }
-        final Endpoint endpoint = adaptor.getAssertionConsumerService(binding);
-        if (StringUtils.isBlank(endpoint.getBinding()) || StringUtils.isBlank(endpoint.getLocation())) {
-            throw new SamlException("Assertion consumer service does not define a binding or location for " + entityId);
-        }
+
+        final Endpoint endpoint = determineAssertionConsumerService(authnRequest, adaptor, binding);
         LOGGER.debug("Configured peer entity endpoint to be [{}] with binding [{}]", endpoint.getLocation(), endpoint.getBinding());
         endpointContext.setEndpoint(endpoint);
+    }
+
+    /**
+     * Determine assertion consumer service assertion consumer service.
+     *
+     * @param authnRequest the authn request
+     * @param adaptor      the adaptor
+     * @param binding      the binding
+     * @return the assertion consumer service
+     */
+    public static AssertionConsumerService determineAssertionConsumerService(final RequestAbstractType authnRequest,
+                                                                             final SamlRegisteredServiceServiceProviderMetadataFacade adaptor,
+                                                                             final String binding) {
+        AssertionConsumerService endpoint = null;
+
+        if (authnRequest instanceof AuthnRequest) {
+            final var acsUrl = AuthnRequest.class.cast(authnRequest).getAssertionConsumerServiceURL();
+            if (StringUtils.isNotBlank(acsUrl)) {
+                LOGGER.debug("Using assertion consumer service url [{}] with binding [{}] provided by the authentication request", acsUrl, binding);
+                final var builder = new AssertionConsumerServiceBuilder();
+                endpoint = builder.buildObject(AssertionConsumerService.DEFAULT_ELEMENT_NAME);
+                endpoint.setBinding(binding);
+                endpoint.setResponseLocation(acsUrl);
+                endpoint.setLocation(acsUrl);
+            }
+        }
+
+        if (endpoint == null) {
+            LOGGER.debug("Attempting to locate the assertion consumer service url for binding [{}] from metadata", binding);
+            endpoint = adaptor.getAssertionConsumerService(binding);
+        }
+        if (StringUtils.isBlank(endpoint.getBinding()) || StringUtils.isBlank(endpoint.getLocation())) {
+            throw new SamlException("Assertion consumer service does not define a binding or location");
+        }
+        return endpoint;
     }
 
     /**
@@ -94,10 +125,10 @@ public class SamlIdPUtils {
                                                                          final String entityID,
                                                                          final SamlRegisteredServiceCachingMetadataResolver resolver) {
 
-        final Collection<RegisteredService> registeredServices = servicesManager.findServiceBy(SamlRegisteredService.class::isInstance);
-        final ChainingMetadataResolver chainingMetadataResolver = new ChainingMetadataResolver();
+        final var registeredServices = servicesManager.findServiceBy(SamlRegisteredService.class::isInstance);
+        final var chainingMetadataResolver = new ChainingMetadataResolver();
 
-        final List<MetadataResolver> resolvers = registeredServices.stream()
+        final var resolvers = registeredServices.stream()
             .filter(SamlRegisteredService.class::isInstance)
             .map(SamlRegisteredService.class::cast)
             .map(s -> SamlRegisteredServiceServiceProviderMetadataFacade.get(resolver, s, entityID))
@@ -107,7 +138,7 @@ public class SamlIdPUtils {
             .collect(Collectors.toList());
 
         LOGGER.debug("Located [{}] metadata resolvers to match against [{}]", resolvers, entityID);
-        
+
         chainingMetadataResolver.setResolvers(resolvers);
         chainingMetadataResolver.setId(entityID);
         chainingMetadataResolver.initialize();
@@ -126,19 +157,19 @@ public class SamlIdPUtils {
                                                                           final ServicesManager servicesManager,
                                                                           final SamlRegisteredServiceCachingMetadataResolver resolver) {
         try {
-            final AssertionConsumerService acs = new AssertionConsumerServiceBuilder().buildObject();
+            final var acs = new AssertionConsumerServiceBuilder().buildObject();
             if (authnRequest.getAssertionConsumerServiceIndex() != null) {
-                final String issuer = getIssuerFromSamlRequest(authnRequest);
-                final MetadataResolver samlResolver = getMetadataResolverForAllSamlServices(servicesManager, issuer, resolver);
-                final CriteriaSet criteriaSet = new CriteriaSet();
+                final var issuer = getIssuerFromSamlRequest(authnRequest);
+                final var samlResolver = getMetadataResolverForAllSamlServices(servicesManager, issuer, resolver);
+                final var criteriaSet = new CriteriaSet();
                 criteriaSet.add(new EntityIdCriterion(issuer));
                 criteriaSet.add(new EntityRoleCriterion(SPSSODescriptor.DEFAULT_ELEMENT_NAME));
                 criteriaSet.add(new BindingCriterion(CollectionUtils.wrap(SAMLConstants.SAML2_POST_BINDING_URI)));
 
-                final Iterable<EntityDescriptor> it = samlResolver.resolve(criteriaSet);
+                final var it = samlResolver.resolve(criteriaSet);
                 it.forEach(entityDescriptor -> {
-                    final SPSSODescriptor spssoDescriptor = entityDescriptor.getSPSSODescriptor(SAMLConstants.SAML20P_NS);
-                    final List<AssertionConsumerService> acsEndpoints = spssoDescriptor.getAssertionConsumerServices();
+                    final var spssoDescriptor = entityDescriptor.getSPSSODescriptor(SAMLConstants.SAML20P_NS);
+                    final var acsEndpoints = spssoDescriptor.getAssertionConsumerServices();
                     if (acsEndpoints.isEmpty()) {
                         throw new IllegalArgumentException("Metadata resolved for entity id " + issuer + " has no defined ACS endpoints");
                     }
@@ -147,7 +178,7 @@ public class SamlIdPUtils {
                         throw new IllegalArgumentException("AssertionConsumerService index specified in the request " + acsIndex + " is invalid "
                             + "since the total endpoints available to " + issuer + " is " + acsEndpoints.size());
                     }
-                    final AssertionConsumerService foundAcs = acsEndpoints.get(acsIndex);
+                    final var foundAcs = acsEndpoints.get(acsIndex);
                     acs.setBinding(foundAcs.getBinding());
                     acs.setLocation(foundAcs.getLocation());
                     acs.setResponseLocation(foundAcs.getResponseLocation());
@@ -207,7 +238,7 @@ public class SamlIdPUtils {
      */
     public static RoleDescriptorResolver getRoleDescriptorResolver(final MetadataResolver metadata,
                                                                    final boolean requireValidMetadata) throws Exception {
-        final PredicateRoleDescriptorResolver roleDescriptorResolver = new PredicateRoleDescriptorResolver(metadata);
+        final var roleDescriptorResolver = new PredicateRoleDescriptorResolver(metadata);
         roleDescriptorResolver.setSatisfyAnyPredicates(true);
         roleDescriptorResolver.setUseDefaultPredicateRegistry(true);
         roleDescriptorResolver.setRequireValidMetadata(requireValidMetadata);

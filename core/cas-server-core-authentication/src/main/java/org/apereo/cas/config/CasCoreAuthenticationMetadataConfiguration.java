@@ -10,7 +10,6 @@ import org.apereo.cas.authentication.metadata.CacheCredentialsMetaDataPopulator;
 import org.apereo.cas.authentication.metadata.RememberMeAuthenticationMetaDataPopulator;
 import org.apereo.cas.authentication.metadata.SuccessfulHandlerMetaDataPopulator;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.support.clearpass.ClearpassProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -46,7 +45,7 @@ public class CasCoreAuthenticationMetadataConfiguration {
     @ConditionalOnMissingBean(name = "cacheCredentialsCipherExecutor")
     @Bean
     public CipherExecutor cacheCredentialsCipherExecutor() {
-        final ClearpassProperties cp = casProperties.getClearpass();
+        final var cp = casProperties.getClearpass();
         if (cp.isCacheCredential()) {
             if (cp.getCrypto().isEnabled()) {
                 return new CacheCredentialsCipherExecutor(cp.getCrypto().getEncryption().getKey(),
@@ -73,7 +72,7 @@ public class CasCoreAuthenticationMetadataConfiguration {
             plan.registerMetadataPopulator(rememberMeAuthenticationMetaDataPopulator());
             plan.registerMetadataPopulator(authenticationCredentialTypeMetaDataPopulator());
 
-            final ClearpassProperties cp = casProperties.getClearpass();
+            final var cp = casProperties.getClearpass();
             if (cp.isCacheCredential()) {
                 LOGGER.warn("Cas is configured to capture and cache credentials via Clearpass. Sharing the user credential with other applications "
                     + "is generally NOT recommended, may lead to security vulnerabilities and MUST only be used as a last resort .");

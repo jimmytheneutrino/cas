@@ -34,9 +34,9 @@ import org.apereo.cas.util.DefaultUniqueTicketIdGenerator;
 import org.apereo.cas.util.SchedulingUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.Status;
 import org.springframework.boot.autoconfigure.aop.AopAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -47,8 +47,6 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.PostConstruct;
 
 import static org.junit.Assert.*;
 
@@ -96,12 +94,12 @@ public class SessionHealthIndicatorJpaTests {
     private TicketRegistry jpaRegistry;
 
     @TestConfiguration
-    public static class JpaTestConfiguration {
+    public static class JpaTestConfiguration implements InitializingBean {
         @Autowired
         protected ApplicationContext applicationContext;
 
-        @PostConstruct
-        public void init() {
+        @Override
+        public void afterPropertiesSet() {
             SchedulingUtils.prepScheduledAnnotationBeanPostProcessor(applicationContext);
         }
     }
@@ -111,21 +109,21 @@ public class SessionHealthIndicatorJpaTests {
     public void verifyObserveOkJpaTicketRegistry() {
         addTicketsToRegistry(jpaRegistry, 5, 5);
         assertEquals(10, jpaRegistry.getTickets().size());
-        final SessionMonitor monitor = new SessionMonitor(jpaRegistry, -1, -1);
-        final Health status = monitor.health();
+        final var monitor = new SessionMonitor(jpaRegistry, -1, -1);
+        final var status = monitor.health();
         assertEquals(Status.UP, status.getStatus());
     }
 
     private static void addTicketsToRegistry(final TicketRegistry registry, final int tgtCount, final int stCount) {
         TicketGrantingTicketImpl ticket = null;
-        for (int i = 0; i < tgtCount; i++) {
+        for (var i = 0; i < tgtCount; i++) {
             ticket = new TicketGrantingTicketImpl(GENERATOR.getNewTicketId("TGT"), CoreAuthenticationTestUtils.getAuthentication(), TEST_EXP_POLICY);
             registry.addTicket(ticket);
         }
 
         if (ticket != null) {
             final Service testService = RegisteredServiceTestUtils.getService("junit");
-            for (int i = 0; i < stCount; i++) {
+            for (var i = 0; i < stCount; i++) {
                 registry.addTicket(ticket.grantServiceTicket(GENERATOR.getNewTicketId("ST"),
                     testService,
                     TEST_EXP_POLICY,

@@ -5,7 +5,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apereo.cas.authentication.AuthenticationSystemSupport;
 import org.apereo.cas.authentication.principal.ServiceFactory;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.core.rest.RestProperties;
 import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.services.util.DefaultRegisteredServiceJsonSerializer;
 import org.apereo.cas.support.rest.RegisteredServiceResource;
@@ -35,7 +34,7 @@ public class RestServicesConfiguration {
     @Autowired
     private CasConfigurationProperties casProperties;
 
-    @Autowired(required = false)
+    @Autowired
     @Qualifier("defaultAuthenticationSystemSupport")
     private AuthenticationSystemSupport authenticationSystemSupport;
 
@@ -45,16 +44,16 @@ public class RestServicesConfiguration {
 
     @Bean
     public MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter() {
-        final DefaultRegisteredServiceJsonSerializer serializer = new DefaultRegisteredServiceJsonSerializer();
+        final var serializer = new DefaultRegisteredServiceJsonSerializer();
         return new MappingJackson2HttpMessageConverter(serializer.getObjectMapper());
     }
 
     @Bean
     public RegisteredServiceResource registeredServiceResourceRestController() {
-        final RestProperties rest = casProperties.getRest();
+        final var rest = casProperties.getRest();
         if (StringUtils.isBlank(rest.getAttributeName())) {
             throw new BeanCreationException("No attribute name is defined to enforce authorization when adding services via CAS REST APIs. "
-            + "This is likely due to misconfiguration in CAS settings where the attribute name definition is absent");
+                + "This is likely due to misconfiguration in CAS settings where the attribute name definition is absent");
         }
         if (StringUtils.isBlank(rest.getAttributeValue())) {
             throw new BeanCreationException("No attribute value is defined to enforce authorization when adding services via CAS REST APIs. "

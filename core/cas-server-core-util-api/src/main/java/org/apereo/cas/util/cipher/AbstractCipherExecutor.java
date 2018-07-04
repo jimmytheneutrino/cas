@@ -83,7 +83,7 @@ public abstract class AbstractCipherExecutor<T, R> implements CipherExecutor<T, 
      * @throws Exception the exception
      */
     protected void configureSigningKeyFromPrivateKeyResource(final String signingSecretKey) throws Exception {
-        final PrivateKey object = extractPrivateKeyFromResource(signingSecretKey);
+        final var object = extractPrivateKeyFromResource(signingSecretKey);
         LOGGER.debug("Located signing key resource [{}]", signingSecretKey);
         setSigningKey(object);
     }
@@ -116,9 +116,9 @@ public abstract class AbstractCipherExecutor<T, R> implements CipherExecutor<T, 
      */
     @SneakyThrows
     public static PrivateKey extractPrivateKeyFromResource(final String signingSecretKey) {
-        LOGGER.debug("Attempting to extract private key...", signingSecretKey);
+        LOGGER.debug("Attempting to extract private key...");
         final Resource resource = ResourceUtils.getResourceFrom(signingSecretKey);
-        final PrivateKeyFactoryBean factory = new PrivateKeyFactoryBean();
+        final var factory = new PrivateKeyFactoryBean();
         factory.setAlgorithm(RsaKeyUtil.RSA);
         factory.setLocation(resource);
         factory.setSingleton(false);
@@ -135,7 +135,7 @@ public abstract class AbstractCipherExecutor<T, R> implements CipherExecutor<T, 
     public static PublicKey extractPublicKeyFromResource(final String secretKeyToUse) {
         LOGGER.debug("Attempting to extract public key from [{}]...", secretKeyToUse);
         final Resource resource = ResourceUtils.getResourceFrom(secretKeyToUse);
-        final PublicKeyFactoryBean factory = new PublicKeyFactoryBean();
+        final var factory = new PublicKeyFactoryBean();
         factory.setAlgorithm(RsaKeyUtil.RSA);
         factory.setResource(resource);
         factory.setSingleton(false);

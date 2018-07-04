@@ -5,16 +5,10 @@ import org.apereo.cas.oidc.OidcConstants;
 import org.apereo.cas.oidc.util.OidcAuthorizationRequestSupport;
 import org.apereo.cas.util.Pac4jUtils;
 import org.pac4j.core.config.Config;
-import org.pac4j.core.context.J2EContext;
-import org.pac4j.core.profile.ProfileManager;
-import org.pac4j.core.profile.UserProfile;
 import org.pac4j.springframework.web.SecurityInterceptor;
-import org.apereo.cas.authentication.Authentication;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Optional;
-import java.util.Set;
 
 /**
  * This is {@link OidcSecurityInterceptor}.
@@ -36,26 +30,26 @@ public class OidcSecurityInterceptor extends SecurityInterceptor {
     public boolean preHandle(final HttpServletRequest request,
                              final HttpServletResponse response,
                              final Object handler) throws Exception {
-        final J2EContext ctx = Pac4jUtils.getPac4jJ2EContext(request, response);
-        final ProfileManager manager = Pac4jUtils.getPac4jProfileManager(request, response);
+        final var ctx = Pac4jUtils.getPac4jJ2EContext(request, response);
+        final var manager = Pac4jUtils.getPac4jProfileManager(request, response);
 
 
-        boolean clearCreds = false;
-        final Optional<Authentication> authentication = authorizationRequestSupport.isCasAuthenticationAvailable(ctx);
+        var clearCreds = false;
+        final var authentication = authorizationRequestSupport.isCasAuthenticationAvailable(ctx);
         if (!authentication.isPresent()) {
             clearCreds = true;
         }
 
-        final Optional<UserProfile> auth = authorizationRequestSupport.isAuthenticationProfileAvailable(ctx);
+        final var auth = authorizationRequestSupport.isAuthenticationProfileAvailable(ctx);
 
         if (auth.isPresent()) {
-            final Optional<Long> maxAge = authorizationRequestSupport.getOidcMaxAgeFromAuthorizationRequest(ctx);
+            final var maxAge = authorizationRequestSupport.getOidcMaxAgeFromAuthorizationRequest(ctx);
             if (maxAge.isPresent()) {
                 clearCreds = authorizationRequestSupport.isCasAuthenticationOldForMaxAgeAuthorizationRequest(ctx, auth.get());
             }
         }
 
-        final Set<String> prompts = authorizationRequestSupport.getOidcPromptFromAuthorizationRequest(ctx);
+        final var prompts = authorizationRequestSupport.getOidcPromptFromAuthorizationRequest(ctx);
 
         if (!clearCreds) {
             clearCreds = prompts.contains(OidcConstants.PROMPT_LOGIN);

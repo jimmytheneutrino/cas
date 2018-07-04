@@ -14,7 +14,6 @@ import org.apereo.cas.oidc.claims.mapping.OidcAttributeToScopeClaimMapper;
 import org.apereo.cas.services.AbstractRegisteredServiceAttributeReleasePolicy;
 import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.util.spring.ApplicationContextProvider;
-import org.springframework.context.ApplicationContext;
 
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -49,7 +48,7 @@ public abstract class BaseOidcScopeAttributeReleasePolicy extends AbstractRegist
 
     @Override
     public Map<String, Object> getAttributesInternal(final Principal principal, final Map<String, Object> attributes, final RegisteredService service) {
-        final ApplicationContext applicationContext = ApplicationContextProvider.getApplicationContext();
+        final var applicationContext = ApplicationContextProvider.getApplicationContext();
         if (applicationContext == null) {
             LOGGER.warn("Could not locate the application context to process attributes");
             return new HashMap<>();
@@ -58,8 +57,8 @@ public abstract class BaseOidcScopeAttributeReleasePolicy extends AbstractRegist
         resolvedAttributes.putAll(attributes);
         final Map<String, Object> attributesToRelease = Maps.newHashMapWithExpectedSize(attributes.size());
         LOGGER.debug("Attempting to map and filter claims based on resolved attributes [{}]", resolvedAttributes);
-        final CasConfigurationProperties properties = applicationContext.getBean(CasConfigurationProperties.class);
-        final List<String> supportedClaims = properties.getAuthn().getOidc().getClaims();
+        final var properties = applicationContext.getBean(CasConfigurationProperties.class);
+        final var supportedClaims = properties.getAuthn().getOidc().getClaims();
         final Set<String> allowedClaims = new LinkedHashSet<>(getAllowedAttributes());
         allowedClaims.retainAll(supportedClaims);
         LOGGER.debug("[{}] is designed to allow claims [{}] for scope [{}]. After cross-checking with "
@@ -73,17 +72,17 @@ public abstract class BaseOidcScopeAttributeReleasePolicy extends AbstractRegist
     }
 
     private Pair<String, Object> mapClaimToAttribute(final String claim, final Map<String, Object> resolvedAttributes) {
-        final ApplicationContext applicationContext = ApplicationContextProvider.getApplicationContext();
-        final OidcAttributeToScopeClaimMapper attributeToScopeClaimMapper =
+        final var applicationContext = ApplicationContextProvider.getApplicationContext();
+        final var attributeToScopeClaimMapper =
             applicationContext.getBean("oidcAttributeToScopeClaimMapper", OidcAttributeToScopeClaimMapper.class);
         LOGGER.debug("Attempting to process claim [{}]", claim);
         if (attributeToScopeClaimMapper.containsMappedAttribute(claim)) {
-            final String mappedAttr = attributeToScopeClaimMapper.getMappedAttribute(claim);
-            final Object value = resolvedAttributes.get(mappedAttr);
+            final var mappedAttr = attributeToScopeClaimMapper.getMappedAttribute(claim);
+            final var value = resolvedAttributes.get(mappedAttr);
             LOGGER.debug("Found mapped attribute [{}] with value [{}] for claim [{}]", mappedAttr, value, claim);
             return Pair.of(claim, value);
         }
-        final Object value = resolvedAttributes.get(claim);
+        final var value = resolvedAttributes.get(claim);
         LOGGER.debug("No mapped attribute is defined for claim [{}]; Used [{}] to locate value [{}]", claim, claim, value);
         return Pair.of(claim, value);
     }
